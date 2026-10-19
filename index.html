@@ -1,11 +1,16 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOGÍSTICA DARNEL - ARAUCÁRIA</title>
-    <!-- Tailwind CSS para um design moderno e corporativo -->
+    <!-- Tailwind CSS com suporte a classes dark -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <!-- Ícones Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -13,10 +18,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
     <!-- Cabeçalho -->
-    <header class="bg-slate-900 text-white shadow-md">
+    <header class="bg-slate-900 dark:bg-slate-900 text-white shadow-md border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <i data-lucide="truck" class="w-8 h-8 text-amber-400"></i>
@@ -26,6 +31,13 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3">
+                <!-- Botão Modo Escuro / Claro -->
+                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-lg bg-slate-800 text-amber-400 hover:bg-slate-700 transition border border-slate-700 flex items-center space-x-1.5 text-xs font-semibold" title="Alternar Tema Claro/Escuro">
+                    <i data-lucide="sun" id="iconeSol" class="w-4 h-4 hidden"></i>
+                    <i data-lucide="moon" id="iconeLua" class="w-4 h-4"></i>
+                    <span id="textoTema" class="hidden sm:inline">Modo Escuro</span>
+                </button>
+
                 <div id="infoSessaoAtiva" class="hidden items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
                     <span class="text-slate-400">Setor logado:</span>
                     <span id="nomeSetorLogado" class="font-bold text-amber-400">Nenhum</span>
@@ -40,25 +52,25 @@
     </header>
 
     <!-- Modal de Senha por Setor -->
-    <div id="modalSenha" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full mx-4 border border-slate-200 space-y-4">
+    <div id="modalSenha" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl max-w-md w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center space-x-3">
-                <div class="p-3 bg-amber-100 text-amber-600 rounded-xl">
+                <div class="p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
                     <i data-lucide="lock" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h3 class="font-bold text-slate-800 text-lg">Acesso Restrito ao Setor</h3>
-                    <p id="modalSubtitulo" class="text-xs text-slate-500">Digite a senha para desbloquear a edição.</p>
+                    <h3 class="font-bold text-slate-800 dark:text-white text-lg">Acesso Restrito ao Setor</h3>
+                    <p id="modalSubtitulo" class="text-xs text-slate-500 dark:text-slate-400">Digite a senha para desbloquear a edição.</p>
                 </div>
             </div>
             <form onsubmit="validarSenhaSetor(event)" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Senha de Acesso</label>
-                    <input type="password" id="inputSenhaSetor" placeholder="Digite a senha..." required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 font-mono">
+                    <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Senha de Acesso</label>
+                    <input type="password" id="inputSenhaSetor" placeholder="Digite a senha..." required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 font-mono">
                 </div>
                 <div class="flex justify-end space-x-2 pt-2">
-                    <button type="button" onclick="fecharModalSenha()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition">Desbloquear</button>
+                    <button type="button" onclick="fecharModalSenha()" class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 text-sm bg-slate-900 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-600 text-white rounded-lg font-medium transition">Desbloquear</button>
                 </div>
             </form>
         </div>
@@ -68,20 +80,20 @@
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
 
         <!-- Abas de Navegação -->
-        <div class="flex space-x-2 sm:space-x-4 border-b border-slate-300 pb-2 overflow-x-auto">
-            <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="px-4 py-2 font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+        <div class="flex space-x-2 sm:space-x-4 border-b border-slate-300 dark:border-slate-800 pb-2 overflow-x-auto">
+            <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="px-4 py-2 font-semibold text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
                 <i data-lucide="package" class="w-4 h-4"></i>
                 <span>1. Criar/Atualizar Pedido</span>
             </button>
-            <button onclick="mudarTab('agendamentos')" id="btn-tab-agendamentos" class="px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+            <button onclick="mudarTab('agendamentos')" id="btn-tab-agendamentos" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
                 <i data-lucide="list" class="w-4 h-4"></i>
                 <span>2. Gerenciar Agendamentos (Transporte)</span>
             </button>
-            <button onclick="mudarTab('tracking')" id="btn-tab-tracking" class="px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+            <button onclick="mudarTab('tracking')" id="btn-tab-tracking" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
                 <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                 <span>3. Tracking (Confirmar Entrega)</span>
             </button>
-            <button onclick="mudarTab('calendario')" id="btn-tab-calendario" class="px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+            <button onclick="mudarTab('calendario')" id="btn-tab-calendario" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
                 <i data-lucide="calendar" class="w-4 h-4"></i>
                 <span>4. Calendário / Fluxo do Dia</span>
             </button>
@@ -89,63 +101,63 @@
 
         <!-- SEÇÃO 1: CRIAR/ATUALIZAR PEDIDO (PLANEJAMENTO) -->
         <div id="secao-pedidos" class="space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="file-plus" class="w-5 h-5 text-emerald-600"></i>
                         <span id="tituloFormPedido">Criar Pedido e Definir Doca (Planejador)</span>
                     </h2>
                     <div class="flex items-center space-x-2">
-                        <button type="button" id="btnDesbloquearPedidos" onclick="pedirSenha('planejamento')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 rounded border border-amber-200 font-semibold flex items-center space-x-1">
+                        <button type="button" id="btnDesbloquearPedidos" onclick="pedirSenha('planejamento')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1">
                             <i data-lucide="lock" class="w-3.5 h-3.5"></i>
                             <span>Desbloquear Edição</span>
                         </button>
-                        <button type="button" id="btnCancelarEdicao" onclick="cancelarEdicaoPedido()" class="hidden text-xs text-red-600 hover:underline px-2 py-1 bg-red-50 rounded border border-red-200">Cancelar Edição</button>
+                        <button type="button" id="btnCancelarEdicao" onclick="cancelarEdicaoPedido()" class="hidden text-xs text-red-600 dark:text-red-400 hover:underline px-2 py-1 bg-red-50 dark:bg-red-900/30 rounded border border-red-200 dark:border-red-800">Cancelar Edição</button>
                     </div>
                 </div>
                 
                 <form id="formPedido" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input type="hidden" id="editPedidoId">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Número da Nota (NF)</label>
-                        <input type="text" id="pedNota" placeholder="Ex: NF-98231" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 font-mono font-bold cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Número da Nota (NF)</label>
+                        <input type="text" id="pedNota" placeholder="Ex: NF-98231" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-mono font-bold cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Doca Agendada</label>
-                        <select id="pedDoca" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 font-semibold cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Doca Agendada</label>
+                        <select id="pedDoca" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-semibold cursor-not-allowed">
                             <!-- Preenchido dinamicamente -->
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket</label>
-                        <input type="text" id="pedTicket" placeholder="Ex: TKT-1042" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Ticket</label>
+                        <input type="text" id="pedTicket" placeholder="Ex: TKT-1042" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Número do Pedido</label>
-                        <input type="text" id="pedNumero" placeholder="Ex: PED-88402" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Número do Pedido</label>
+                        <input type="text" id="pedNumero" placeholder="Ex: PED-88402" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cliente / Destino</label>
-                        <input type="text" id="pedCliente" placeholder="Nome do cliente" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cliente / Destino</label>
+                        <input type="text" id="pedCliente" placeholder="Nome do cliente" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data do Pedido</label>
-                        <input type="date" id="pedData" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data do Pedido</label>
+                        <input type="date" id="pedData" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Saída de Carga</label>
-                        <input type="date" id="pedDataSaida" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data Saída de Carga</label>
+                        <input type="date" id="pedDataSaida" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Peso Total (Kg)</label>
-                        <input type="number" step="0.01" id="pedPeso" placeholder="Ex: 1500.50" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Peso Total (Kg)</label>
+                        <input type="number" step="0.01" id="pedPeso" placeholder="Ex: 1500.50" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Volumes (Batidos/Paletizados)</label>
-                        <input type="number" id="pedVolumes" placeholder="Ex: 32" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Volumes (Batidos/Paletizados)</label>
+                        <input type="number" id="pedVolumes" placeholder="Ex: 32" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div class="md:col-span-3 flex justify-end items-end">
-                        <button type="submit" id="btnSalvarPedido" disabled class="bg-slate-300 text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
+                        <button type="submit" id="btnSalvarPedido" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
                             <i data-lucide="check-circle" class="w-4 h-4"></i>
                             <span id="textoBtnSalvarPedido">Salvar Pedido na Nuvem (Bloqueado)</span>
                         </button>
@@ -154,19 +166,19 @@
             </div>
 
             <!-- Tabela de Pedidos -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-3">
-                    <h3 class="font-bold text-slate-700">Pedidos Cadastrados em Estoque/Expedição (Visualização Livre)</h3>
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-center gap-3">
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Pedidos Cadastrados em Estoque/Expedição (Visualização Livre)</h3>
                     <div class="flex items-center space-x-2">
-                        <label class="text-xs font-semibold uppercase text-slate-500">Filtrar Data Saída:</label>
-                        <input type="date" id="filtroDataPedido" onchange="renderizarTabelasPedidos()" class="border border-slate-300 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-emerald-500">
-                        <button onclick="limparFiltroPedido()" class="text-xs text-emerald-600 hover:underline px-2 py-1 bg-emerald-50 rounded">Ver Todos</button>
+                        <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Filtrar Data Saída:</label>
+                        <input type="date" id="filtroDataPedido" onchange="renderizarTabelasPedidos()" class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                        <button onclick="limparFiltroPedido()" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 rounded">Ver Todos</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 text-slate-600 uppercase text-xs">
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
                                 <th class="p-3">Nota Fiscal (NF)</th>
                                 <th class="p-3">Doca</th>
                                 <th class="p-3">Ticket</th>
@@ -180,7 +192,7 @@
                                 <th class="p-3 text-center" id="thAcoesPedidos">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaPedidosBody" class="divide-y divide-slate-200">
+                        <tbody id="tabelaPedidosBody" class="divide-y divide-slate-200 dark:divide-slate-800">
                             <!-- Preenchido via JS -->
                         </tbody>
                     </table>
@@ -190,25 +202,25 @@
 
         <!-- SEÇÃO 2: GERENCIAR AGENDAMENTOS (TRANSPORTE) -->
         <div id="secao-agendamentos" class="space-y-6 hidden">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
                         <span>Novo Agendamento de Veículo (Transporte)</span>
                     </h2>
-                    <button type="button" id="btnDesbloquearAgendamentos" onclick="pedirSenha('transporte')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 rounded border border-amber-200 font-semibold flex items-center space-x-1">
+                    <button type="button" id="btnDesbloquearAgendamentos" onclick="pedirSenha('transporte')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1">
                         <i data-lucide="lock" class="w-3.5 h-3.5"></i>
                         <span>Desbloquear Edição</span>
                     </button>
                 </div>
                 
-                <div class="bg-blue-50/70 p-4 rounded-lg border border-blue-200 mb-6 space-y-3">
-                    <label class="block text-xs font-bold uppercase text-blue-900">Localizar Nota Fiscal:</label>
+                <div class="bg-blue-50/70 dark:bg-blue-950/40 p-4 rounded-lg border border-blue-200 dark:border-blue-900 mb-6 space-y-3">
+                    <label class="block text-xs font-bold uppercase text-blue-900 dark:text-blue-300">Localizar Nota Fiscal:</label>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                         <div>
-                            <span class="block text-xs font-semibold text-slate-600 mb-1">Opção 1: Digitar número da NF</span>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção 1: Digitar número da NF</span>
                             <div class="flex space-x-2">
-                                <input type="text" id="buscaTextoNF" placeholder="Digite o número da NF..." class="w-full border border-blue-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 bg-white">
+                                <input type="text" id="buscaTextoNF" placeholder="Digite o número da NF..." class="w-full border border-blue-300 dark:border-blue-800 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
                                 <button type="button" onclick="buscarNotaPorTexto()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap">
                                     <i data-lucide="search" class="w-3.5 h-3.5"></i>
                                     <span>Buscar NF</span>
@@ -216,37 +228,37 @@
                             </div>
                         </div>
                         <div>
-                            <span class="block text-xs font-semibold text-slate-600 mb-1">Opção 2: Selecionar da lista pendente</span>
-                            <select id="agNotaSelect" onchange="puxarDadosDaNotaSelect()" class="w-full border border-blue-300 rounded-lg p-2 text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500 bg-white">
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção 2: Selecionar da lista pendente</span>
+                            <select id="agNotaSelect" onchange="puxarDadosDaNotaSelect()" class="w-full border border-blue-300 dark:border-blue-800 rounded-lg p-2 text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
                                 <!-- Preenchido dinamicamente -->
                             </select>
                         </div>
                     </div>
-                    <div id="infoNotaSelecionada" class="text-xs text-blue-900 font-medium pt-1 border-t border-blue-200">
+                    <div id="infoNotaSelecionada" class="text-xs text-blue-900 dark:text-blue-300 font-medium pt-1 border-t border-blue-200 dark:border-blue-900">
                         Localize uma NF cadastrada pelo planejamento.
                     </div>
                 </div>
 
                 <form id="formAgendamento" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
-                        <input type="text" id="agNotaFiscal" placeholder="Aguardando busca..." required readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 text-slate-700">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="agNotaFiscal" placeholder="Aguardando busca..." required readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Doca</label>
-                        <input type="text" id="agDocaVisual" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-semibold bg-slate-100 text-blue-700">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Doca</label>
+                        <input type="text" id="agDocaVisual" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-400">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cliente / Destino</label>
-                        <input type="text" id="agCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-700">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cliente / Destino</label>
+                        <input type="text" id="agCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data e Hora Chegada</label>
-                        <input type="datetime-local" id="agDataHora" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data e Hora Chegada</label>
+                        <input type="datetime-local" id="agDataHora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Transportadora</label>
-                        <select id="agTransportadora" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Transportadora</label>
+                        <select id="agTransportadora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                             <option value="">-- Selecione --</option>
                             <option value="CIA VERDE">CIA VERDE</option>
                             <option value="EAS">EAS</option>
@@ -262,15 +274,15 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Placa do Veículo</label>
-                        <input type="text" id="agPlaca" placeholder="Ex: ABC-1234" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Placa do Veículo</label>
+                        <input type="text" id="agPlaca" placeholder="Ex: ABC-1234" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Motorista</label>
-                        <input type="text" id="agMotorista" placeholder="Nome do motorista" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Motorista</label>
+                        <input type="text" id="agMotorista" placeholder="Nome do motorista" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div class="md:col-span-2 flex items-end">
-                        <button type="submit" id="btnSalvarAgendamento" disabled class="w-full bg-slate-300 text-slate-500 font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
+                        <button type="submit" id="btnSalvarAgendamento" disabled class="w-full bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
                             <i data-lucide="save" class="w-4 h-4"></i>
                             <span>Vincular Agendamento (Bloqueado)</span>
                         </button>
@@ -279,14 +291,14 @@
             </div>
 
             <!-- Tabela de Agendamentos -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700">Agendamentos Realizados (Visualização Livre)</h3>
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Agendamentos Realizados (Visualização Livre)</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 text-slate-600 uppercase text-xs">
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
                                 <th class="p-3">Nota Fiscal</th>
                                 <th class="p-3">Doca</th>
                                 <th class="p-3">Data/Hora Chegada</th>
@@ -297,7 +309,7 @@
                                 <th class="p-3 text-center" id="thAcoesAgendamentos">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaAgendamentosBody" class="divide-y divide-slate-200">
+                        <tbody id="tabelaAgendamentosBody" class="divide-y divide-slate-200 dark:divide-slate-800">
                             <!-- Preenchido via JS -->
                         </tbody>
                     </table>
@@ -307,25 +319,25 @@
 
         <!-- SEÇÃO 3: TRACKING (CONFIRMAR ENTREGA) -->
         <div id="secao-tracking" class="space-y-6 hidden">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="check-circle-2" class="w-5 h-5 text-purple-600"></i>
                         <span>Confirmar Entrega / Baixa no Pedido (Tracking)</span>
                     </h2>
-                    <button type="button" id="btnDesbloquearTracking" onclick="pedirSenha('tracking')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 rounded border border-amber-200 font-semibold flex items-center space-x-1">
+                    <button type="button" id="btnDesbloquearTracking" onclick="pedirSenha('tracking')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1">
                         <i data-lucide="lock" class="w-3.5 h-3.5"></i>
                         <span>Desbloquear Edição</span>
                     </button>
                 </div>
 
-                <div class="bg-purple-50/80 p-4 rounded-lg border border-purple-200 mb-6 space-y-3">
-                    <label class="block text-xs font-bold uppercase text-purple-900">Localizar Nota Fiscal para dar Baixa:</label>
+                <div class="bg-purple-50/80 dark:bg-purple-950/40 p-4 rounded-lg border border-purple-200 dark:border-purple-900 mb-6 space-y-3">
+                    <label class="block text-xs font-bold uppercase text-purple-900 dark:text-purple-300">Localizar Nota Fiscal para dar Baixa:</label>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                         <div>
-                            <span class="block text-xs font-semibold text-slate-600 mb-1">Opção 1: Digitar número da NF</span>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção 1: Digitar número da NF</span>
                             <div class="flex space-x-2">
-                                <input type="text" id="trcTextoNF" placeholder="Digite o número da NF..." class="w-full border border-purple-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-purple-500 bg-white">
+                                <input type="text" id="trcTextoNF" placeholder="Digite o número da NF..." class="w-full border border-purple-300 dark:border-purple-800 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
                                 <button type="button" onclick="buscarNotaTrackingTexto()" class="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap">
                                     <i data-lucide="search" class="w-3.5 h-3.5"></i>
                                     <span>Buscar NF</span>
@@ -333,37 +345,37 @@
                             </div>
                         </div>
                         <div>
-                            <span class="block text-xs font-semibold text-slate-600 mb-1">Opção 2: Selecionar da lista de pedidos</span>
-                            <select id="trcNotaSelect" onchange="puxarNotaTrackingSelect()" class="w-full border border-purple-300 rounded-lg p-2 text-sm font-mono font-bold focus:ring-2 focus:ring-purple-500 bg-white">
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção 2: Selecionar da lista de pedidos</span>
+                            <select id="trcNotaSelect" onchange="puxarNotaTrackingSelect()" class="w-full border border-purple-300 dark:border-purple-800 rounded-lg p-2 text-sm font-mono font-bold focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
                                 <!-- Preenchido dinamicamente -->
                             </select>
                         </div>
                     </div>
-                    <div id="infoTrackingSelecionado" class="text-xs text-purple-900 font-medium pt-1 border-t border-purple-200">
+                    <div id="infoTrackingSelecionado" class="text-xs text-purple-900 dark:text-purple-300 font-medium pt-1 border-t border-purple-200 dark:border-purple-900">
                         Selecione a Nota Fiscal para registrar a confirmação de entrega.
                     </div>
                 </div>
 
                 <form id="formTracking" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
-                        <input type="text" id="trcNotaFiscal" placeholder="Aguardando busca..." required readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 text-slate-700">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="trcNotaFiscal" placeholder="Aguardando busca..." required readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cliente / Destino</label>
-                        <input type="text" id="trcCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-700">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cliente / Destino</label>
+                        <input type="text" id="trcCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Transportadora / Placa</label>
-                        <input type="text" id="trcTranspPlaca" placeholder="Preenchido via Agendamento" readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-700">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Transportadora / Placa</label>
+                        <input type="text" id="trcTranspPlaca" placeholder="Preenchido via Agendamento" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data e Hora da Entrega Real</label>
-                        <input type="datetime-local" id="trcDataHora" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data e Hora da Entrega Real</label>
+                        <input type="datetime-local" id="trcDataHora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status Final da Entrega</label>
-                        <select id="trcStatus" required disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 font-semibold cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Status Final da Entrega</label>
+                        <select id="trcStatus" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-semibold cursor-not-allowed">
                             <option value="ENTREGUE (OK)">ENTREGUE - Sem Avarias</option>
                             <option value="ENTREGUE (COM AVARIA)">ENTREGUE - Com Avaria Parcial</option>
                             <option value="ENTREGUE (FALTANDO ITEM)">ENTREGUE - Faltando Item</option>
@@ -371,11 +383,11 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações</label>
-                        <input type="text" id="trcObs" placeholder="Observações obrigatórias em caso de recusa/avaria" disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Observações</label>
+                        <input type="text" id="trcObs" placeholder="Observações obrigatórias em caso de recusa/avaria" disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                     <div class="md:col-span-3 flex justify-end">
-                        <button type="submit" id="btnSalvarTracking" disabled class="bg-slate-300 text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
+                        <button type="submit" id="btnSalvarTracking" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
                             <i data-lucide="check-square" class="w-4 h-4"></i>
                             <span>Confirmar e Dar Baixa (Bloqueado)</span>
                         </button>
@@ -384,14 +396,14 @@
             </div>
 
             <!-- Tabela de Tracking -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700">Histórico de Baixas e Entregas (Visualização Livre)</h3>
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Baixas e Entregas (Visualização Livre)</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 text-slate-600 uppercase text-xs">
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
                                 <th class="p-3">Nota Fiscal</th>
                                 <th class="p-3">Cliente</th>
                                 <th class="p-3">Data/Hora Entrega Real</th>
@@ -400,7 +412,7 @@
                                 <th class="p-3 text-center" id="thAcoesTracking">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaTrackingBody" class="divide-y divide-slate-200">
+                        <tbody id="tabelaTrackingBody" class="divide-y divide-slate-200 dark:divide-slate-800">
                             <!-- Preenchido via JS -->
                         </tbody>
                     </table>
@@ -410,29 +422,29 @@
 
         <!-- SEÇÃO 4: CALENDÁRIO / VISÃO CONSOLIDADA -->
         <div id="secao-calendario" class="space-y-6 hidden">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
                         <span>Visão Geral e Fluxo do Dia (Acesso Livre)</span>
                     </h2>
-                    <p class="text-xs text-slate-500">Consolidado completo para consulta de todos os setores.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Consolidado completo para consulta de todos os setores.</p>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <label class="text-xs font-semibold uppercase text-slate-500">Filtrar Data:</label>
-                    <input type="date" id="filtroDataAgendamento" onchange="renderizarCalendario()" class="border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                    <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Filtrar Data:</label>
+                    <input type="date" id="filtroDataAgendamento" onchange="renderizarCalendario()" class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                    <h3 id="tituloDiaSelecionado" class="font-bold text-slate-700">Fluxo Operacional do Dia: -</h3>
-                    <span id="contadorConsolidado" class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-full">0 registro(s)</span>
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
+                    <h3 id="tituloDiaSelecionado" class="font-bold text-slate-700 dark:text-slate-200">Fluxo Operacional do Dia: -</h3>
+                    <span id="contadorConsolidado" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 text-xs font-semibold rounded-full">0 registro(s)</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 text-slate-600 uppercase text-xs">
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
                                 <th class="p-3">Status Processo</th>
                                 <th class="p-3">Nota Fiscal (NF)</th>
                                 <th class="p-3">Ticket / Pedido</th>
@@ -443,7 +455,7 @@
                                 <th class="p-3">Data Saída Carga</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaConsolidadaBody" class="divide-y divide-slate-200">
+                        <tbody id="tabelaConsolidadaBody" class="divide-y divide-slate-200 dark:divide-slate-800">
                             <!-- Preenchido via JS -->
                         </tbody>
                     </table>
@@ -453,13 +465,51 @@
 
     </main>
 
-    <footer class="bg-white border-t border-slate-200 mt-auto py-4 text-center text-xs text-slate-500">
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-auto py-4 text-center text-xs text-slate-500 dark:text-slate-400">
         LOGÍSTICA DARNEL - ARAUCÁRIA &bull; Sincronização em Nuvem (Firebase)
     </footer>
 
     <!-- Lógica JavaScript & Firebase Integration -->
     <script>
         lucide.createIcons();
+
+        // -------------------------------------------------------------
+        // ALTERNAR TEMA (CLARO / ESCURO)
+        // -------------------------------------------------------------
+        function alternarTema() {
+            const html = document.documentElement;
+            const iconeSol = document.getElementById('iconeSol');
+            const iconeLua = document.getElementById('iconeLua');
+            const textoTema = document.getElementById('textoTema');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                iconeSol.classList.add('hidden');
+                iconeLua.classList.remove('hidden');
+                textoTema.textContent = 'Modo Escuro';
+                localStorage.setItem('tema_darnel', 'claro');
+            } else {
+                html.classList.add('dark');
+                iconeSol.classList.remove('hidden');
+                iconeLua.classList.add('hidden');
+                textoTema.textContent = 'Modo Claro';
+                localStorage.setItem('tema_darnel', 'escuro');
+            }
+            lucide.createIcons();
+        }
+
+        // Carregar tema salvo
+        if (localStorage.getItem('tema_darnel') === 'claro') {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('iconeSol').classList.add('hidden');
+            document.getElementById('iconeLua').classList.remove('hidden');
+            document.getElementById('textoTema').textContent = 'Modo Escuro';
+        } else {
+            document.documentElement.classList.add('dark');
+            document.getElementById('iconeSol').classList.remove('hidden');
+            document.getElementById('iconeLua').classList.add('hidden');
+            document.getElementById('textoTema').textContent = 'Modo Claro';
+        }
 
         // -------------------------------------------------------------
         // CONFIGURAÇÃO DO FIREBASE
@@ -507,7 +557,7 @@
             admin: "9704"
         };
 
-        let setorAutenticado = null; // 'planejamento', 'transporte', 'tracking', 'admin' ou null
+        let setorAutenticado = null;
 
         function pedirSenha(setor) {
             window.setorTemp = setor;
@@ -570,10 +620,10 @@
             inputsPed.forEach(el => {
                 if (canPlan) {
                     el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
                 } else {
                     el.disabled = true;
-                    el.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
                 }
             });
             const btnSalvarPed = document.getElementById('btnSalvarPedido');
@@ -584,7 +634,7 @@
                 document.getElementById('btnDesbloquearPedidos').classList.add('hidden');
             } else {
                 btnSalvarPed.disabled = true;
-                btnSalvarPed.className = "bg-slate-300 text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
+                btnSalvarPed.className = "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
                 document.getElementById('textoBtnSalvarPedido').textContent = 'Salvar Pedido na Nuvem (Bloqueado)';
                 document.getElementById('btnDesbloquearPedidos').classList.remove('hidden');
             }
@@ -595,10 +645,10 @@
             inputsTransp.forEach(el => {
                 if (canTrans) {
                     el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
                 } else {
                     el.disabled = true;
-                    el.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
                 }
             });
             const btnSalvarAg = document.getElementById('btnSalvarAgendamento');
@@ -608,7 +658,7 @@
                 document.getElementById('btnDesbloquearAgendamentos').classList.add('hidden');
             } else {
                 btnSalvarAg.disabled = true;
-                btnSalvarAg.className = "w-full bg-slate-300 text-slate-500 font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
+                btnSalvarAg.className = "w-full bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
                 document.getElementById('btnDesbloquearAgendamentos').classList.remove('hidden');
             }
 
@@ -618,10 +668,10 @@
             inputsTrc.forEach(el => {
                 if (canTrc) {
                     el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
                 } else {
                     el.disabled = true;
-                    el.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
                 }
             });
             const btnSalvarTrc = document.getElementById('btnSalvarTracking');
@@ -631,7 +681,7 @@
                 document.getElementById('btnDesbloquearTracking').classList.add('hidden');
             } else {
                 btnSalvarTrc.disabled = true;
-                btnSalvarTrc.className = "bg-slate-300 text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
+                btnSalvarTrc.className = "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
                 document.getElementById('btnDesbloquearTracking').classList.remove('hidden');
             }
 
@@ -717,7 +767,7 @@
                 inputNF.value = pedido.nota;
                 inputDocaVisual.value = pedido.doca || 'Doca Não Definida';
                 inputCliente.value = pedido.cliente;
-                infoDiv.innerHTML = `<span class="text-emerald-700 font-bold">✓ NF ${pedido.nota} localizada!</span> Doca: <strong>${pedido.doca || '-'}</strong>`;
+                infoDiv.innerHTML = `<span class="text-emerald-700 dark:text-emerald-400 font-bold">✓ NF ${pedido.nota} localizada!</span> Doca: <strong>${pedido.doca || '-'}</strong>`;
             } else {
                 inputNF.value = '';
                 inputDocaVisual.value = '';
@@ -757,7 +807,7 @@
                 inputNF.value = pedido.nota;
                 inputCliente.value = pedido.cliente;
                 inputTransp.value = ag ? `${ag.transportadora} (${ag.placa})` : 'Aguardando Agendamento';
-                infoDiv.innerHTML = `<span class="text-purple-700 font-bold">✓ NF ${pedido.nota} encontrada!</span> Status: <strong>${pedido.status}</strong>`;
+                infoDiv.innerHTML = `<span class="text-purple-700 dark:text-purple-400 font-bold">✓ NF ${pedido.nota} encontrada!</span> Status: <strong>${pedido.status}</strong>`;
             } else {
                 inputNF.value = ''; inputCliente.value = ''; inputTransp.value = '';
                 infoDiv.textContent = 'Selecione a Nota Fiscal.';
@@ -796,25 +846,25 @@
             const btnTrc = document.getElementById('btn-tab-tracking');
 
             secAg.classList.add('hidden'); secCal.classList.add('hidden'); secPed.classList.add('hidden'); secTrc.classList.add('hidden');
-            btnAg.className = "px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
-            btnCal.className = "px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
-            btnPed.className = "px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
-            btnTrc.className = "px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+            btnAg.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+            btnCal.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+            btnPed.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+            btnTrc.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
 
             if (tab === 'pedidos') {
                 secPed.classList.remove('hidden');
-                btnPed.className = "px-4 py-2 font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                btnPed.className = "px-4 py-2 font-semibold text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
             } else if (tab === 'agendamentos') {
                 secAg.classList.remove('hidden');
-                btnAg.className = "px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                btnAg.className = "px-4 py-2 font-semibold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
                 carregarSelectNotas();
             } else if (tab === 'tracking') {
                 secTrc.classList.remove('hidden');
-                btnTrc.className = "px-4 py-2 font-semibold text-purple-600 border-b-2 border-purple-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                btnTrc.className = "px-4 py-2 font-semibold text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
                 carregarSelectTracking();
             } else {
                 secCal.classList.remove('hidden');
-                btnCal.className = "px-4 py-2 font-semibold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                btnCal.className = "px-4 py-2 font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
                 renderizarCalendario();
             }
         }
@@ -904,7 +954,6 @@
         });
 
         function editarPedido(id) {
-            // EXCLUSIVO ADMINISTRADOR
             if (setorAutenticado !== 'admin') { 
                 alert('Acesso restrito! A edição/atualização de registros cadastrados requer a senha de Administrador (9704).'); 
                 return; 
@@ -935,7 +984,6 @@
         }
 
         function excluirItem(tipo, id) {
-            // EXCLUSIVO ADMINISTRADOR PARA QUALQUER EXCLUSÃO
             if (setorAutenticado !== 'admin') {
                 alert('Acesso restrito! A exclusão de registros requer a senha de Administrador (9704).');
                 return;
@@ -960,25 +1008,24 @@
         function renderizarTabelasPedidos() {
             const dataFiltro = document.getElementById('filtroDataPedido').value;
             const filtrados = dadosApp.pedidos.filter(item => !dataFiltro || item.dataSaida === dataFiltro);
-            
-            // Apenas o Admin visualiza os botões de Ações (Editar/Excluir) nas tabelas
             const canAdmin = (setorAutenticado === 'admin');
+
             document.getElementById('thAcoesPedidos').style.display = canAdmin ? 'table-cell' : 'none';
 
             document.getElementById('tabelaPedidosBody').innerHTML = filtrados.length === 0
                 ? `<tr><td colspan="11" class="p-4 text-center text-slate-400">Nenhum pedido encontrado.</td></tr>`
                 : filtrados.map(item => `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-mono font-bold text-emerald-800">${item.nota}</td>
-                        <td class="p-3 font-semibold text-blue-600">${item.doca || '-'}</td>
-                        <td class="p-3 font-mono text-emerald-700">${item.ticket || '-'}</td>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-3 font-mono font-bold text-emerald-800 dark:text-emerald-400">${item.nota}</td>
+                        <td class="p-3 font-semibold text-blue-600 dark:text-blue-400">${item.doca || '-'}</td>
+                        <td class="p-3 font-mono text-emerald-700 dark:text-emerald-300">${item.ticket || '-'}</td>
                         <td class="p-3 font-mono">${item.numeroPedido || '-'}</td>
-                        <td class="p-3 text-slate-600">${item.data || '-'}</td>
-                        <td class="p-3 font-semibold text-amber-700">${item.dataSaida || '-'}</td>
+                        <td class="p-3 text-slate-600 dark:text-slate-400">${item.data || '-'}</td>
+                        <td class="p-3 font-semibold text-amber-700 dark:text-amber-400">${item.dataSaida || '-'}</td>
                         <td class="p-3">${item.cliente}</td>
                         <td class="p-3">${Number(item.peso).toLocaleString('pt-BR')} Kg</td>
                         <td class="p-3">${item.volumes} vol.</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-emerald-100 text-emerald-800">${item.status}</span></td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">${item.status}</span></td>
                         ${canAdmin ? `
                             <td class="p-3 text-center space-x-2">
                                 <button onclick="editarPedido(${item.id})" title="Editar Pedido (Admin)" class="text-blue-500 hover:text-blue-700 p-1"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
@@ -997,14 +1044,14 @@
             document.getElementById('tabelaAgendamentosBody').innerHTML = dadosApp.agendamentos.length === 0
                 ? `<tr><td colspan="8" class="p-4 text-center text-slate-400">Nenhum agendamento.</td></tr>`
                 : dadosApp.agendamentos.map(item => `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-mono font-bold text-blue-700">${item.nota}</td>
-                        <td class="p-3 font-semibold text-blue-600">${item.doca || '-'}</td>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-3 font-mono font-bold text-blue-700 dark:text-blue-400">${item.nota}</td>
+                        <td class="p-3 font-semibold text-blue-600 dark:text-blue-400">${item.doca || '-'}</td>
                         <td class="p-3">${new Date(item.dataHora).toLocaleString('pt-BR')}</td>
-                        <td class="p-3 font-semibold text-slate-800">${item.transportadora}</td>
+                        <td class="p-3 font-semibold text-slate-800 dark:text-slate-200">${item.transportadora}</td>
                         <td class="p-3 uppercase font-mono">${item.placa}</td>
                         <td class="p-3">${item.motorista}</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">${item.status}</span></td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">${item.status}</span></td>
                         ${canAdmin ? `
                             <td class="p-3 text-center">
                                 <button onclick="excluirItem('agendamento', ${item.id})" title="Excluir Agendamento (Admin)" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -1022,16 +1069,16 @@
             document.getElementById('tabelaTrackingBody').innerHTML = dadosApp.tracking.length === 0
                 ? `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma baixa.</td></tr>`
                 : dadosApp.tracking.map(item => {
-                    let badgeColor = 'bg-purple-100 text-purple-800';
-                    if (item.statusFinal.includes('RECUSA')) badgeColor = 'bg-red-100 text-red-800 font-bold';
+                    let badgeColor = 'bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300';
+                    if (item.statusFinal.includes('RECUSA')) badgeColor = 'bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 font-bold';
 
                     return `
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-3 font-mono font-bold text-purple-900">${item.nota}</td>
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <td class="p-3 font-mono font-bold text-purple-900 dark:text-purple-400">${item.nota}</td>
                             <td class="p-3 font-medium">${item.cliente}</td>
                             <td class="p-3">${new Date(item.dataHoraEntrega).toLocaleString('pt-BR')}</td>
                             <td class="p-3"><span class="px-2 py-1 rounded text-xs ${badgeColor}">${item.statusFinal}</span></td>
-                            <td class="p-3 text-slate-600 font-medium">${item.observacoes || '-'}</td>
+                            <td class="p-3 text-slate-600 dark:text-slate-300 font-medium">${item.observacoes || '-'}</td>
                             ${canAdmin ? `
                                 <td class="p-3 text-center">
                                     <button onclick="excluirItem('tracking', ${item.id})" title="Excluir Baixa (Admin)" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -1069,11 +1116,11 @@
             document.getElementById('tabelaConsolidadaBody').innerHTML = lista.length === 0
                 ? `<tr><td colspan="8" class="p-4 text-center text-slate-400">Nenhum evento para este dia.</td></tr>`
                 : lista.map(i => `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-slate-100 font-bold">${i.status}</span></td>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">${i.status}</span></td>
                         <td class="p-3 font-mono font-bold">${i.nota}</td>
                         <td class="p-3 font-mono text-xs">${i.ticketPed}</td>
-                        <td class="p-3 font-semibold text-indigo-600">${i.docaHora}</td>
+                        <td class="p-3 font-semibold text-indigo-600 dark:text-indigo-400">${i.docaHora}</td>
                         <td class="p-3">${i.transpPlaca}</td>
                         <td class="p-3">${i.cliente}</td>
                         <td class="p-3">-</td><td class="p-3">-</td>
