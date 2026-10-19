@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGÍSTICA DARNEL - ARAUCÁRIA</title>
+    <!-- Tailwind CSS para um design moderno e corporativo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase App & Realtime Database SDKs (Compat v9) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Cabeçalho -->
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i data-lucide="truck" class="w-8 h-8 text-amber-400"></i>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">LOGÍSTICA DARNEL - ARAUCÁRIA</h1>
+                    <p class="text-xs text-slate-400">Controle Integrado em Tempo Real (Firebase Cloud)</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="statusConexao" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                    <span class="w-2 h-2 mr-2 bg-amber-400 rounded-full animate-pulse"></span>
+                    Conectando ao Firebase...
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+        <!-- Abas de Navegação -->
+        <div class="flex space-x-2 sm:space-x-4 border-b border-slate-300 pb-2 overflow-x-auto">
+            <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="px-4 py-2 font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+                <i data-lucide="package" class="w-4 h-4"></i>
+                <span>1. Criar/Atualizar Pedido</span>
+            </button>
+            <button onclick="mudarTab('agendamentos')" id="btn-tab-agendamentos" class="px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+                <i data-lucide="list" class="w-4 h-4"></i>
+                <span>2. Gerenciar Agendamentos (Transporte)</span>
+            </button>
+            <button onclick="mudarTab('tracking')" id="btn-tab-tracking" class="px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                <span>3. Tracking (Confirmar Entrega)</span>
+            </button>
+            <button onclick="mudarTab('calendario')" id="btn-tab-calendario" class="px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                <span>4. Calendário / Fluxo do Dia</span>
+            </button>
+        </div>
+
+        <!-- SEÇÃO 1: CRIAR/ATUALIZAR PEDIDO (PLANEJAMENTO) -->
+        <div id="secao-pedidos" class="space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-700">
+                    <i data-lucide="file-plus" class="w-5 h-5 text-emerald-600"></i>
+                    <span>Criar/Atualizar Pedido e Definir Doca (Planejador)</span>
+                </h2>
+                <form id="formPedido" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Número da Nota (NF)</label>
+                        <input type="text" id="pedNota" placeholder="Ex: NF-98231" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Doca Agendada</label>
+                        <select id="pedDoca" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 font-semibold text-slate-700">
+                            <!-- Preenchido dinamicamente de Doca 01 até Doca 38 -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket</label>
+                        <input type="text" id="pedTicket" placeholder="Ex: TKT-1042" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Número do Pedido</label>
+                        <input type="text" id="pedNumero" placeholder="Ex: PED-88402" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cliente / Destino</label>
+                        <input type="text" id="pedCliente" placeholder="Nome do cliente" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data do Pedido</label>
+                        <input type="date" id="pedData" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Saída de Carga</label>
+                        <input type="date" id="pedDataSaida" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Peso Total (Kg)</label>
+                        <input type="number" step="0.01" id="pedPeso" placeholder="Ex: 1500.50" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Volumes (Batidos/Paletizados)</label>
+                        <input type="number" id="pedVolumes" placeholder="Ex: 32" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div class="md:col-span-3 flex justify-end items-end">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            <span>Salvar Pedido na Nuvem</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabela de Pedidos Criados/Atualizados -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-3">
+                    <h3 class="font-bold text-slate-700">Pedidos Cadastrados em Estoque/Expedição</h3>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs font-semibold uppercase text-slate-500">Filtrar Data Saída:</label>
+                        <input type="date" id="filtroDataPedido" onchange="renderizarTabelasPedidos()" class="border border-slate-300 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                        <button onclick="limparFiltroPedido()" class="text-xs text-emerald-600 hover:underline px-2 py-1 bg-emerald-50 rounded">Ver Todos</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 uppercase text-xs">
+                                <th class="p-3">Nota Fiscal (NF)</th>
+                                <th class="p-3">Doca</th>
+                                <th class="p-3">Ticket</th>
+                                <th class="p-3">Nº Pedido</th>
+                                <th class="p-3">Data Pedido</th>
+                                <th class="p-3">Data Saída Carga</th>
+                                <th class="p-3">Cliente</th>
+                                <th class="p-3">Peso (Kg)</th>
+                                <th class="p-3">Volumes (Batidos/Paletizados)</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaPedidosBody" class="divide-y divide-slate-200">
+                            <!-- Preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 2: GERENCIAR AGENDAMENTOS (TRANSPORTE / EXPEDIÇÃO) -->
+        <div id="secao-agendamentos" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-700">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
+                    <span>Novo Agendamento de Veículo (Transporte)</span>
+                </h2>
+                
+                <!-- Caixa Dual de Seleção e Busca por Texto da Nota Fiscal -->
+                <div class="bg-blue-50/70 p-4 rounded-lg border border-blue-200 mb-6 space-y-3">
+                    <label class="block text-xs font-bold uppercase text-blue-900">Localizar Nota Fiscal (Escolha uma das opções abaixo):</label>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 mb-1">Opção 1: Digitar número da NF</span>
+                            <div class="flex space-x-2">
+                                <input type="text" id="buscaTextoNF" placeholder="Digite o número da NF..." class="w-full border border-blue-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 bg-white">
+                                <button type="button" onclick="buscarNotaPorTexto()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap">
+                                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                                    <span>Buscar NF</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 mb-1">Opção 2: Selecionar da lista pendente</span>
+                            <select id="agNotaSelect" onchange="puxarDadosDaNotaSelect()" class="w-full border border-blue-300 rounded-lg p-2 text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500 bg-white">
+                                <!-- Preenchido dinamicamente -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="infoNotaSelecionada" class="text-xs text-blue-900 font-medium pt-1 border-t border-blue-200">
+                        Localize uma NF cadastrada pelo planejamento para autopreencher os dados de Doca e Cliente.
+                    </div>
+                </div>
+
+                <form id="formAgendamento" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF) Selecionada</label>
+                        <input type="text" id="agNotaFiscal" placeholder="Aguardando busca/seleção..." required readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Doca (Definida no Planejamento)</label>
+                        <input type="text" id="agDocaVisual" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-semibold bg-slate-100 text-blue-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cliente / Destino</label>
+                        <input type="text" id="agCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data e Hora Chegada</label>
+                        <input type="datetime-local" id="agDataHora" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Transportadora</label>
+                        <select id="agTransportadora" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- Selecione a Transportadora --</option>
+                            <option value="CIA VERDE">CIA VERDE</option>
+                            <option value="EAS">EAS</option>
+                            <option value="KEKLOG">KEKLOG</option>
+                            <option value="COBAL">COBAL</option>
+                            <option value="RODOMIGLEO">RODOMIGLEO</option>
+                            <option value="KUMPEL">KUMPEL</option>
+                            <option value="RIBALDO">RIBALDO</option>
+                            <option value="G.A TRANSPORTES">G.A TRANSPORTES</option>
+                            <option value="AGEX">AGEX</option>
+                            <option value="BRASILEB">BRASILEB</option>
+                            <option value="MASSANEIRO">MASSANEIRO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Placa do Veículo</label>
+                        <input type="text" id="agPlaca" placeholder="Ex: ABC-1234" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Motorista</label>
+                        <input type="text" id="agMotorista" placeholder="Nome do motorista" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2 flex items-end">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center space-x-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span>Vincular e Salvar Agendamento</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabela de Agendamentos -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700">Agendamentos Realizados (Transporte & Docas)</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 uppercase text-xs">
+                                <th class="p-3">Nota Fiscal</th>
+                                <th class="p-3">Doca</th>
+                                <th class="p-3">Data/Hora Chegada</th>
+                                <th class="p-3">Transportadora</th>
+                                <th class="p-3">Placa</th>
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaAgendamentosBody" class="divide-y divide-slate-200">
+                            <!-- Preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 3: TRACKING (CONFIRMAR ENTREGA) -->
+        <div id="secao-tracking" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-700">
+                    <i data-lucide="check-circle-2" class="w-5 h-5 text-purple-600"></i>
+                    <span>Confirmar Entrega / Baixa no Pedido (Tracking)</span>
+                </h2>
+
+                <!-- Localizador de NF do Tracking -->
+                <div class="bg-purple-50/80 p-4 rounded-lg border border-purple-200 mb-6 space-y-3">
+                    <label class="block text-xs font-bold uppercase text-purple-900">Localizar Nota Fiscal para dar Baixa:</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 mb-1">Opção 1: Digitar número da NF</span>
+                            <div class="flex space-x-2">
+                                <input type="text" id="trcTextoNF" placeholder="Digite o número da NF..." class="w-full border border-purple-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-purple-500 bg-white">
+                                <button type="button" onclick="buscarNotaTrackingTexto()" class="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap">
+                                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                                    <span>Buscar NF</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 mb-1">Opção 2: Selecionar da lista de pedidos</span>
+                            <select id="trcNotaSelect" onchange="puxarNotaTrackingSelect()" class="w-full border border-purple-300 rounded-lg p-2 text-sm font-mono font-bold focus:ring-2 focus:ring-purple-500 bg-white">
+                                <!-- Preenchido dinamicamente -->
+                            </select>
+                        </div>
+                    </div>
+                    <div id="infoTrackingSelecionado" class="text-xs text-purple-900 font-medium pt-1 border-t border-purple-200">
+                        Selecione a Nota Fiscal para registrar a confirmação de entrega.
+                    </div>
+                </div>
+
+                <form id="formTracking" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="trcNotaFiscal" placeholder="Aguardando busca..." required readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cliente / Destino</label>
+                        <input type="text" id="trcCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Transportadora / Placa</label>
+                        <input type="text" id="trcTranspPlaca" placeholder="Preenchido via Agendamento" readonly class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data e Hora da Entrega Real</label>
+                        <input type="datetime-local" id="trcDataHora" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status Final da Entrega</label>
+                        <select id="trcStatus" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 font-semibold">
+                            <option value="ENTREGUE (OK)">ENTREGUE - Sem Avarias</option>
+                            <option value="ENTREGUE (COM AVARIA)">ENTREGUE - Com Avaria Parcial</option>
+                            <option value="ENTREGUE (FALTANDO ITEM)">ENTREGUE - Faltando Item</option>
+                            <option value="DEVOLUCAO TOTAL">DEVOLUÇÃO TOTAL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações</label>
+                        <input type="text" id="trcObs" placeholder="Ex: Detalhes da entrega, observações do motorista, etc." class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div class="md:col-span-3 flex justify-end">
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2">
+                            <i data-lucide="check-square" class="w-4 h-4"></i>
+                            <span>Confirmar e Dar Baixa Final no Pedido</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabela de Histórico do Tracking -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700">Histórico de Baixas e Entregas (Tracking)</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 uppercase text-xs">
+                                <th class="p-3">Nota Fiscal</th>
+                                <th class="p-3">Cliente</th>
+                                <th class="p-3">Data/Hora Entrega Real</th>
+                                <th class="p-3">Status Final</th>
+                                <th class="p-3">Observações</th>
+                                <th class="p-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaTrackingBody" class="divide-y divide-slate-200">
+                            <!-- Preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 4: CALENDÁRIO / VISÃO CONSOLIDADA DO DIA -->
+        <div id="secao-calendario" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700">
+                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
+                        <span>Visão Geral e Fluxo do Dia</span>
+                    </h2>
+                    <p class="text-xs text-slate-500">Consolidado completo de pedidos, agendamentos e tracking de entregas.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <label class="text-xs font-semibold uppercase text-slate-500">Filtrar Data:</label>
+                    <input type="date" id="filtroDataAgendamento" onchange="renderizarCalendario()" class="border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+
+            <!-- Tabela Consolidada de Processos do Dia -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <h3 id="tituloDiaSelecionado" class="font-bold text-slate-700">Fluxo Operacional do Dia: -</h3>
+                    <span id="contadorConsolidado" class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-full">0 registro(s)</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 uppercase text-xs">
+                                <th class="p-3">Status Processo</th>
+                                <th class="p-3">Nota Fiscal (NF)</th>
+                                <th class="p-3">Ticket / Pedido</th>
+                                <th class="p-3">Doca / Horário</th>
+                                <th class="p-3">Transportadora / Placa</th>
+                                <th class="p-3">Cliente</th>
+                                <th class="p-3">Data Pedido</th>
+                                <th class="p-3">Data Saída Carga</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaConsolidadaBody" class="divide-y divide-slate-200">
+                            <!-- Preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto py-4 text-center text-xs text-slate-500">
+        LOGÍSTICA DARNEL - ARAUCÁRIA &bull; Sincronização em Nuvem (Firebase)
+    </footer>
+
+    <!-- Lógica JavaScript & Firebase Integration -->
+    <script>
+        lucide.createIcons();
+
+        // -------------------------------------------------------------
+        // CONFIGURAÇÃO DO FIREBASE (Chaves configuradas para logisticadarnel)
+        // -------------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-1Q--NP9_SBSSLtcXEgrTfNoJ3pE0ync",
+            authDomain: "logisticadarnel.firebaseapp.com",
+            databaseURL: "https://logisticadarnel-default-rtdb.firebaseio.com",
+            projectId: "logisticadarnel",
+            storageBucket: "logisticadarnel.appspot.com",
+            messagingSenderId: "227856231222",
+            appId: "1:227856231222:web:f65791030086e4290e2197"
+        };
+
+        // Inicializa o Firebase
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            
+            // Monitora conexão
+            db.ref('.info/connected').on('value', (snap) => {
+                const el = document.getElementById('statusConexao');
+                if (snap.val() === true) {
+                    el.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                    el.innerHTML = `<span class="w-2 h-2 mr-2 bg-emerald-400 rounded-full animate-pulse"></span>Nuvem Conectada`;
+                } else {
+                    el.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                    el.innerHTML = `<span class="w-2 h-2 mr-2 bg-amber-400 rounded-full animate-pulse"></span>Conectando...`;
+                }
+            });
+        } catch (e) {
+            console.warn("Firebase não configurado ou chaves pendentes.");
+        }
+
+        let dadosApp = {
+            agendamentos: [],
+            pedidos: [],
+            tracking: []
+        };
+
+        // Sincronização em Tempo Real via Firebase
+        function escutarBanco() {
+            if (!db) return;
+
+            db.ref('logistica_darnel').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                dadosApp.pedidos = Object.values(data.pedidos || {});
+                dadosApp.agendamentos = Object.values(data.agendamentos || {});
+                dadosApp.tracking = Object.values(data.tracking || {});
+
+                carregarSelectNotas();
+                carregarSelectTracking();
+                renderizarTabelasPedidos();
+                renderizarTabelasAgendamentos();
+                renderizarTabelasTracking();
+                renderizarCalendario();
+            });
+        }
+
+        function salvarNoFirebase() {
+            if (!db) return;
+            
+            const objPedidos = {};
+            dadosApp.pedidos.forEach(p => objPedidos[p.id] = p);
+
+            const objAgendamentos = {};
+            dadosApp.agendamentos.forEach(a => objAgendamentos[a.id] = a);
+
+            const objTracking = {};
+            dadosApp.tracking.forEach(t => objTracking[t.id] = t);
+
+            db.ref('logistica_darnel').set({
+                pedidos: objPedidos,
+                agendamentos: objAgendamentos,
+                tracking: objTracking
+            });
+        }
+
+        function carregarOpcoesDocas() {
+            const selectDoca = document.getElementById('pedDoca');
+            selectDoca.innerHTML = '';
+            for (let i = 1; i <= 38; i++) {
+                const numeroFormatado = i < 10 ? `0${i}` : `${i}`;
+                const option = document.createElement('option');
+                option.value = `Doca ${numeroFormatado}`;
+                option.textContent = `Doca ${numeroFormatado}`;
+                selectDoca.appendChild(option);
+            }
+        }
+
+        function carregarSelectNotas() {
+            const selectNF = document.getElementById('agNotaSelect');
+            selectNF.innerHTML = '<option value="">-- Selecione na lista --</option>';
+
+            dadosApp.pedidos.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.nota;
+                opt.textContent = `NF: ${p.nota} | Doca: ${p.doca || '-'} | Cliente: ${p.cliente}`;
+                selectNF.appendChild(opt);
+            });
+        }
+
+        function carregarSelectTracking() {
+            const selectTRC = document.getElementById('trcNotaSelect');
+            selectTRC.innerHTML = '<option value="">-- Selecione na lista de pedidos --</option>';
+
+            dadosApp.pedidos.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.nota;
+                opt.textContent = `NF: ${p.nota} | Status: ${p.status} | Cliente: ${p.cliente}`;
+                selectTRC.appendChild(opt);
+            });
+        }
+
+        function aplicarDadosNota(pedido) {
+            const inputNF = document.getElementById('agNotaFiscal');
+            const inputDocaVisual = document.getElementById('agDocaVisual');
+            const inputCliente = document.getElementById('agCliente');
+            const infoDiv = document.getElementById('infoNotaSelecionada');
+
+            if (pedido) {
+                inputNF.value = pedido.nota;
+                inputDocaVisual.value = pedido.doca || 'Doca Não Definida';
+                inputCliente.value = pedido.cliente;
+                infoDiv.innerHTML = `<span class="text-emerald-700 font-bold">✓ NF ${pedido.nota} localizada!</span> Doca: <strong>${pedido.doca || '-'}</strong> | Ticket: <strong>${pedido.ticket || '-'}</strong> | Pedido: <strong>${pedido.numeroPedido || '-'}</strong>`;
+            } else {
+                inputNF.value = '';
+                inputDocaVisual.value = '';
+                inputCliente.value = '';
+                infoDiv.textContent = 'Localize uma NF cadastrada pelo planejamento para autopreencher os dados de Doca e Cliente.';
+            }
+        }
+
+        function buscarNotaPorTexto() {
+            const termo = document.getElementById('buscaTextoNF').value.trim();
+            if (!termo) {
+                alert('Digite o número da Nota Fiscal para buscar.');
+                return;
+            }
+
+            const pedidoEncontrado = dadosApp.pedidos.find(p => p.nota.toLowerCase() === termo.toLowerCase());
+
+            if (pedidoEncontrado) {
+                document.getElementById('agNotaSelect').value = pedidoEncontrado.nota;
+                aplicarDadosNota(pedidoEncontrado);
+            } else {
+                alert(`Nota Fiscal "${termo}" não foi encontrada no cadastro de Pedidos.`);
+                aplicarDadosNota(null);
+            }
+        }
+
+        document.getElementById('buscaTextoNF').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarNotaPorTexto();
+            }
+        });
+
+        function puxarDadosDaNotaSelect() {
+            const notaSel = document.getElementById('agNotaSelect').value;
+            document.getElementById('buscaTextoNF').value = notaSel;
+            const pedidoEncontrado = dadosApp.pedidos.find(p => p.nota === notaSel);
+            aplicarDadosNota(pedidoEncontrado);
+        }
+
+        function aplicarDadosTracking(pedido) {
+            const inputNF = document.getElementById('trcNotaFiscal');
+            const inputCliente = document.getElementById('trcCliente');
+            const inputTransp = document.getElementById('trcTranspPlaca');
+            const infoDiv = document.getElementById('infoTrackingSelecionado');
+
+            if (pedido) {
+                const ag = dadosApp.agendamentos.find(a => a.nota === pedido.nota);
+                inputNF.value = pedido.nota;
+                inputCliente.value = pedido.cliente;
+                inputTransp.value = ag ? `${ag.transportadora} (${ag.placa})` : 'Aguardando Agendamento';
+                infoDiv.innerHTML = `<span class="text-purple-700 font-bold">✓ NF ${pedido.nota} encontrada!</span> Status Atual: <strong>${pedido.status}</strong> | Doca: <strong>${pedido.doca || '-'}</strong>`;
+            } else {
+                inputNF.value = '';
+                inputCliente.value = '';
+                inputTransp.value = '';
+                infoDiv.textContent = 'Selecione a Nota Fiscal para registrar a confirmação de entrega.';
+            }
+        }
+
+        function buscarNotaTrackingTexto() {
+            const termo = document.getElementById('trcTextoNF').value.trim();
+            if (!termo) {
+                alert('Digite o número da Nota Fiscal.');
+                return;
+            }
+
+            const pedidoEncontrado = dadosApp.pedidos.find(p => p.nota.toLowerCase() === termo.toLowerCase());
+            if (pedidoEncontrado) {
+                document.getElementById('trcNotaSelect').value = pedidoEncontrado.nota;
+                aplicarDadosTracking(pedidoEncontrado);
+            } else {
+                alert(`Nota Fiscal "${termo}" não foi encontrada.`);
+                aplicarDadosTracking(null);
+            }
+        }
+
+        function puxarNotaTrackingSelect() {
+            const notaSel = document.getElementById('trcNotaSelect').value;
+            document.getElementById('trcTextoNF').value = notaSel;
+            const pedidoEncontrado = dadosApp.pedidos.find(p => p.nota === notaSel);
+            aplicarDadosTracking(pedidoEncontrado);
+        }
+
+        function mudarTab(tab) {
+            const secAg = document.getElementById('secao-agendamentos');
+            const secCal = document.getElementById('secao-calendario');
+            const secPed = document.getElementById('secao-pedidos');
+            const secTrc = document.getElementById('secao-tracking');
+            
+            const btnAg = document.getElementById('btn-tab-agendamentos');
+            const btnCal = document.getElementById('btn-tab-calendario');
+            const btnPed = document.getElementById('btn-tab-pedidos');
+            const btnTrc = document.getElementById('btn-tab-tracking');
+
+            secAg.classList.add('hidden');
+            secCal.classList.add('hidden');
+            secPed.classList.add('hidden');
+            secTrc.classList.add('hidden');
+
+            btnAg.className = "px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+            btnCal.className = "px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+            btnPed.className = "px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+            btnTrc.className = "px-4 py-2 font-semibold text-slate-500 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+
+            if (tab === 'pedidos') {
+                secPed.classList.remove('hidden');
+                btnPed.className = "px-4 py-2 font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                renderizarTabelasPedidos();
+            } else if (tab === 'agendamentos') {
+                secAg.classList.remove('hidden');
+                btnAg.className = "px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                carregarSelectNotas();
+            } else if (tab === 'tracking') {
+                secTrc.classList.remove('hidden');
+                btnTrc.className = "px-4 py-2 font-semibold text-purple-600 border-b-2 border-purple-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                carregarSelectTracking();
+                renderizarTabelasTracking();
+            } else {
+                secCal.classList.remove('hidden');
+                btnCal.className = "px-4 py-2 font-semibold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                renderizarCalendario();
+            }
+        }
+
+        // SALVAR PEDIDO
+        document.getElementById('formPedido').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nfDigitada = document.getElementById('pedNota').value.trim();
+
+            if (dadosApp.pedidos.some(p => p.nota === nfDigitada)) {
+                alert('Atenção: Já existe um pedido cadastrado com essa Nota Fiscal (NF).');
+                return;
+            }
+
+            const novo = {
+                id: Date.now(),
+                nota: nfDigitada,
+                doca: document.getElementById('pedDoca').value,
+                ticket: document.getElementById('pedTicket').value,
+                numeroPedido: document.getElementById('pedNumero').value,
+                data: document.getElementById('pedData').value,
+                dataSaida: document.getElementById('pedDataSaida').value,
+                cliente: document.getElementById('pedCliente').value,
+                peso: document.getElementById('pedPeso').value,
+                volumes: document.getElementById('pedVolumes').value,
+                status: 'Aguardando Veículo'
+            };
+
+            dadosApp.pedidos.push(novo);
+            salvarNoFirebase();
+            this.reset();
+            alert('Pedido salvo com sucesso e enviado para a nuvem!');
+        });
+
+        // SALVAR AGENDAMENTO
+        document.getElementById('formAgendamento').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nf = document.getElementById('agNotaFiscal').value;
+
+            if (!nf) {
+                alert('Por favor, selecione ou busque uma Nota Fiscal válida antes de salvar.');
+                return;
+            }
+
+            const novoadg = {
+                id: Date.now(),
+                nota: nf,
+                doca: document.getElementById('agDocaVisual').value,
+                cliente: document.getElementById('agCliente').value,
+                dataHora: document.getElementById('agDataHora').value,
+                transportadora: document.getElementById('agTransportadora').value,
+                placa: document.getElementById('agPlaca').value,
+                motorista: document.getElementById('agMotorista').value,
+                status: 'Veículo Agendado'
+            };
+
+            dadosApp.agendamentos.push(novoadg);
+
+            const idxPed = dadosApp.pedidos.findIndex(p => p.nota === nf);
+            if (idxPed !== -1) {
+                dadosApp.pedidos[idxPed].status = `Agendado (${novoadg.doca})`;
+            }
+
+            salvarNoFirebase();
+            this.reset();
+            document.getElementById('agNotaSelect').value = '';
+            document.getElementById('buscaTextoNF').value = '';
+            aplicarDadosNota(null);
+            alert(`Veículo agendado com sucesso para a NF ${nf}!`);
+        });
+
+        // SALVAR TRACKING
+        document.getElementById('formTracking').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nf = document.getElementById('trcNotaFiscal').value;
+
+            if (!nf) {
+                alert('Por favor, selecione uma Nota Fiscal válida.');
+                return;
+            }
+
+            const baixa = {
+                id: Date.now(),
+                nota: nf,
+                cliente: document.getElementById('trcCliente').value,
+                dataHoraEntrega: document.getElementById('trcDataHora').value,
+                statusFinal: document.getElementById('trcStatus').value,
+                observacoes: document.getElementById('trcObs').value
+            };
+
+            dadosApp.tracking = dadosApp.tracking.filter(t => t.nota !== nf);
+            dadosApp.tracking.push(baixa);
+
+            const idxPed = dadosApp.pedidos.findIndex(p => p.nota === nf);
+            if (idxPed !== -1) {
+                dadosApp.pedidos[idxPed].status = baixa.statusFinal;
+            }
+
+            salvarNoFirebase();
+            this.reset();
+            document.getElementById('trcNotaSelect').value = '';
+            document.getElementById('trcTextoNF').value = '';
+            aplicarDadosTracking(null);
+            alert(`Baixa de entrega registrada na nuvem para a NF ${nf}!`);
+        });
+
+        function excluirItem(tipo, id) {
+            if (confirm('Deseja realmente excluir este registro?')) {
+                if (tipo === 'agendamento') {
+                    dadosApp.agendamentos = dadosApp.agendamentos.filter(item => item.id !== id);
+                } else if (tipo === 'tracking') {
+                    dadosApp.tracking = dadosApp.tracking.filter(item => item.id !== id);
+                } else {
+                    const ped = dadosApp.pedidos.find(p => p.id === id);
+                    if (ped) {
+                        dadosApp.agendamentos = dadosApp.agendamentos.filter(a => a.nota !== ped.nota);
+                        dadosApp.tracking = dadosApp.tracking.filter(t => t.nota !== ped.nota);
+                    }
+                    dadosApp.pedidos = dadosApp.pedidos.filter(item => item.id !== id);
+                }
+                salvarNoFirebase();
+            }
+        }
+
+        function renderizarCalendario() {
+            const inputFiltro = document.getElementById('filtroDataAgendamento');
+            if (!inputFiltro.value) {
+                inputFiltro.value = new Date().toISOString().split('T')[0];
+            }
+
+            const dataSelecionada = inputFiltro.value;
+            const tituloDia = document.getElementById('tituloDiaSelecionado');
+            const contador = document.getElementById('contadorConsolidado');
+            const tbodyConsolidado = document.getElementById('tabelaConsolidadaBody');
+
+            const [ano, mes, dia] = dataSelecionada.split('-');
+            tituloDia.textContent = `Fluxo Operacional do Dia: ${dia}/${mes}/${ano}`;
+
+            let listaConsolidada = [];
+
+            dadosApp.pedidos.forEach(ped => {
+                const bateuDataPed = (ped.data === dataSelecionada);
+                const bateuDataSaida = (ped.dataSaida === dataSelecionada);
+
+                const ag = dadosApp.agendamentos.find(a => a.nota === ped.nota);
+                const dataAg = ag ? (ag.dataHora ? ag.dataHora.split('T')[0] : '') : '';
+                const bateuAgendamento = (dataAg === dataSelecionada);
+
+                const trc = dadosApp.tracking.find(t => t.nota === ped.nota);
+
+                if (bateuDataPed || bateuDataSaida || bateuAgendamento) {
+                    const horaAg = ag ? (ag.dataHora.split('T')[1] || '') : '';
+                    let statusExibicao = ped.status;
+                    let badgeColor = 'bg-emerald-100 text-emerald-800';
+
+                    if (trc) {
+                        statusExibicao = trc.statusFinal;
+                        if (trc.statusFinal.includes('AVARIA') || trc.statusFinal.includes('FALTANDO')) {
+                            badgeColor = 'bg-amber-100 text-amber-800 font-bold';
+                        } else if (trc.statusFinal.includes('DEVOLUCAO')) {
+                            badgeColor = 'bg-red-100 text-red-800 font-bold';
+                        } else {
+                            badgeColor = 'bg-purple-100 text-purple-900 font-bold';
+                        }
+                    } else if (ag) {
+                        statusExibicao = `Agendado - ${ped.doca}`;
+                        badgeColor = 'bg-blue-100 text-blue-800';
+                    }
+
+                    listaConsolidada.push({
+                        nota: ped.nota,
+                        ticketPed: `TKT: ${ped.ticket || '-'} / Ped: ${ped.numeroPedido || '-'}`,
+                        docaHora: `${ped.doca || 'Doca ?'}${ag ? ` (${horaAg})` : ''}`,
+                        transpPlaca: ag ? `${ag.transportadora} (${ag.placa})` : 'Aguardando Transporte',
+                        cliente: ped.cliente,
+                        dataCriacao: ped.data || '-',
+                        dataSaida: ped.dataSaida || '-',
+                        status: statusExibicao,
+                        badgeColor: badgeColor
+                    });
+                }
+            });
+
+            contador.textContent = `${listaConsolidada.length} registro(s) no fluxo`;
+
+            tbodyConsolidado.innerHTML = listaConsolidada.length === 0 
+                ? `<tr><td colspan="8" class="p-4 text-center text-slate-400">Nenhum evento registrado para o dia ${dia}/${mes}/${ano}.</td></tr>`
+                : listaConsolidada.map(item => {
+                    const [a1, m1, d1] = (item.dataCriacao !== '-' && item.dataCriacao.includes('-')) ? item.dataCriacao.split('-') : ['', '', item.dataCriacao];
+                    const fmtCriacao = a1 ? `${d1}/${m1}/${a1}` : item.dataCriacao;
+
+                    const [a2, m2, d2] = (item.dataSaida !== '-' && item.dataSaida.includes('-')) ? item.dataSaida.split('-') : ['', '', item.dataSaida];
+                    const fmtSaida = a2 ? `${d2}/${m2}/${a2}` : item.dataSaida;
+
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3"><span class="px-2 py-1 rounded text-xs ${item.badgeColor}">${item.status}</span></td>
+                            <td class="p-3 font-mono font-bold text-slate-800">${item.nota}</td>
+                            <td class="p-3 font-mono text-xs text-slate-600">${item.ticketPed}</td>
+                            <td class="p-3 font-semibold text-indigo-600">${item.docaHora}</td>
+                            <td class="p-3 text-slate-700">${item.transpPlaca}</td>
+                            <td class="p-3">${item.cliente}</td>
+                            <td class="p-3 text-slate-600">${fmtCriacao}</td>
+                            <td class="p-3 font-semibold text-amber-700">${fmtSaida}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            lucide.createIcons();
+        }
+
+        function renderizarTabelasAgendamentos() {
+            const tbodyAg = document.getElementById('tabelaAgendamentosBody');
+            tbodyAg.innerHTML = dadosApp.agendamentos.length === 0 
+                ? `<tr><td colspan="8" class="p-4 text-center text-slate-400">Nenhum agendamento realizado.</td></tr>`
+                : dadosApp.agendamentos.map(item => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-mono font-bold text-blue-700">${item.nota}</td>
+                        <td class="p-3 font-semibold text-blue-600">${item.doca || '-'}</td>
+                        <td class="p-3">${new Date(item.dataHora).toLocaleString('pt-BR')}</td>
+                        <td class="p-3 font-semibold text-slate-800">${item.transportadora}</td>
+                        <td class="p-3 uppercase font-mono">${item.placa}</td>
+                        <td class="p-3">${item.motorista}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">${item.status}</span></td>
+                        <td class="p-3 text-center">
+                            <button onclick="excluirItem('agendamento', ${item.id})" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            lucide.createIcons();
+        }
+
+        function renderizarTabelasTracking() {
+            const tbodyTrc = document.getElementById('tabelaTrackingBody');
+            tbodyTrc.innerHTML = dadosApp.tracking.length === 0 
+                ? `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma baixa de entrega registrada no momento.</td></tr>`
+                : dadosApp.tracking.map(item => {
+                    let cor = 'bg-purple-100 text-purple-800';
+                    if (item.statusFinal.includes('AVARIA') || item.statusFinal.includes('FALTANDO')) cor = 'bg-amber-100 text-amber-800';
+                    if (item.statusFinal.includes('DEVOLUCAO')) cor = 'bg-red-100 text-red-800';
+
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-mono font-bold text-purple-900">${item.nota}</td>
+                            <td class="p-3 font-medium">${item.cliente}</td>
+                            <td class="p-3">${new Date(item.dataHoraEntrega).toLocaleString('pt-BR')}</td>
+                            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-bold ${cor}">${item.statusFinal}</span></td>
+                            <td class="p-3 text-slate-600">${item.observacoes || '-'}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="excluirItem('tracking', ${item.id})" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            lucide.createIcons();
+        }
+
+        function renderizarTabelasPedidos() {
+            const inputFiltroPed = document.getElementById('filtroDataPedido');
+            const dataFiltro = inputFiltroPed.value;
+
+            const pedidosFiltrados = dadosApp.pedidos.filter(item => {
+                if (!dataFiltro) return true;
+                return item.dataSaida === dataFiltro;
+            });
+
+            const tbodyPed = document.getElementById('tabelaPedidosBody');
+            tbodyPed.innerHTML = pedidosFiltrados.length === 0 
+                ? `<tr><td colspan="11" class="p-4 text-center text-slate-400">Nenhum pedido encontrado.</td></tr>`
+                : pedidosFiltrados.map(item => {
+                    const [a1, m1, d1] = (item.data || '').split('-');
+                    const dataPedFmt = item.data ? `${d1}/${m1}/${a1}` : '-';
+
+                    const [a2, m2, d2] = (item.dataSaida || '').split('-');
+                    const dataSaidaFmt = item.dataSaida ? `${d2}/${m2}/${a2}` : '-';
+
+                    let badgeColor = 'bg-emerald-100 text-emerald-800';
+                    if (item.status.includes('Agendado')) badgeColor = 'bg-blue-100 text-blue-800';
+                    if (item.status.includes('ENTREGUE')) badgeColor = 'bg-purple-100 text-purple-900 font-bold';
+                    if (item.status.includes('DEVOLUCAO')) badgeColor = 'bg-red-100 text-red-800 font-bold';
+
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-mono font-bold text-emerald-800">${item.nota}</td>
+                            <td class="p-3 font-semibold text-blue-600">${item.doca || '-'}</td>
+                            <td class="p-3 font-mono font-semibold text-emerald-700">${item.ticket || '-'}</td>
+                            <td class="p-3 font-mono font-semibold">${item.numeroPedido || '-'}</td>
+                            <td class="p-3 text-slate-600">${dataPedFmt}</td>
+                            <td class="p-3 font-semibold text-amber-700">${dataSaidaFmt}</td>
+                            <td class="p-3">${item.cliente}</td>
+                            <td class="p-3">${Number(item.peso).toLocaleString('pt-BR')} Kg</td>
+                            <td class="p-3">${item.volumes} vol.</td>
+                            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold ${badgeColor}">${item.status}</span></td>
+                            <td class="p-3 text-center">
+                                <button onclick="excluirItem('pedido', ${item.id})" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            lucide.createIcons();
+        }
+
+        function limparFiltroPedido() {
+            document.getElementById('filtroDataPedido').value = '';
+            renderizarTabelasPedidos();
+        }
+
+        // Inicializar na carga da página
+        carregarOpcoesDocas();
+        escutarBanco();
+    </script>
+</body>
+</html>
