@@ -60,11 +60,16 @@
         <!-- SEÇÃO 1: CRIAR/ATUALIZAR PEDIDO (PLANEJAMENTO) -->
         <div id="secao-pedidos" class="space-y-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-700">
-                    <i data-lucide="file-plus" class="w-5 h-5 text-emerald-600"></i>
-                    <span>Criar/Atualizar Pedido e Definir Doca (Planejador)</span>
-                </h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700">
+                        <i data-lucide="file-plus" class="w-5 h-5 text-emerald-600"></i>
+                        <span id="tituloFormPedido">Criar Pedido e Definir Doca (Planejador)</span>
+                    </h2>
+                    <button type="button" id="btnCancelarEdicao" onclick="cancelarEdicaoPedido()" class="hidden text-xs text-red-600 hover:underline px-2 py-1 bg-red-50 rounded border border-red-200">Cancelar Edição</button>
+                </div>
+                
                 <form id="formPedido" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="hidden" id="editPedidoId">
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Número da Nota (NF)</label>
                         <input type="text" id="pedNota" placeholder="Ex: NF-98231" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 font-mono font-bold">
@@ -104,9 +109,9 @@
                         <input type="number" id="pedVolumes" placeholder="Ex: 32" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
                     </div>
                     <div class="md:col-span-3 flex justify-end items-end">
-                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2">
+                        <button type="submit" id="btnSalvarPedido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2">
                             <i data-lucide="check-circle" class="w-4 h-4"></i>
-                            <span>Salvar Pedido na Nuvem</span>
+                            <span id="textoBtnSalvarPedido">Salvar Pedido na Nuvem</span>
                         </button>
                     </div>
                 </form>
@@ -415,7 +420,7 @@
         lucide.createIcons();
 
         // -------------------------------------------------------------
-        // CONFIGURAÇÃO DO FIREBASE (Chaves configuradas para logisticadarnel)
+        // CONFIGURAÇÃO DO FIREBASE
         // -------------------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyD-1Q--NP9_SBSSLtcXEgrTfNoJ3pE0ync",
@@ -427,13 +432,11 @@
             appId: "1:227856231222:web:f65791030086e4290e2197"
         };
 
-        // Inicializa o Firebase
         let db;
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.database();
             
-            // Monitora conexão
             db.ref('.info/connected').on('value', (snap) => {
                 const el = document.getElementById('statusConexao');
                 if (snap.val() === true) {
@@ -454,7 +457,6 @@
             tracking: []
         };
 
-        // Sincronização em Tempo Real via Firebase
         function escutarBanco() {
             if (!db) return;
 
@@ -664,35 +666,88 @@
             }
         }
 
-        // SALVAR PEDIDO
+        // SALVAR OU ATUALIZAR PEDIDO
         document.getElementById('formPedido').addEventListener('submit', function(e) {
             e.preventDefault();
+            const editId = document.getElementById('editPedidoId').value;
             const nfDigitada = document.getElementById('pedNota').value.trim();
 
-            if (dadosApp.pedidos.some(p => p.nota === nfDigitada)) {
-                alert('Atenção: Já existe um pedido cadastrado com essa Nota Fiscal (NF).');
-                return;
+            if (editId) {
+                // Modo Edição
+                const idx = dadosApp.pedidos.findIndex(p => p.id == editId);
+                if (idx !== -1) {
+                    dadosApp.pedidos[idx].nota = nfDigitada;
+                    dadosApp.pedidos[idx].doca = document.getElementById('pedDoca').value;
+                    dadosApp.pedidos[idx].ticket = document.getElementById('pedTicket').value;
+                    dadosApp.pedidos[idx].numeroPedido = document.getElementById('pedNumero').value;
+                    dadosApp.pedidos[idx].data = document.getElementById('pedData').value;
+                    dadosApp.pedidos[idx].dataSaida = document.getElementById('pedDataSaida').value;
+                    dadosApp.pedidos[idx].cliente = document.getElementById('pedCliente').value;
+                    dadosApp.pedidos[idx].peso = document.getElementById('pedPeso').value;
+                    dadosApp.pedidos[idx].volumes = document.getElementById('pedVolumes').value;
+
+                    salvarNoFirebase();
+                    cancelarEdicaoPedido();
+                    alert('Pedido atualizado com sucesso na nuvem!');
+                }
+            } else {
+                // Modo Novo Pedido
+                if (dadosApp.pedidos.some(p => p.nota === nfDigitada)) {
+                    alert('Atenção: Já existe um pedido cadastrado com essa Nota Fiscal (NF).');
+                    return;
+                }
+
+                const novo = {
+                    id: Date.now(),
+                    nota: nfDigitada,
+                    doca: document.getElementById('pedDoca').value,
+                    ticket: document.getElementById('pedTicket').value,
+                    numeroPedido: document.getElementById('pedNumero').value,
+                    data: document.getElementById('pedData').value,
+                    dataSaida: document.getElementById('pedDataSaida').value,
+                    cliente: document.getElementById('pedCliente').value,
+                    peso: document.getElementById('pedPeso').value,
+                    volumes: document.getElementById('pedVolumes').value,
+                    status: 'Aguardando Veículo'
+                };
+
+                dadosApp.pedidos.push(novo);
+                salvarNoFirebase();
+                this.reset();
+                alert('Pedido salvo com sucesso e enviado para a nuvem!');
             }
-
-            const novo = {
-                id: Date.now(),
-                nota: nfDigitada,
-                doca: document.getElementById('pedDoca').value,
-                ticket: document.getElementById('pedTicket').value,
-                numeroPedido: document.getElementById('pedNumero').value,
-                data: document.getElementById('pedData').value,
-                dataSaida: document.getElementById('pedDataSaida').value,
-                cliente: document.getElementById('pedCliente').value,
-                peso: document.getElementById('pedPeso').value,
-                volumes: document.getElementById('pedVolumes').value,
-                status: 'Aguardando Veículo'
-            };
-
-            dadosApp.pedidos.push(novo);
-            salvarNoFirebase();
-            this.reset();
-            alert('Pedido salvo com sucesso e enviado para a nuvem!');
         });
+
+        function editarPedido(id) {
+            const pedido = dadosApp.pedidos.find(p => p.id === id);
+            if (!pedido) return;
+
+            document.getElementById('editPedidoId').value = pedido.id;
+            document.getElementById('pedNota').value = pedido.nota;
+            document.getElementById('pedDoca').value = pedido.doca;
+            document.getElementById('pedTicket').value = pedido.ticket;
+            document.getElementById('pedNumero').value = pedido.numeroPedido;
+            document.getElementById('pedData').value = pedido.data;
+            document.getElementById('pedDataSaida').value = pedido.dataSaida;
+            document.getElementById('pedCliente').value = pedido.cliente;
+            document.getElementById('pedPeso').value = pedido.peso;
+            document.getElementById('pedVolumes').value = pedido.volumes;
+
+            document.getElementById('tituloFormPedido').textContent = `Editar Pedido (NF: ${pedido.nota})`;
+            document.getElementById('textoBtnSalvarPedido').textContent = 'Atualizar Pedido Alterado';
+            document.getElementById('btnCancelarEdicao').classList.remove('hidden');
+
+            // Rolar a tela suavemente para o formulário no topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelarEdicaoPedido() {
+            document.getElementById('formPedido').reset();
+            document.getElementById('editPedidoId').value = '';
+            document.getElementById('tituloFormPedido').textContent = 'Criar Pedido e Definir Doca (Planejador)';
+            document.getElementById('textoBtnSalvarPedido').textContent = 'Salvar Pedido na Nuvem';
+            document.getElementById('btnCancelarEdicao').classList.add('hidden');
+        }
 
         // SALVAR AGENDAMENTO
         document.getElementById('formAgendamento').addEventListener('submit', function(e) {
@@ -953,8 +1008,9 @@
                             <td class="p-3">${Number(item.peso).toLocaleString('pt-BR')} Kg</td>
                             <td class="p-3">${item.volumes} vol.</td>
                             <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold ${badgeColor}">${item.status}</span></td>
-                            <td class="p-3 text-center">
-                                <button onclick="excluirItem('pedido', ${item.id})" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <td class="p-3 text-center flex justify-center space-x-2">
+                                <button onclick="editarPedido(${item.id})" title="Editar Pedido" class="text-blue-500 hover:text-blue-700 p-1"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="excluirItem('pedido', ${item.id})" title="Excluir Pedido" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </td>
                         </tr>
                     `;
@@ -968,7 +1024,6 @@
             renderizarTabelasPedidos();
         }
 
-        // Inicializar na carga da página
         carregarOpcoesDocas();
         escutarBanco();
     </script>
