@@ -177,7 +177,7 @@
                                 <th class="p-3">Peso (Kg)</th>
                                 <th class="p-3">Volumes</th>
                                 <th class="p-3">Status</th>
-                                <th class="p-3 text-center" id="thAcoesPedidos">Ações (Restrito)</th>
+                                <th class="p-3 text-center" id="thAcoesPedidos">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaPedidosBody" class="divide-y divide-slate-200">
@@ -294,7 +294,7 @@
                                 <th class="p-3">Placa</th>
                                 <th class="p-3">Motorista</th>
                                 <th class="p-3">Status</th>
-                                <th class="p-3 text-center" id="thAcoesAgendamentos">Ações (Restrito)</th>
+                                <th class="p-3 text-center" id="thAcoesAgendamentos">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaAgendamentosBody" class="divide-y divide-slate-200">
@@ -397,7 +397,7 @@
                                 <th class="p-3">Data/Hora Entrega Real</th>
                                 <th class="p-3">Status Final</th>
                                 <th class="p-3">Observações</th>
-                                <th class="p-3 text-center" id="thAcoesTracking">Ações (Restrito)</th>
+                                <th class="p-3 text-center" id="thAcoesTracking">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaTrackingBody" class="divide-y divide-slate-200">
@@ -517,7 +517,7 @@
                 tracking: 'Tracking', 
                 admin: 'Administrador Geral' 
             };
-            document.getElementById('modalSubtitulo').textContent = `Digite a senha para desbloquear o setor de ${nomes[setor]}.`;
+            document.getElementById('modalSubtitulo').textContent = `Digite a senha para desbloquear o setor de ${nomes[setor]}. (Dica: A senha 9704 desbloqueia acesso de Administrador)`;
             document.getElementById('inputSenhaSetor').value = '';
             document.getElementById('modalSenha').classList.remove('hidden');
             document.getElementById('inputSenhaSetor').focus();
@@ -533,7 +533,6 @@
             const senhaDigitada = document.getElementById('inputSenhaSetor').value;
             const setor = window.setorTemp;
 
-            // Se digitar a senha do setor ou a senha de admin (9704), libera o acesso
             if (senhaDigitada === SENHAS_SETORES[setor] || senhaDigitada === SENHAS_SETORES.admin) {
                 setorAutenticado = (senhaDigitada === SENHAS_SETORES.admin) ? 'admin' : setor;
                 fecharModalSenha();
@@ -905,7 +904,11 @@
         });
 
         function editarPedido(id) {
-            if (setorAutenticado !== 'planejamento' && setorAutenticado !== 'admin') { alert('Acesso restrito. Insira a senha do Planejamento.'); return; }
+            // EXCLUSIVO ADMINISTRADOR
+            if (setorAutenticado !== 'admin') { 
+                alert('Acesso restrito! A edição/atualização de registros cadastrados requer a senha de Administrador (9704).'); 
+                return; 
+            }
             const pedido = dadosApp.pedidos.find(p => p.id === id);
             if (!pedido) return;
 
@@ -932,12 +935,13 @@
         }
 
         function excluirItem(tipo, id) {
-            const canAdmin = (setorAutenticado === 'admin');
-            if (tipo === 'pedido' && !canAdmin && setorAutenticado !== 'planejamento') { alert('Apenas o Planejamento pode excluir pedidos.'); return; }
-            if (tipo === 'agendamento' && !canAdmin && setorAutenticado !== 'transporte') { alert('Apenas o Transporte pode excluir agendamentos.'); return; }
-            if (tipo === 'tracking' && !canAdmin && setorAutenticado !== 'tracking') { alert('Apenas o Tracking pode excluir baixas.'); return; }
+            // EXCLUSIVO ADMINISTRADOR PARA QUALQUER EXCLUSÃO
+            if (setorAutenticado !== 'admin') {
+                alert('Acesso restrito! A exclusão de registros requer a senha de Administrador (9704).');
+                return;
+            }
 
-            if (confirm('Deseja realmente excluir este registro?')) {
+            if (confirm('Deseja realmente excluir este registro permanentemente?')) {
                 if (tipo === 'agendamento') dadosApp.agendamentos = dadosApp.agendamentos.filter(i => i.id !== id);
                 else if (tipo === 'tracking') dadosApp.tracking = dadosApp.tracking.filter(i => i.id !== id);
                 else {
@@ -949,15 +953,17 @@
                     dadosApp.pedidos = dadosApp.pedidos.filter(i => i.id !== id);
                 }
                 salvarNoFirebase();
+                alert('Registro excluído com sucesso!');
             }
         }
 
         function renderizarTabelasPedidos() {
             const dataFiltro = document.getElementById('filtroDataPedido').value;
             const filtrados = dadosApp.pedidos.filter(item => !dataFiltro || item.dataSaida === dataFiltro);
-            const canEdit = (setorAutenticado === 'planejamento' || setorAutenticado === 'admin');
-
-            document.getElementById('thAcoesPedidos').style.display = canEdit ? 'table-cell' : 'none';
+            
+            // Apenas o Admin visualiza os botões de Ações (Editar/Excluir) nas tabelas
+            const canAdmin = (setorAutenticado === 'admin');
+            document.getElementById('thAcoesPedidos').style.display = canAdmin ? 'table-cell' : 'none';
 
             document.getElementById('tabelaPedidosBody').innerHTML = filtrados.length === 0
                 ? `<tr><td colspan="11" class="p-4 text-center text-slate-400">Nenhum pedido encontrado.</td></tr>`
@@ -973,10 +979,10 @@
                         <td class="p-3">${Number(item.peso).toLocaleString('pt-BR')} Kg</td>
                         <td class="p-3">${item.volumes} vol.</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-emerald-100 text-emerald-800">${item.status}</span></td>
-                        ${canEdit ? `
+                        ${canAdmin ? `
                             <td class="p-3 text-center space-x-2">
-                                <button onclick="editarPedido(${item.id})" class="text-blue-500 hover:text-blue-700 p-1"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                                <button onclick="excluirItem('pedido', ${item.id})" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <button onclick="editarPedido(${item.id})" title="Editar Pedido (Admin)" class="text-blue-500 hover:text-blue-700 p-1"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="excluirItem('pedido', ${item.id})" title="Excluir Pedido (Admin)" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </td>
                         ` : ''}
                     </tr>
@@ -985,8 +991,8 @@
         }
 
         function renderizarTabelasAgendamentos() {
-            const canEdit = (setorAutenticado === 'transporte' || setorAutenticado === 'admin');
-            document.getElementById('thAcoesAgendamentos').style.display = canEdit ? 'table-cell' : 'none';
+            const canAdmin = (setorAutenticado === 'admin');
+            document.getElementById('thAcoesAgendamentos').style.display = canAdmin ? 'table-cell' : 'none';
 
             document.getElementById('tabelaAgendamentosBody').innerHTML = dadosApp.agendamentos.length === 0
                 ? `<tr><td colspan="8" class="p-4 text-center text-slate-400">Nenhum agendamento.</td></tr>`
@@ -999,9 +1005,9 @@
                         <td class="p-3 uppercase font-mono">${item.placa}</td>
                         <td class="p-3">${item.motorista}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">${item.status}</span></td>
-                        ${canEdit ? `
+                        ${canAdmin ? `
                             <td class="p-3 text-center">
-                                <button onclick="excluirItem('agendamento', ${item.id})" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <button onclick="excluirItem('agendamento', ${item.id})" title="Excluir Agendamento (Admin)" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </td>
                         ` : ''}
                     </tr>
@@ -1010,8 +1016,8 @@
         }
 
         function renderizarTabelasTracking() {
-            const canEdit = (setorAutenticado === 'tracking' || setorAutenticado === 'admin');
-            document.getElementById('thAcoesTracking').style.display = canEdit ? 'table-cell' : 'none';
+            const canAdmin = (setorAutenticado === 'admin');
+            document.getElementById('thAcoesTracking').style.display = canAdmin ? 'table-cell' : 'none';
 
             document.getElementById('tabelaTrackingBody').innerHTML = dadosApp.tracking.length === 0
                 ? `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma baixa.</td></tr>`
@@ -1026,9 +1032,9 @@
                             <td class="p-3">${new Date(item.dataHoraEntrega).toLocaleString('pt-BR')}</td>
                             <td class="p-3"><span class="px-2 py-1 rounded text-xs ${badgeColor}">${item.statusFinal}</span></td>
                             <td class="p-3 text-slate-600 font-medium">${item.observacoes || '-'}</td>
-                            ${canEdit ? `
+                            ${canAdmin ? `
                                 <td class="p-3 text-center">
-                                    <button onclick="excluirItem('tracking', ${item.id})" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    <button onclick="excluirItem('tracking', ${item.id})" title="Excluir Baixa (Admin)" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                 </td>
                             ` : ''}
                         </tr>
