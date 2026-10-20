@@ -14,7 +14,7 @@
     <!-- Ícones Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Biblioteca ExcelJS para Exportação com Estilos Avançados e Cores -->
+    <!-- Biblioteca ExcelJS para Exportação com Estilos Avançados -->
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
 
     <!-- Firebase App & Realtime Database SDKs (Compat v9) -->
@@ -23,10 +23,10 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
-    <!-- Sistema de Notificações Flutuantes (Toasts) -->
+    <!-- Container de Alertas Flutuantes (Toasts) -->
     <div id="toastContainer" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-    <!-- Cabeçalho -->
+    <!-- Cabeçalho Principal -->
     <header class="bg-slate-900 dark:bg-slate-900 text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
@@ -39,14 +39,14 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <!-- Botão de Acesso Rápido Admin -->
-                <button onclick="pedirSenha('admin')" id="btnAdminGlobal" class="px-3 py-2 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition border border-amber-500/30 flex items-center space-x-1.5 text-xs font-bold shadow-sm" title="Acesso Restrito ao Administrador">
+                <!-- Atalho de Acesso do Administrador -->
+                <button onclick="pedirSenha('admin')" id="btnAdminGlobal" class="px-3 py-2 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition border border-amber-500/30 flex items-center space-x-1.5 text-xs font-bold shadow-sm" title="Painel do Administrador">
                     <i data-lucide="shield-alert" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Admin</span>
                 </button>
 
-                <!-- Botão Modo Escuro / Claro -->
-                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-lg bg-slate-800 text-amber-400 hover:bg-slate-700 transition border border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alternar Tema Claro/Escuro">
+                <!-- Alternador de Tema Visual -->
+                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-lg bg-slate-800 text-amber-400 hover:bg-slate-700 transition border border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alternar Modo Claro/Escuro">
                     <i data-lucide="sun" id="iconeSol" class="w-4 h-4 hidden"></i>
                     <i data-lucide="moon" id="iconeLua" class="w-4 h-4"></i>
                     <span id="textoTema" class="hidden sm:inline">Modo Escuro</span>
@@ -57,6 +57,7 @@
                     <span id="nomeSetorLogado" class="font-bold text-amber-400">Nenhum</span>
                     <button onclick="fazerLogout()" class="ml-2 text-red-400 hover:text-red-300 underline text-xs font-medium">Bloquear</button>
                 </div>
+
                 <span id="statusConexao" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-sm">
                     <span class="w-2 h-2 mr-2 bg-amber-400 rounded-full animate-pulse"></span>
                     Conectando...
@@ -65,7 +66,7 @@
         </div>
     </header>
 
-    <!-- Modal de Senha por Setor -->
+    <!-- Modal para Solicitação de Senha por Setor -->
     <div id="modalSenha" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center space-x-3">
@@ -90,10 +91,10 @@
         </div>
     </div>
 
-    <!-- Conteúdo Principal -->
+    <!-- Corpo da Aplicação -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
 
-        <!-- KPIs / Cards de Indicadores Rápidos -->
+        <!-- Cards de Indicadores Rápidos (KPIs) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
                 <div>
@@ -133,7 +134,7 @@
             </div>
         </div>
 
-        <!-- Abas de Navegação -->
+        <!-- Abas de Navegação Superior (Ordem Solicitada) -->
         <div class="flex space-x-2 sm:space-x-4 border-b border-slate-300 dark:border-slate-800 pb-2 overflow-x-auto">
             <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="px-4 py-2 font-semibold text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
                 <i data-lucide="package" class="w-4 h-4"></i>
@@ -143,17 +144,21 @@
                 <i data-lucide="list" class="w-4 h-4"></i>
                 <span>2. Gerenciar Agendamentos (Transporte)</span>
             </button>
+            <button onclick="mudarTab('operacao')" id="btn-tab-operacao" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
+                <i data-lucide="boxes" class="w-4 h-4"></i>
+                <span>3. Operação Logística</span>
+            </button>
             <button onclick="mudarTab('tracking')" id="btn-tab-tracking" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
                 <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                <span>3. Tracking (Confirmar Entrega)</span>
+                <span>4. Tracking (Confirmar Entrega)</span>
             </button>
             <button onclick="mudarTab('calendario')" id="btn-tab-calendario" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
                 <i data-lucide="calendar" class="w-4 h-4"></i>
-                <span>4. Relatório e Fluxo por Período</span>
+                <span>5. Relatório e Fluxo por Período</span>
             </button>
         </div>
 
-        <!-- SEÇÃO 1: CRIAR/ATUALIZAR PEDIDO (PLANEJAMENTO) -->
+        <!-- ABA 1: CRIAR E ATUALIZAR PEDIDOS (PLANEJAMENTO) -->
         <div id="secao-pedidos" class="space-y-6">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
@@ -179,7 +184,7 @@
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Doca Agendada</label>
                         <select id="pedDoca" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 font-semibold cursor-not-allowed shadow-inner">
-                            <!-- Preenchido dinamicamente -->
+                            <!-- Preenchido dinamicamente via script -->
                         </select>
                     </div>
                     <div>
@@ -215,7 +220,7 @@
                 </form>
             </div>
 
-            <!-- Tabela de Pedidos com Dupla Busca (NF e Nº Pedido) -->
+            <!-- Tabela com Filtros Cruzados (NF e Nº Pedido) -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-center gap-3">
                     <h3 class="font-bold text-slate-700 dark:text-slate-200">Pedidos Cadastrados em Estoque/Expedição</h3>
@@ -249,14 +254,14 @@
                             </tr>
                         </thead>
                         <tbody id="tabelaPedidosBody" class="divide-y divide-slate-200 dark:divide-slate-800">
-                            <!-- Preenchido via JS -->
+                            <!-- Preenchido via script -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- SEÇÃO 2: GERENCIAR AGENDAMENTOS (TRANSPORTE) -->
+        <!-- ABA 2: GERENCIAR AGENDAMENTOS (TRANSPORTE) -->
         <div id="secao-agendamentos" class="space-y-6 hidden">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
@@ -273,7 +278,7 @@
                     </div>
                 </div>
                 
-                <!-- Caixa de Dupla Busca (NF ou Nº Pedido) -->
+                <!-- Caixa de Pesquisa Cruzada para Transporte -->
                 <div class="bg-blue-50/70 dark:bg-blue-950/40 p-4 rounded-xl border border-blue-200 dark:border-blue-900 mb-6 space-y-3">
                     <label class="block text-xs font-bold uppercase text-blue-900 dark:text-blue-300">Localizar Pedido (Dupla Opção de Busca):</label>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -300,7 +305,7 @@
                         <div>
                             <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Ou Selecionar da Lista</span>
                             <select id="agNotaSelect" onchange="puxarDadosDaNotaSelect()" class="w-full border border-blue-300 dark:border-blue-800 rounded-lg p-2.5 text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
-                                <!-- Preenchido dinamicamente -->
+                                <!-- Preenchido via script -->
                             </select>
                         </div>
                     </div>
@@ -369,7 +374,7 @@
                 </form>
             </div>
 
-            <!-- Tabela de Agendamentos -->
+            <!-- Tabela de Agendamentos Realizados -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
                     <h3 class="font-bold text-slate-700 dark:text-slate-200">Agendamentos Realizados</h3>
@@ -391,14 +396,140 @@
                             </tr>
                         </thead>
                         <tbody id="tabelaAgendamentosBody" class="divide-y divide-slate-200 dark:divide-slate-800">
-                            <!-- Preenchido via JS -->
+                            <!-- Preenchido via script -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- SEÇÃO 3: TRACKING (CONFIRMAR ENTREGA) -->
+        <!-- ABA 3: OPERAÇÃO LOGÍSTICA (NOVA ABA - SENHA 0327) -->
+        <div id="secao-operacao" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
+                        <i data-lucide="boxes" class="w-5 h-5 text-amber-500"></i>
+                        <span id="tituloFormOperacao">Registro da Operação Logística (Carregamento)</span>
+                    </h2>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" id="btnDesbloquearOperacao" onclick="pedirSenha('operacao')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1 shadow-sm transition">
+                            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                            <span>Desbloquear Edição (Senha 0327)</span>
+                        </button>
+                        <button type="button" id="btnCancelarEdicaoOperacao" onclick="cancelarEdicaoOperacao()" class="hidden text-xs text-red-600 dark:text-red-400 hover:underline px-2.5 py-1.5 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800 font-semibold">Cancelar Edição</button>
+                    </div>
+                </div>
+
+                <!-- Busca do Pedido/NF para Carregamento -->
+                <div class="bg-amber-50/70 dark:bg-amber-950/40 p-4 rounded-xl border border-amber-200 dark:border-amber-900 mb-6 space-y-3">
+                    <label class="block text-xs font-bold uppercase text-amber-900 dark:text-amber-300">Localizar Pedido em Carregamento:</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção A: Buscar por NF</span>
+                            <div class="flex space-x-2">
+                                <input type="text" id="opTextoNF" placeholder="Nº da NF..." class="w-full border border-amber-300 dark:border-amber-800 rounded-lg p-2.5 text-sm font-mono focus:ring-2 focus:ring-amber-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
+                                <button type="button" onclick="buscarNotaOperacaoTexto('nf')" class="bg-amber-600 hover:bg-amber-700 text-white font-medium px-3 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap shadow-sm">
+                                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                                    <span>NF</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção B: Buscar por Nº Pedido</span>
+                            <div class="flex space-x-2">
+                                <input type="text" id="opTextoNP" placeholder="Nº do Pedido..." class="w-full border border-amber-300 dark:border-amber-800 rounded-lg p-2.5 text-sm font-mono focus:ring-2 focus:ring-amber-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
+                                <button type="button" onclick="buscarNotaOperacaoTexto('np')" class="bg-amber-600 hover:bg-amber-700 text-white font-medium px-3 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap shadow-sm">
+                                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                                    <span>Pedido</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Ou Selecionar da Lista</span>
+                            <select id="opNotaSelect" onchange="puxarNotaOperacaoSelect()" class="w-full border border-amber-300 dark:border-amber-800 rounded-lg p-2.5 text-sm font-mono font-bold focus:ring-2 focus:ring-amber-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
+                                <!-- Preenchido via script -->
+                            </select>
+                        </div>
+                    </div>
+                    <div id="infoOperacaoSelecionado" class="text-xs text-amber-900 dark:text-amber-300 font-medium pt-1 border-t border-amber-200 dark:border-amber-900">
+                        Localize o pedido para registrar os horários de carregamento e equipe responsável.
+                    </div>
+                </div>
+
+                <form id="formOperacao" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="hidden" id="editOperacaoId">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="opNotaFiscal" placeholder="Aguardando busca..." readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cliente / Destino</label>
+                        <input type="text" id="opCliente" placeholder="Preenchido via Pedido" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Início do Carregamento</label>
+                        <input type="time" id="opHoraInicio" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Fim do Carregamento</label>
+                        <input type="time" id="opHoraFim" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Equipe que Carregou</label>
+                        <input type="text" id="opEquipe" placeholder="Ex: Equipe A (João, Marcos)" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Sobrou Espaço no Caminhão?</label>
+                        <select id="opSobrouEspaco" onchange="alternarCampoEspacoSobrado()" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed font-semibold">
+                            <option value="Não">Não (Caminhão Cheio)</option>
+                            <option value="Sim">Sim (Sobrou Espaço)</option>
+                        </select>
+                    </div>
+                    <div id="boxEspacoDetalhe" class="hidden">
+                        <label class="block text-xs font-semibold uppercase text-amber-600 dark:text-amber-400 mb-1">Qual o espaço que sobrou?</label>
+                        <input type="text" id="opQualEspaco" placeholder="Ex: 2 paletes / 1.5 metros de baú" disabled class="w-full border border-amber-300 dark:border-amber-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed font-medium">
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Observação Complementar (Digitação Manual)</label>
+                        <input type="text" id="opObservacoes" placeholder="Ex: Carregamento realizado com cinta especial; paletes com altura reduzida." disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
+                    </div>
+                    <div class="md:col-span-4 flex justify-end">
+                        <button type="submit" id="btnSalvarOperacao" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm">
+                            <i data-lucide="check-square" class="w-4 h-4"></i>
+                            <span id="textoBtnSalvarOperacao">Salvar Carregamento (Bloqueado)</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabela da Operação Logística -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico do Carregamento Operacional</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
+                                <th class="p-3.5">Nota Fiscal</th>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Início / Fim Carregamento</th>
+                                <th class="p-3.5">Equipe Resp.</th>
+                                <th class="p-3.5">Sobrou Espaço?</th>
+                                <th class="p-3.5">Espaço Sobrado</th>
+                                <th class="p-3.5">Observações</th>
+                                <th class="p-3.5 text-center" id="thAcoesOperacao">Ações (Exclusivo Admin)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaOperacaoBody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                            <!-- Preenchido via script -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 4: TRACKING (CONFIRMAR ENTREGA) -->
         <div id="secao-tracking" class="space-y-6 hidden">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
@@ -415,7 +546,7 @@
                     </div>
                 </div>
 
-                <!-- Caixa de Dupla Busca para Tracking -->
+                <!-- Caixa de Pesquisa para Tracking -->
                 <div class="bg-purple-50/80 dark:bg-purple-950/40 p-4 rounded-xl border border-purple-200 dark:border-purple-900 mb-6 space-y-3">
                     <label class="block text-xs font-bold uppercase text-purple-900 dark:text-purple-300">Localizar Pedido para Dar Baixa (Dupla Opção):</label>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -442,7 +573,7 @@
                         <div>
                             <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Ou Selecionar da Lista</span>
                             <select id="trcNotaSelect" onchange="puxarNotaTrackingSelect()" class="w-full border border-purple-300 dark:border-purple-800 rounded-lg p-2.5 text-sm font-mono font-bold focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
-                                <!-- Preenchido dinamicamente -->
+                                <!-- Preenchido via script -->
                             </select>
                         </div>
                     </div>
@@ -491,7 +622,7 @@
                 </form>
             </div>
 
-            <!-- Tabela de Tracking -->
+            <!-- Tabela de Tracking / Histórico de Baixas -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
                     <h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Baixas e Entregas</h3>
@@ -509,16 +640,15 @@
                             </tr>
                         </thead>
                         <tbody id="tabelaTrackingBody" class="divide-y divide-slate-200 dark:divide-slate-800">
-                            <!-- Preenchido via JS -->
+                            <!-- Preenchido via script -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- SEÇÃO 4: RELATÓRIO / VISÃO CONSOLIDADA E RELATÓRIO EXCEL -->
+        <!-- ABA 5: RELATÓRIO GERAL E EXPORTAÇÃO EXCEL -->
         <div id="secao-calendario" class="space-y-6 hidden">
-            <!-- Painel de Filtros Avançados de Período e Busca NF / NP -->
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
@@ -529,14 +659,14 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400">Filtre por período e pesquise por NF ou Número do Pedido para consultar e exportar relatórios em Excel.</p>
                     </div>
 
-                    <!-- Botão Exportar Excel -->
+                    <!-- Botão de Exportação -->
                     <button onclick="exportarRelatorioExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs transition flex items-center space-x-2 shadow-md">
                         <i data-lucide="download" class="w-4 h-4"></i>
                         <span>Exportar para Excel (.xlsx) Profissional</span>
                     </button>
                 </div>
 
-                <!-- Seleção do Modo de Filtro e Busca Rápida -->
+                <!-- Painel de Filtros e Busca Rápida -->
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 pt-2 border-t border-slate-200 dark:border-slate-800 items-end">
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Tipo de Filtro</label>
@@ -547,19 +677,19 @@
                         </select>
                     </div>
 
-                    <!-- Input 1: Dia Específico -->
+                    <!-- Filtro por Dia Específico -->
                     <div id="boxFiltroDia">
                         <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Selecionar Dia</label>
                         <input type="date" id="filtroDiaData" onchange="renderizarCalendario()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 shadow-inner">
                     </div>
 
-                    <!-- Input 2: Mês Inteiro -->
+                    <!-- Filtro por Mês Inteiro -->
                     <div id="boxFiltroMes" class="hidden">
                         <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Mês/Ano</label>
                         <input type="month" id="filtroMesData" onchange="renderizarCalendario()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 shadow-inner">
                     </div>
 
-                    <!-- Input 3: Período personalizado (De / Até) -->
+                    <!-- Filtro por Período Personalizado (De / Até) -->
                     <div id="boxFiltroDe" class="hidden">
                         <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Data Inicial (De)</label>
                         <input type="date" id="filtroDataDe" onchange="renderizarCalendario()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 shadow-inner">
@@ -569,7 +699,7 @@
                         <input type="date" id="filtroDataAte" onchange="renderizarCalendario()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 shadow-inner">
                     </div>
 
-                    <!-- Dupla Busca Rápida por NF ou NP no Relatório -->
+                    <!-- Caixa de Busca por NF / Nº Pedido no Relatório -->
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Busca NF / Pedido</label>
                         <div class="grid grid-cols-2 gap-1.5">
@@ -595,14 +725,14 @@
                                 <th class="p-3.5">Ticket / Nº Pedido</th>
                                 <th class="p-3.5">Doca</th>
                                 <th class="p-3.5">Transportadora / Placa</th>
-                                <th class="p-3.5">Motorista</th>
+                                <th class="p-3.5">Carregamento (Horário)</th>
+                                <th class="p-3.5">Equipe / Espaço Sobrado</th>
                                 <th class="p-3.5">Cliente</th>
                                 <th class="p-3.5">Data Pedido</th>
-                                <th class="p-3.5">Data de Liberação</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaConsolidadaBody" class="divide-y divide-slate-200 dark:divide-slate-800">
-                            <!-- Preenchido via JS -->
+                            <!-- Preenchido via script -->
                         </tbody>
                     </table>
                 </div>
@@ -611,11 +741,12 @@
 
     </main>
 
+    <!-- Rodapé -->
     <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-auto py-4 text-center text-xs text-slate-500 dark:text-slate-400">
         LOGÍSTICA DARNEL - ARAUCÁRIA &bull; Sincronização em Nuvem (Firebase)
     </footer>
 
-    <!-- Lógica JavaScript & Firebase Integration -->
+    <!-- Scripts da Aplicação e Regras de Negócio -->
     <script>
         lucide.createIcons();
 
@@ -625,6 +756,7 @@
             
             let bgClass = 'bg-emerald-600 text-white';
             let icone = 'check-circle';
+            
             if (tipo === 'erro') {
                 bgClass = 'bg-red-600 text-white';
                 icone = 'alert-circle';
@@ -718,17 +850,32 @@
                 }
             });
         } catch (e) {
-            console.warn("Firebase não configurado.");
+            console.warn("Aviso: Firebase rodando offline.");
         }
 
-        let dadosApp = { agendamentos: [], pedidos: [], tracking: [] };
-        const SENHAS_SETORES = { planejamento: "0321", transporte: "0323", tracking: "0325", admin: "9704" };
+        // Estrutura central com nova tabela operacao
+        let dadosApp = { agendamentos: [], pedidos: [], operacao: [], tracking: [] };
+        
+        // Senhas de acesso por setor (Adicionada a senha 0327 para Operação)
+        const SENHAS_SETORES = { 
+            planejamento: "0321", 
+            transporte: "0323", 
+            operacao: "0327", 
+            tracking: "0325", 
+            admin: "9704" 
+        };
         let setorAutenticado = null;
         let registrosFiltradosAtuais = [];
 
         function pedirSenha(setor) {
             window.setorTemp = setor;
-            const nomes = { planejamento: 'Planejamento', transporte: 'Transporte', tracking: 'Tracking', admin: 'Administrador Geral' };
+            const nomes = { 
+                planejamento: 'Planejamento', 
+                transporte: 'Transporte', 
+                operacao: 'Operação Logística', 
+                tracking: 'Tracking', 
+                admin: 'Administrador Geral' 
+            };
             document.getElementById('modalSubtitulo').textContent = `Digite a senha para desbloquear o setor de ${nomes[setor]}.`;
             document.getElementById('inputSenhaSetor').value = '';
             document.getElementById('modalSenha').classList.remove('hidden');
@@ -776,76 +923,71 @@
                 infoSessao.classList.remove('flex');
             }
 
+            // Permissões Planejamento
             const canPlan = (setorAutenticado === 'planejamento' || isAdmin);
             const inputsPed = document.querySelectorAll('#secao-pedidos input:not([id^="filtro"]):not(#filtroDataPedido), #secao-pedidos select');
             inputsPed.forEach(el => {
-                if (canPlan) {
-                    el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
-                } else {
-                    el.disabled = true;
-                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
-                }
+                el.disabled = !canPlan;
+                if (canPlan) el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
+                else el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
             });
             const btnSalvarPed = document.getElementById('btnSalvarPedido');
-            if (canPlan) {
-                btnSalvarPed.disabled = false;
-                btnSalvarPed.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm";
-                document.getElementById('textoBtnSalvarPedido').textContent = document.getElementById('editPedidoId').value ? 'Atualizar Pedido Alterado' : 'Salvar Pedido na Nuvem';
-                document.getElementById('btnDesbloquearPedidos').classList.add('hidden');
-            } else {
-                btnSalvarPed.disabled = true;
-                btnSalvarPed.className = "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
-                document.getElementById('textoBtnSalvarPedido').textContent = 'Salvar Pedido na Nuvem (Bloqueado)';
-                document.getElementById('btnDesbloquearPedidos').classList.remove('hidden');
-            }
+            btnSalvarPed.disabled = !canPlan;
+            btnSalvarPed.className = canPlan 
+                ? "bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm"
+                : "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
+            document.getElementById('textoBtnSalvarPedido').textContent = canPlan ? (document.getElementById('editPedidoId').value ? 'Atualizar Pedido Alterado' : 'Salvar Pedido na Nuvem') : 'Salvar Pedido na Nuvem (Bloqueado)';
+            document.getElementById('btnDesbloquearPedidos').classList.toggle('hidden', canPlan);
 
+            // Permissões Transporte
             const canTrans = (setorAutenticado === 'transporte' || isAdmin);
             const inputsTransp = document.querySelectorAll('#secao-agendamentos input:not([id^="buscaTexto"]):not(#agNumeroPedido), #secao-agendamentos select:not(#agNotaSelect)');
             inputsTransp.forEach(el => {
-                if (canTrans) {
-                    el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
-                } else {
-                    el.disabled = true;
-                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
-                }
+                el.disabled = !canTrans;
+                if (canTrans) el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
+                else el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
             });
             const btnSalvarAg = document.getElementById('btnSalvarAgendamento');
-            if (canTrans) {
-                btnSalvarAg.disabled = false;
-                btnSalvarAg.className = "w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm";
-                document.getElementById('btnDesbloquearAgendamentos').classList.add('hidden');
-            } else {
-                btnSalvarAg.disabled = true;
-                btnSalvarAg.className = "w-full md:w-auto bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
-                document.getElementById('btnDesbloquearAgendamentos').classList.remove('hidden');
-            }
+            btnSalvarAg.disabled = !canTrans;
+            btnSalvarAg.className = canTrans 
+                ? "w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm"
+                : "w-full md:w-auto bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
+            document.getElementById('btnDesbloquearAgendamentos').classList.toggle('hidden', canTrans);
 
+            // Permissões Operação Logística (Nova Aba - Senha 0327)
+            const canOp = (setorAutenticado === 'operacao' || isAdmin);
+            const inputsOp = document.querySelectorAll('#secao-operacao input:not([id^="opTexto"]), #secao-operacao select:not(#opNotaSelect)');
+            inputsOp.forEach(el => {
+                el.disabled = !canOp;
+                if (canOp) el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
+                else el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
+            });
+            alternarCampoEspacoSobrado(); // Habilita/Desabilita subcampo se sim
+            const btnSalvarOp = document.getElementById('btnSalvarOperacao');
+            btnSalvarOp.disabled = !canOp;
+            btnSalvarOp.className = canOp 
+                ? "bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm"
+                : "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
+            document.getElementById('btnDesbloquearOperacao').classList.toggle('hidden', canOp);
+
+            // Permissões Tracking
             const canTrc = (setorAutenticado === 'tracking' || isAdmin);
             const inputsTrc = document.querySelectorAll('#secao-tracking input:not([id^="trcTexto"]), #secao-tracking select:not(#trcNotaSelect)');
             inputsTrc.forEach(el => {
-                if (canTrc) {
-                    el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
-                } else {
-                    el.disabled = true;
-                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
-                }
+                el.disabled = !canTrc;
+                if (canTrc) el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
+                else el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
             });
             const btnSalvarTrc = document.getElementById('btnSalvarTracking');
-            if (canTrc) {
-                btnSalvarTrc.disabled = false;
-                btnSalvarTrc.className = "bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm";
-                document.getElementById('btnDesbloquearTracking').classList.add('hidden');
-            } else {
-                btnSalvarTrc.disabled = true;
-                btnSalvarTrc.className = "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
-                document.getElementById('btnDesbloquearTracking').classList.remove('hidden');
-            }
+            btnSalvarTrc.disabled = !canTrc;
+            btnSalvarTrc.className = canTrc 
+                ? "bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm"
+                : "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
+            document.getElementById('btnDesbloquearTracking').classList.toggle('hidden', canTrc);
 
             renderizarTabelasPedidos();
             renderizarTabelasAgendamentos();
+            renderizarTabelasOperacao();
             renderizarTabelasTracking();
         }
 
@@ -855,13 +997,16 @@
                 const data = snapshot.val() || {};
                 dadosApp.pedidos = Object.values(data.pedidos || {});
                 dadosApp.agendamentos = Object.values(data.agendamentos || {});
+                dadosApp.operacao = Object.values(data.operacao || {});
                 dadosApp.tracking = Object.values(data.tracking || {});
 
                 atualizarKPIs();
                 carregarSelectNotas();
+                carregarSelectOperacao();
                 carregarSelectTracking();
                 renderizarTabelasPedidos();
                 renderizarTabelasAgendamentos();
+                renderizarTabelasOperacao();
                 renderizarTabelasTracking();
                 renderizarCalendario();
             });
@@ -871,9 +1016,15 @@
             if (!db) return;
             const objPedidos = {}; dadosApp.pedidos.forEach(p => objPedidos[p.id] = p);
             const objAgendamentos = {}; dadosApp.agendamentos.forEach(a => objAgendamentos[a.id] = a);
+            const objOperacao = {}; dadosApp.operacao.forEach(o => objOperacao[o.id] = o);
             const objTracking = {}; dadosApp.tracking.forEach(t => objTracking[t.id] = t);
 
-            db.ref('logistica_darnel').set({ pedidos: objPedidos, agendamentos: objAgendamentos, tracking: objTracking });
+            db.ref('logistica_darnel').set({ 
+                pedidos: objPedidos, 
+                agendamentos: objAgendamentos, 
+                operacao: objOperacao, 
+                tracking: objTracking 
+            });
         }
 
         function carregarOpcoesDocas() {
@@ -899,6 +1050,17 @@
             });
         }
 
+        function carregarSelectOperacao() {
+            const selectOP = document.getElementById('opNotaSelect');
+            selectOP.innerHTML = '<option value="">-- Selecione na lista de pedidos --</option>';
+            dadosApp.pedidos.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `NF: ${p.nota || '-'} | Pedido: ${p.numeroPedido || '-'} | Doca: ${p.doca}`;
+                selectOP.appendChild(opt);
+            });
+        }
+
         function carregarSelectTracking() {
             const selectTRC = document.getElementById('trcNotaSelect');
             selectTRC.innerHTML = '<option value="">-- Selecione na lista de pedidos --</option>';
@@ -908,6 +1070,68 @@
                 opt.textContent = `NF: ${p.nota || '-'} | Pedido: ${p.numeroPedido || '-'} | Status: ${p.status}`;
                 selectTRC.appendChild(opt);
             });
+        }
+
+        // Funções para Operação Logística
+        function alternarCampoEspacoSobrado() {
+            const sobrou = document.getElementById('opSobrouEspaco').value === 'Sim';
+            const boxDetalhe = document.getElementById('boxEspacoDetalhe');
+            const inputQual = document.getElementById('opQualEspaco');
+            const canOp = (setorAutenticado === 'operacao' || setorAutenticado === 'admin');
+
+            if (sobrou) {
+                boxDetalhe.classList.remove('hidden');
+                inputQual.required = true;
+                inputQual.disabled = !canOp;
+            } else {
+                boxDetalhe.classList.add('hidden');
+                inputQual.required = false;
+                inputQual.value = '';
+            }
+        }
+
+        function aplicarDadosOperacao(pedido) {
+            const inputNF = document.getElementById('opNotaFiscal');
+            const inputCliente = document.getElementById('opCliente');
+            const infoDiv = document.getElementById('infoOperacaoSelecionado');
+
+            if (pedido) {
+                inputNF.value = pedido.nota || '-';
+                inputCliente.value = pedido.cliente;
+                infoDiv.innerHTML = `<span class="text-amber-700 dark:text-amber-400 font-bold">✓ Pedido localizado!</span> NF: <strong>${pedido.nota || '-'}</strong> | Pedido: <strong>${pedido.numeroPedido || '-'}</strong> | Doca: <strong>${pedido.doca || '-'}</strong>`;
+            } else {
+                inputNF.value = ''; inputCliente.value = '';
+                infoDiv.textContent = 'Localize o pedido para registrar os horários de carregamento e equipe responsável.';
+            }
+        }
+
+        function buscarNotaOperacaoTexto(tipo) {
+            const campoId = tipo === 'nf' ? 'opTextoNF' : 'opTextoNP';
+            const termo = document.getElementById(campoId).value.trim();
+            if (!termo) { mostrarToast(`Digite o número ${tipo === 'nf' ? 'da NF' : 'do Pedido'}.`, 'aviso'); return; }
+            
+            const pedidoEncontrado = dadosApp.pedidos.find(p => 
+                tipo === 'nf' ? (p.nota && p.nota.toLowerCase() === termo.toLowerCase()) : (p.numeroPedido && p.numeroPedido.toLowerCase() === termo.toLowerCase())
+            );
+
+            if (pedidoEncontrado) {
+                document.getElementById('opNotaSelect').value = pedidoEncontrado.id;
+                aplicarDadosOperacao(pedidoEncontrado);
+                mostrarToast('Pedido localizado com sucesso!', 'sucesso');
+            } else {
+                mostrarToast(`${tipo === 'nf' ? 'NF' : 'Pedido'} "${termo}" não encontrado.`, 'erro');
+                aplicarDadosOperacao(null);
+            }
+        }
+
+        function puxarNotaOperacaoSelect() {
+            const pedIdSel = document.getElementById('opNotaSelect').value;
+            const pedidoEncontrado = dadosApp.pedidos.find(p => p.id == pedIdSel);
+            if (pedidoEncontrado) {
+                document.getElementById('opTextoNF').value = (pedidoEncontrado.nota && pedidoEncontrado.nota !== '-') ? pedidoEncontrado.nota : '';
+                document.getElementById('opTextoNP').value = pedidoEncontrado.numeroPedido || '';
+            }
+            aplicarDadosOperacao(pedidoEncontrado);
         }
 
         function aplicarDadosNota(pedido) {
@@ -924,7 +1148,6 @@
                 inputNumeroPedido.value = pedido.numeroPedido || '';
                 inputCliente.value = pedido.cliente;
                 
-                // Se já houver agendamento com ticket para esta NF/Pedido, puxar o ticket existente
                 const agExistente = dadosApp.agendamentos.find(a => (pedido.nota && pedido.nota !== '-' && a.nota === pedido.nota) || (a.numeroPedido && a.numeroPedido === pedido.numeroPedido));
                 inputTicket.value = agExistente && agExistente.ticket ? agExistente.ticket : '';
 
@@ -1011,22 +1234,24 @@
             aplicarDadosTracking(pedidoEncontrado);
         }
 
+        // Alternância de Abas na Interface
         function mudarTab(tab) {
-            const secAg = document.getElementById('secao-agendamentos');
-            const secCal = document.getElementById('secao-calendario');
             const secPed = document.getElementById('secao-pedidos');
+            const secAg = document.getElementById('secao-agendamentos');
+            const secOp = document.getElementById('secao-operacao');
             const secTrc = document.getElementById('secao-tracking');
+            const secCal = document.getElementById('secao-calendario');
             
-            const btnAg = document.getElementById('btn-tab-agendamentos');
-            const btnCal = document.getElementById('btn-tab-calendario');
             const btnPed = document.getElementById('btn-tab-pedidos');
+            const btnAg = document.getElementById('btn-tab-agendamentos');
+            const btnOp = document.getElementById('btn-tab-operacao');
             const btnTrc = document.getElementById('btn-tab-tracking');
+            const btnCal = document.getElementById('btn-tab-calendario');
 
-            secAg.classList.add('hidden'); secCal.classList.add('hidden'); secPed.classList.add('hidden'); secTrc.classList.add('hidden');
-            btnAg.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-            btnCal.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-            btnPed.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-            btnTrc.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
+            secPed.classList.add('hidden'); secAg.classList.add('hidden'); secOp.classList.add('hidden'); secTrc.classList.add('hidden'); secCal.classList.add('hidden');
+            
+            const defaultClass = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
+            btnPed.className = defaultClass; btnAg.className = defaultClass; btnOp.className = defaultClass; btnTrc.className = defaultClass; btnCal.className = defaultClass;
 
             if (tab === 'pedidos') {
                 secPed.classList.remove('hidden');
@@ -1035,6 +1260,10 @@
                 secAg.classList.remove('hidden');
                 btnAg.className = "px-4 py-2 font-semibold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
                 carregarSelectNotas();
+            } else if (tab === 'operacao') {
+                secOp.classList.remove('hidden');
+                btnOp.className = "px-4 py-2 font-semibold text-amber-600 dark:text-amber-400 border-b-2 border-amber-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
+                carregarSelectOperacao();
             } else if (tab === 'tracking') {
                 secTrc.classList.remove('hidden');
                 btnTrc.className = "px-4 py-2 font-semibold text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
@@ -1046,7 +1275,7 @@
             }
         }
 
-        // SUBMITS
+        // Submissão de Formulários
         document.getElementById('formPedido').addEventListener('submit', function(e) {
             e.preventDefault();
             if (setorAutenticado !== 'planejamento' && setorAutenticado !== 'admin') { mostrarToast('Acesso negado. Desbloqueie com a senha do Planejamento.', 'erro'); return; }
@@ -1130,7 +1359,7 @@
                 if (pedidoRel) {
                     const idxPed = dadosApp.pedidos.findIndex(p => p.id === pedidoRel.id);
                     if (idxPed !== -1) {
-                        dadosApp.pedidos[idxPed].nota = nf; // Atualiza a NF no Pedido
+                        dadosApp.pedidos[idxPed].nota = nf;
                         dadosApp.pedidos[idxPed].status = `Agendado (${novoadg.doca})`;
                     }
                 }
@@ -1139,6 +1368,61 @@
                 document.getElementById('buscaTextoNF').value = '';
                 document.getElementById('buscaTextoNP').value = '';
                 mostrarToast('Agendamento e NF vinculados com sucesso!', 'sucesso');
+            }
+        });
+
+        // Submit da Operação Logística
+        document.getElementById('formOperacao').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (setorAutenticado !== 'operacao' && setorAutenticado !== 'admin') { mostrarToast('Acesso negado. Desbloqueie com a senha da Operação.', 'erro'); return; }
+
+            const editId = document.getElementById('editOperacaoId').value;
+            const nf = document.getElementById('opNotaFiscal').value;
+            const cliente = document.getElementById('opCliente').value;
+            if (!cliente) { mostrarToast('Selecione ou busque um pedido válido.', 'aviso'); return; }
+
+            const sobrou = document.getElementById('opSobrouEspaco').value;
+            const espacoQual = sobrou === 'Sim' ? document.getElementById('opQualEspaco').value.trim() : 'N/A';
+
+            if (editId) {
+                const idx = dadosApp.operacao.findIndex(o => o.id == editId);
+                if (idx !== -1) {
+                    dadosApp.operacao[idx].horaInicio = document.getElementById('opHoraInicio').value;
+                    dadosApp.operacao[idx].horaFim = document.getElementById('opHoraFim').value;
+                    dadosApp.operacao[idx].equipe = document.getElementById('opEquipe').value;
+                    dadosApp.operacao[idx].sobrouEspaco = sobrou;
+                    dadosApp.operacao[idx].qualEspaco = espacoQual;
+                    dadosApp.operacao[idx].observacoes = document.getElementById('opObservacoes').value;
+
+                    salvarNoFirebase(); cancelarEdicaoOperacao();
+                    mostrarToast('Registro da Operação atualizado!', 'sucesso');
+                }
+            } else {
+                const novaOp = {
+                    id: Date.now(),
+                    nota: nf || '-',
+                    cliente: cliente,
+                    horaInicio: document.getElementById('opHoraInicio').value,
+                    horaFim: document.getElementById('opHoraFim').value,
+                    equipe: document.getElementById('opEquipe').value,
+                    sobrouEspaco: sobrou,
+                    qualEspaco: espacoQual,
+                    observacoes: document.getElementById('opObservacoes').value
+                };
+
+                // Atualizar status no pedido
+                const pedidoRel = dadosApp.pedidos.find(p => (nf && nf !== '-' && p.nota === nf) || p.cliente === cliente);
+                if (pedidoRel) {
+                    const idxPed = dadosApp.pedidos.findIndex(p => p.id === pedidoRel.id);
+                    if (idxPed !== -1) dadosApp.pedidos[idxPed].status = 'Carregamento Concluído';
+                }
+
+                dadosApp.operacao.push(novaOp);
+                salvarNoFirebase(); this.reset(); aplicarDadosOperacao(null);
+                document.getElementById('opTextoNF').value = '';
+                document.getElementById('opTextoNP').value = '';
+                alternarCampoEspacoSobrado();
+                mostrarToast('Operação Logística salva na nuvem!', 'sucesso');
             }
         });
 
@@ -1189,6 +1473,7 @@
             }
         });
 
+        // Edições
         function editarPedido(id) {
             if (setorAutenticado !== 'admin') { mostrarToast('Acesso restrito! Requer senha de Administrador.', 'erro'); return; }
             const pedido = dadosApp.pedidos.find(p => p.id === id);
@@ -1245,6 +1530,36 @@
             document.getElementById('btnCancelarEdicaoAgendamento').classList.add('hidden');
         }
 
+        function editarOperacao(id) {
+            if (setorAutenticado !== 'admin') { mostrarToast('Acesso restrito! Requer senha de Administrador.', 'erro'); return; }
+            const op = dadosApp.operacao.find(o => o.id === id);
+            if (!op) return;
+
+            document.getElementById('editOperacaoId').value = op.id;
+            document.getElementById('opNotaFiscal').value = op.nota || '-';
+            document.getElementById('opCliente').value = op.cliente;
+            document.getElementById('opHoraInicio').value = op.horaInicio;
+            document.getElementById('opHoraFim').value = op.horaFim;
+            document.getElementById('opEquipe').value = op.equipe;
+            document.getElementById('opSobrouEspaco').value = op.sobrouEspaco;
+            alternarCampoEspacoSobrado();
+            if (op.sobrouEspaco === 'Sim') document.getElementById('opQualEspaco').value = op.qualEspaco || '';
+            document.getElementById('opObservacoes').value = op.observacoes || '';
+
+            document.getElementById('textoBtnSalvarOperacao').textContent = 'Atualizar Operação';
+            document.getElementById('btnCancelarEdicaoOperacao').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            mostrarToast('Modo de edição ativado para a Operação.', 'aviso');
+        }
+
+        function cancelarEdicaoOperacao() {
+            document.getElementById('formOperacao').reset();
+            document.getElementById('editOperacaoId').value = '';
+            document.getElementById('textoBtnSalvarOperacao').textContent = 'Salvar Carregamento (Bloqueado)';
+            document.getElementById('btnCancelarEdicaoOperacao').classList.add('hidden');
+            alternarCampoEspacoSobrado();
+        }
+
         function editarTracking(id) {
             if (setorAutenticado !== 'admin') { mostrarToast('Acesso restrito! Requer senha de Administrador.', 'erro'); return; }
             const trc = dadosApp.tracking.find(t => t.id === id);
@@ -1279,11 +1594,13 @@
 
             if (confirm('Deseja realmente excluir este registro permanentemente?')) {
                 if (tipo === 'agendamento') dadosApp.agendamentos = dadosApp.agendamentos.filter(i => i.id !== id);
+                else if (tipo === 'operacao') dadosApp.operacao = dadosApp.operacao.filter(i => i.id !== id);
                 else if (tipo === 'tracking') dadosApp.tracking = dadosApp.tracking.filter(i => i.id !== id);
                 else {
                     const ped = dadosApp.pedidos.find(p => p.id === id);
                     if (ped) {
                         dadosApp.agendamentos = dadosApp.agendamentos.filter(a => (ped.nota && ped.nota !== '-' && a.nota === ped.nota) || a.numeroPedido === ped.numeroPedido);
+                        dadosApp.operacao = dadosApp.operacao.filter(o => (ped.nota && ped.nota !== '-' && o.nota === ped.nota) || o.cliente === ped.cliente);
                         dadosApp.tracking = dadosApp.tracking.filter(t => (ped.nota && ped.nota !== '-' && t.nota === ped.nota) || t.cliente === ped.cliente);
                     }
                     dadosApp.pedidos = dadosApp.pedidos.filter(i => i.id !== id);
@@ -1293,6 +1610,7 @@
             }
         }
 
+        // Renderização de Tabelas
         function renderizarTabelasPedidos() {
             const dataFiltro = document.getElementById('filtroDataPedido').value;
             const buscaNF = document.getElementById('filtroBuscaNF').value.toLowerCase().trim();
@@ -1360,6 +1678,32 @@
             lucide.createIcons();
         }
 
+        function renderizarTabelasOperacao() {
+            const canAdmin = (setorAutenticado === 'admin');
+            document.getElementById('thAcoesOperacao').style.display = canAdmin ? 'table-cell' : 'none';
+
+            document.getElementById('tabelaOperacaoBody').innerHTML = dadosApp.operacao.length === 0
+                ? `<tr><td colspan="8" class="p-6 text-center text-slate-400">Nenhum registro de carregamento efetuado.</td></tr>`
+                : dadosApp.operacao.map(item => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td class="p-3.5 font-mono font-bold text-amber-700 dark:text-amber-400">${item.nota || '-'}</td>
+                        <td class="p-3.5 font-medium">${item.cliente}</td>
+                        <td class="p-3.5 font-mono text-xs">${item.horaInicio} às ${item.horaFim}</td>
+                        <td class="p-3.5 font-semibold text-slate-700 dark:text-slate-200">${item.equipe}</td>
+                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.sobrouEspaco === 'Sim' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}">${item.sobrouEspaco}</span></td>
+                        <td class="p-3.5 font-medium text-amber-800 dark:text-amber-300">${item.qualEspaco || '-'}</td>
+                        <td class="p-3.5 text-slate-600 dark:text-slate-300 font-medium">${item.observacoes || '-'}</td>
+                        ${canAdmin ? `
+                            <td class="p-3.5 text-center space-x-1">
+                                <button onclick="editarOperacao(${item.id})" title="Editar Operação (Admin)" class="p-1.5 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="excluirItem('operacao', ${item.id})" title="Excluir Registro (Admin)" class="p-1.5 bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </td>
+                        ` : ''}
+                    </tr>
+                `).join('');
+            lucide.createIcons();
+        }
+
         function renderizarTabelasTracking() {
             const canAdmin = (setorAutenticado === 'admin');
             document.getElementById('thAcoesTracking').style.display = canAdmin ? 'table-cell' : 'none';
@@ -1389,6 +1733,7 @@
             lucide.createIcons();
         }
 
+        // Relatórios por Período e Consolidação
         function alternarCamposFiltroPeriodo() {
             const tipo = document.getElementById('tipoFiltroPeriodo').value;
             const boxDia = document.getElementById('boxFiltroDia');
@@ -1426,12 +1771,13 @@
 
                 dadosApp.pedidos.forEach(ped => {
                     const ag = dadosApp.agendamentos.find(a => (ped.nota && ped.nota !== '-' && a.nota === ped.nota) || a.numeroPedido === ped.numeroPedido);
+                    const op = dadosApp.operacao.find(o => (ped.nota && ped.nota !== '-' && o.nota === ped.nota) || o.cliente === ped.cliente);
                     const trc = dadosApp.tracking.find(t => (ped.nota && ped.nota !== '-' && t.nota === ped.nota) || t.cliente === ped.cliente);
                     const dataAg = ag && ag.dataHora ? ag.dataHora.split('T')[0] : '';
 
                     if (ped.data === diaSel || ped.dataSaida === diaSel || dataAg === diaSel) {
                         if (atendeFiltroBusca(ped, filtroNF, filtroNP)) {
-                            lista.push(montarObjetoConsolidado(ped, ag, trc));
+                            lista.push(montarObjetoConsolidado(ped, ag, op, trc));
                         }
                     }
                 });
@@ -1442,12 +1788,13 @@
 
                 dadosApp.pedidos.forEach(ped => {
                     const ag = dadosApp.agendamentos.find(a => (ped.nota && ped.nota !== '-' && a.nota === ped.nota) || a.numeroPedido === ped.numeroPedido);
+                    const op = dadosApp.operacao.find(o => (ped.nota && ped.nota !== '-' && o.nota === ped.nota) || o.cliente === ped.cliente);
                     const trc = dadosApp.tracking.find(t => (ped.nota && ped.nota !== '-' && t.nota === ped.nota) || t.cliente === ped.cliente);
                     const dataAg = ag && ag.dataHora ? ag.dataHora.split('T')[0] : '';
 
                     if ((ped.data && ped.data.startsWith(mesSel)) || (ped.dataSaida && ped.dataSaida.startsWith(mesSel)) || (dataAg && dataAg.startsWith(mesSel))) {
                         if (atendeFiltroBusca(ped, filtroNF, filtroNP)) {
-                            lista.push(montarObjetoConsolidado(ped, ag, trc));
+                            lista.push(montarObjetoConsolidado(ped, ag, op, trc));
                         }
                     }
                 });
@@ -1459,12 +1806,13 @@
 
                 dadosApp.pedidos.forEach(ped => {
                     const ag = dadosApp.agendamentos.find(a => (ped.nota && ped.nota !== '-' && a.nota === ped.nota) || a.numeroPedido === ped.numeroPedido);
+                    const op = dadosApp.operacao.find(o => (ped.nota && ped.nota !== '-' && o.nota === ped.nota) || o.cliente === ped.cliente);
                     const trc = dadosApp.tracking.find(t => (ped.nota && ped.nota !== '-' && t.nota === ped.nota) || t.cliente === ped.cliente);
                     const dataAg = ag && ag.dataHora ? ag.dataHora.split('T')[0] : '';
 
                     if ((ped.data >= deSel && ped.data <= ateSel) || (ped.dataSaida >= deSel && ped.dataSaida <= ateSel) || (dataAg >= deSel && dataAg <= ateSel)) {
                         if (atendeFiltroBusca(ped, filtroNF, filtroNP)) {
-                            lista.push(montarObjetoConsolidado(ped, ag, trc));
+                            lista.push(montarObjetoConsolidado(ped, ag, op, trc));
                         }
                     }
                 });
@@ -1481,6 +1829,7 @@
                     if (i.status.includes('ENTREGUE')) badgeClass = "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 font-bold";
                     if (i.status.includes('RECUSA')) badgeClass = "bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 font-bold";
                     if (i.status.includes('Agendado')) badgeClass = "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 font-bold";
+                    if (i.status.includes('Carregamento')) badgeClass = "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold";
 
                     return `
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -1489,10 +1838,10 @@
                             <td class="p-3.5 font-mono text-xs">${i.ticket} / ${i.numeroPedido}</td>
                             <td class="p-3.5 font-semibold text-blue-600 dark:text-blue-400">${i.doca}</td>
                             <td class="p-3.5 font-medium">${i.transportadoraPlaca}</td>
-                            <td class="p-3.5 text-slate-600 dark:text-slate-300">${i.motorista}</td>
+                            <td class="p-3.5 font-mono text-xs">${i.horariosCarregamento}</td>
+                            <td class="p-3.5 text-xs"><strong>${i.equipe}</strong> ${i.qualEspaco !== 'N/A' && i.qualEspaco !== '-' ? `<span class="text-amber-600">(${i.qualEspaco})</span>` : ''}</td>
                             <td class="p-3.5 font-medium">${i.cliente}</td>
                             <td class="p-3.5 text-slate-500">${i.dataPedido}</td>
-                            <td class="p-3.5 text-amber-700 dark:text-amber-400 font-medium">${i.dataSaida}</td>
                         </tr>
                     `;
                 }).join('');
@@ -1505,9 +1854,10 @@
             return matchNF && matchNP;
         }
 
-        function montarObjetoConsolidado(ped, ag, trc) {
+        function montarObjetoConsolidado(ped, ag, op, trc) {
             let statusFinal = ped.status;
             if (ag) statusFinal = `Agendado (${ag.doca || ped.doca})`;
+            if (op) statusFinal = `Carregado (${op.horaInicio}-${op.horaFim})`;
             if (trc) statusFinal = trc.statusFinal;
 
             return {
@@ -1517,13 +1867,13 @@
                 transportadora: ag ? ag.transportadora : 'Aguardando', placa: ag ? ag.placa : '-',
                 motorista: ag ? ag.motorista : '-', dataHoraAgendada: ag && ag.dataHora ? new Date(ag.dataHora).toLocaleString('pt-BR') : '-',
                 transportadoraPlaca: ag ? `${ag.transportadora} (${ag.placa})` : 'Aguardando Agendamento',
-                status: statusFinal, observacoes: trc ? (trc.observacoes || '-') : '-'
+                horariosCarregamento: op ? `${op.horaInicio} às ${op.horaFim}` : 'Não carregado',
+                equipe: op ? op.equipe : '-', sobrouEspaco: op ? op.sobrouEspaco : '-', qualEspaco: op ? op.qualEspaco : 'N/A',
+                status: statusFinal, observacoes: trc ? (trc.observacoes || '-') : (op ? op.observacoes : '-')
             };
         }
 
-        // -------------------------------------------------------------
-        // EXPORTAÇÃO EXCEL PROFISSIONAL (COM CORES, FONTES E BORDAS)
-        // -------------------------------------------------------------
+        // Exportação Avançada Excel (Com a Aba da Operação)
         async function exportarRelatorioExcel() {
             if (!registrosFiltradosAtuais || registrosFiltradosAtuais.length === 0) {
                 mostrarToast('Não há dados filtrados na tela para exportar.', 'aviso');
@@ -1542,6 +1892,11 @@
                 { header: 'Transportadora', key: 'transportadora', width: 22 },
                 { header: 'Placa', key: 'placa', width: 14 },
                 { header: 'Motorista', key: 'motorista', width: 22 },
+                { header: 'Início Carregamento', key: 'horaInicio', width: 18 },
+                { header: 'Fim Carregamento', key: 'horaFim', width: 18 },
+                { header: 'Equipe Carregamento', key: 'equipe', width: 22 },
+                { header: 'Sobrou Espaço?', key: 'sobrouEspaco', width: 16 },
+                { header: 'Espaço Sobrado', key: 'qualEspaco', width: 20 },
                 { header: 'Cliente / Destino', key: 'cliente', width: 28 },
                 { header: 'Data do Pedido', key: 'dataPedido', width: 16 },
                 { header: 'Data de Liberação', key: 'dataSaida', width: 18 },
@@ -1552,6 +1907,7 @@
             ];
 
             registrosFiltradosAtuais.forEach(item => {
+                const partsHora = item.horariosCarregamento !== 'Não carregado' ? item.horariosCarregamento.split(' às ') : ['-', '-'];
                 worksheet.addRow({
                     status: item.status,
                     nota: item.nota,
@@ -1561,6 +1917,11 @@
                     transportadora: item.transportadora,
                     placa: item.placa,
                     motorista: item.motorista,
+                    horaInicio: partsHora[0],
+                    horaFim: partsHora[1] || '-',
+                    equipe: item.equipe,
+                    sobrouEspaco: item.sobrouEspaco,
+                    qualEspaco: item.qualEspaco,
                     cliente: item.cliente,
                     dataPedido: item.dataPedido,
                     dataSaida: item.dataSaida,
@@ -1571,12 +1932,12 @@
                 });
             });
 
-            // 1. Estilização do Cabeçalho
+            // Estilização do cabeçalho
             const headerRow = worksheet.getRow(1);
             headerRow.height = 26;
             headerRow.eachCell((cell) => {
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } }; // Azul Escuro Slate
-                cell.font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FFFFFFFF' } }; // Texto Branco
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+                cell.font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
                 cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
                 cell.border = {
                     top: { style: 'thin', color: { argb: 'FF0F172A' } },
@@ -1586,7 +1947,7 @@
                 };
             });
 
-            // 2. Estilização das Linhas (Zebrado + Alinhamentos)
+            // Estilização zebrada das linhas
             worksheet.eachRow((row, rowNumber) => {
                 if (rowNumber === 1) return;
                 row.height = 20;
@@ -1602,7 +1963,7 @@
                         right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
                     };
 
-                    if ([2, 3, 4, 5, 7, 10, 11, 12, 13, 14].includes(colNumber)) {
+                    if ([2, 3, 4, 5, 7, 9, 10, 12, 15, 16, 17, 18, 19].includes(colNumber)) {
                         cell.alignment = { vertical: 'middle', horizontal: 'center' };
                     } else {
                         cell.alignment = { vertical: 'middle', horizontal: 'left' };
@@ -1610,7 +1971,6 @@
                 });
             });
 
-            // 3. Ativar Filtros Automáticos
             worksheet.autoFilter = {
                 from: { row: 1, column: 1 },
                 to: { row: worksheet.rowCount, column: worksheet.columnCount }
@@ -1637,6 +1997,7 @@
             renderizarTabelasPedidos(); 
         }
 
+        // Inicialização padrão
         carregarOpcoesDocas();
         escutarBanco();
     </script>
