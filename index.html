@@ -14,36 +14,50 @@
     <!-- Ícones Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Biblioteca ExcelJS para Exportação com Estilos Avançados e Cores -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+
     <!-- Firebase App & Realtime Database SDKs (Compat v9) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
+    <!-- Sistema de Notificações Flutuantes (Toasts) -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
     <!-- Cabeçalho -->
-    <header class="bg-slate-900 dark:bg-slate-900 text-white shadow-md border-b border-slate-800">
+    <header class="bg-slate-900 dark:bg-slate-900 text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <i data-lucide="truck" class="w-8 h-8 text-amber-400"></i>
+                <div class="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                    <i data-lucide="truck" class="w-7 h-7 text-amber-400"></i>
+                </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide">LOGÍSTICA DARNEL - ARAUCÁRIA</h1>
                     <p class="text-xs text-slate-400">Controle Integrado em Tempo Real (Firebase Cloud)</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
+                <!-- Botão de Acesso Rápido Admin -->
+                <button onclick="pedirSenha('admin')" id="btnAdminGlobal" class="px-3 py-2 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition border border-amber-500/30 flex items-center space-x-1.5 text-xs font-bold shadow-sm" title="Acesso Restrito ao Administrador">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Admin</span>
+                </button>
+
                 <!-- Botão Modo Escuro / Claro -->
-                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-lg bg-slate-800 text-amber-400 hover:bg-slate-700 transition border border-slate-700 flex items-center space-x-1.5 text-xs font-semibold" title="Alternar Tema Claro/Escuro">
+                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-lg bg-slate-800 text-amber-400 hover:bg-slate-700 transition border border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alternar Tema Claro/Escuro">
                     <i data-lucide="sun" id="iconeSol" class="w-4 h-4 hidden"></i>
                     <i data-lucide="moon" id="iconeLua" class="w-4 h-4"></i>
                     <span id="textoTema" class="hidden sm:inline">Modo Escuro</span>
                 </button>
 
-                <div id="infoSessaoAtiva" class="hidden items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
+                <div id="infoSessaoAtiva" class="hidden items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs shadow-sm">
                     <span class="text-slate-400">Setor logado:</span>
                     <span id="nomeSetorLogado" class="font-bold text-amber-400">Nenhum</span>
-                    <button onclick="fazerLogout()" class="ml-2 text-red-400 hover:text-red-300 underline text-xs">Bloquear</button>
+                    <button onclick="fazerLogout()" class="ml-2 text-red-400 hover:text-red-300 underline text-xs font-medium">Bloquear</button>
                 </div>
-                <span id="statusConexao" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <span id="statusConexao" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-sm">
                     <span class="w-2 h-2 mr-2 bg-amber-400 rounded-full animate-pulse"></span>
                     Conectando...
                 </span>
@@ -53,7 +67,7 @@
 
     <!-- Modal de Senha por Setor -->
     <div id="modalSenha" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl max-w-md w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center space-x-3">
                 <div class="p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
                     <i data-lucide="lock" class="w-6 h-6"></i>
@@ -66,11 +80,11 @@
             <form onsubmit="validarSenhaSetor(event)" class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Senha de Acesso</label>
-                    <input type="password" id="inputSenhaSetor" placeholder="Digite a senha..." required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 font-mono">
+                    <input type="password" id="inputSenhaSetor" placeholder="Digite a senha..." required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 font-mono shadow-inner">
                 </div>
                 <div class="flex justify-end space-x-2 pt-2">
                     <button type="button" onclick="fecharModalSenha()" class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-slate-900 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-600 text-white rounded-lg font-medium transition">Desbloquear</button>
+                    <button type="submit" class="px-5 py-2 text-sm bg-slate-900 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-600 text-white rounded-lg font-medium shadow transition">Desbloquear</button>
                 </div>
             </form>
         </div>
@@ -79,85 +93,121 @@
     <!-- Conteúdo Principal -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
 
+        <!-- KPIs / Cards de Indicadores Rápidos -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Total Pedidos</p>
+                    <h4 id="kpiTotalPedidos" class="text-2xl font-extrabold text-slate-800 dark:text-white mt-1">0</h4>
+                </div>
+                <div class="p-3 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                    <i data-lucide="package" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Veículos Agendados</p>
+                    <h4 id="kpiTotalAgendados" class="text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">0</h4>
+                </div>
+                <div class="p-3 bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl">
+                    <i data-lucide="calendar-check" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Entregas OK</p>
+                    <h4 id="kpiTotalEntregues" class="text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">0</h4>
+                </div>
+                <div class="p-3 bg-purple-100 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 rounded-xl">
+                    <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Recusas / Alertas</p>
+                    <h4 id="kpiTotalRecusas" class="text-2xl font-extrabold text-red-600 dark:text-red-400 mt-1">0</h4>
+                </div>
+                <div class="p-3 bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 rounded-xl">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                </div>
+            </div>
+        </div>
+
         <!-- Abas de Navegação -->
         <div class="flex space-x-2 sm:space-x-4 border-b border-slate-300 dark:border-slate-800 pb-2 overflow-x-auto">
-            <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="px-4 py-2 font-semibold text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+            <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="px-4 py-2 font-semibold text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
                 <i data-lucide="package" class="w-4 h-4"></i>
                 <span>1. Criar/Atualizar Pedido</span>
             </button>
-            <button onclick="mudarTab('agendamentos')" id="btn-tab-agendamentos" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+            <button onclick="mudarTab('agendamentos')" id="btn-tab-agendamentos" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
                 <i data-lucide="list" class="w-4 h-4"></i>
                 <span>2. Gerenciar Agendamentos (Transporte)</span>
             </button>
-            <button onclick="mudarTab('tracking')" id="btn-tab-tracking" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+            <button onclick="mudarTab('tracking')" id="btn-tab-tracking" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
                 <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                 <span>3. Tracking (Confirmar Entrega)</span>
             </button>
-            <button onclick="mudarTab('calendario')" id="btn-tab-calendario" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap">
+            <button onclick="mudarTab('calendario')" id="btn-tab-calendario" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
                 <i data-lucide="calendar" class="w-4 h-4"></i>
-                <span>4. Calendário / Fluxo do Dia</span>
+                <span>4. Relatório e Fluxo por Período</span>
             </button>
         </div>
 
         <!-- SEÇÃO 1: CRIAR/ATUALIZAR PEDIDO (PLANEJAMENTO) -->
         <div id="secao-pedidos" class="space-y-6">
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="file-plus" class="w-5 h-5 text-emerald-600"></i>
                         <span id="tituloFormPedido">Criar Pedido e Definir Doca (Planejador)</span>
                     </h2>
                     <div class="flex items-center space-x-2">
-                        <button type="button" id="btnDesbloquearPedidos" onclick="pedirSenha('planejamento')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1">
+                        <button type="button" id="btnDesbloquearPedidos" onclick="pedirSenha('planejamento')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1 shadow-sm transition">
                             <i data-lucide="lock" class="w-3.5 h-3.5"></i>
                             <span>Desbloquear Edição</span>
                         </button>
-                        <button type="button" id="btnCancelarEdicao" onclick="cancelarEdicaoPedido()" class="hidden text-xs text-red-600 dark:text-red-400 hover:underline px-2 py-1 bg-red-50 dark:bg-red-900/30 rounded border border-red-200 dark:border-red-800">Cancelar Edição</button>
+                        <button type="button" id="btnCancelarEdicao" onclick="cancelarEdicaoPedido()" class="hidden text-xs text-red-600 dark:text-red-400 hover:underline px-2.5 py-1.5 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800 font-semibold">Cancelar Edição</button>
                     </div>
                 </div>
                 
-                <form id="formPedido" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <form id="formPedido" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <input type="hidden" id="editPedidoId">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Número da Nota (NF)</label>
-                        <input type="text" id="pedNota" placeholder="Ex: NF-98231" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-mono font-bold cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Número da Nota (NF) <span class="text-slate-400 font-normal lowercase">(opcional)</span></label>
+                        <input type="text" id="pedNota" placeholder="Ex: NF-98231 (Opcional)" disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 font-mono font-bold cursor-not-allowed shadow-inner">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Doca Agendada</label>
-                        <select id="pedDoca" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-semibold cursor-not-allowed">
+                        <select id="pedDoca" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 font-semibold cursor-not-allowed shadow-inner">
                             <!-- Preenchido dinamicamente -->
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Ticket</label>
-                        <input type="text" id="pedTicket" placeholder="Ex: TKT-1042" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
-                    </div>
-                    <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Número do Pedido</label>
-                        <input type="text" id="pedNumero" placeholder="Ex: PED-88402" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <input type="text" id="pedNumero" placeholder="Ex: PED-88402" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed shadow-inner">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cliente / Destino</label>
-                        <input type="text" id="pedCliente" placeholder="Nome do cliente" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <input type="text" id="pedCliente" placeholder="Nome do cliente" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed shadow-inner">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data do Pedido</label>
-                        <input type="date" id="pedData" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <input type="date" id="pedData" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed shadow-inner">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data Saída de Carga</label>
-                        <input type="date" id="pedDataSaida" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data de Liberação</label>
+                        <input type="date" id="pedDataSaida" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed shadow-inner">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Peso Total (Kg)</label>
-                        <input type="number" step="0.01" id="pedPeso" placeholder="Ex: 1500.50" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <input type="number" step="0.01" id="pedPeso" placeholder="Ex: 1500.50" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed shadow-inner">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Volumes (Batidos/Paletizados)</label>
-                        <input type="number" id="pedVolumes" placeholder="Ex: 32" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Quantidade do Pedido</label>
+                        <input type="number" id="pedVolumes" placeholder="Ex: 32" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed shadow-inner">
                     </div>
                     <div class="md:col-span-3 flex justify-end items-end">
-                        <button type="submit" id="btnSalvarPedido" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
+                        <button type="submit" id="btnSalvarPedido" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm">
                             <i data-lucide="check-circle" class="w-4 h-4"></i>
                             <span id="textoBtnSalvarPedido">Salvar Pedido na Nuvem (Bloqueado)</span>
                         </button>
@@ -165,31 +215,37 @@
                 </form>
             </div>
 
-            <!-- Tabela de Pedidos -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <!-- Tabela de Pedidos com Dupla Busca (NF e Nº Pedido) -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-center gap-3">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Pedidos Cadastrados em Estoque/Expedição (Visualização Livre)</h3>
-                    <div class="flex items-center space-x-2">
-                        <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Filtrar Data Saída:</label>
-                        <input type="date" id="filtroDataPedido" onchange="renderizarTabelasPedidos()" class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-emerald-500">
-                        <button onclick="limparFiltroPedido()" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 rounded">Ver Todos</button>
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Pedidos Cadastrados em Estoque/Expedição</h3>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="relative">
+                            <input type="text" id="filtroBuscaNF" onkeyup="renderizarTabelasPedidos()" placeholder="Buscar por NF..." class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg pl-3 pr-8 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 font-mono">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5"></i>
+                        </div>
+                        <div class="relative">
+                            <input type="text" id="filtroBuscaNP" onkeyup="renderizarTabelasPedidos()" placeholder="Buscar por Nº Pedido..." class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg pl-3 pr-8 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 font-mono">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5"></i>
+                        </div>
+                        <input type="date" id="filtroDataPedido" onchange="renderizarTabelasPedidos()" class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                        <button onclick="limparFiltroPedido()" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg border border-emerald-200 dark:border-emerald-900 font-semibold">Ver Todos</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <th class="p-3">Nota Fiscal (NF)</th>
-                                <th class="p-3">Doca</th>
-                                <th class="p-3">Ticket</th>
-                                <th class="p-3">Nº Pedido</th>
-                                <th class="p-3">Data Pedido</th>
-                                <th class="p-3">Data Saída Carga</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Peso (Kg)</th>
-                                <th class="p-3">Volumes</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3 text-center" id="thAcoesPedidos">Ações (Exclusivo Admin)</th>
+                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
+                                <th class="p-3.5">Nota Fiscal (NF)</th>
+                                <th class="p-3.5">Doca</th>
+                                <th class="p-3.5">Nº Pedido</th>
+                                <th class="p-3.5">Data Pedido</th>
+                                <th class="p-3.5">Data de Liberação</th>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Peso (Kg)</th>
+                                <th class="p-3.5">Qtd do Pedido</th>
+                                <th class="p-3.5">Status</th>
+                                <th class="p-3.5 text-center" id="thAcoesPedidos">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaPedidosBody" class="divide-y divide-slate-200 dark:divide-slate-800">
@@ -202,63 +258,86 @@
 
         <!-- SEÇÃO 2: GERENCIAR AGENDAMENTOS (TRANSPORTE) -->
         <div id="secao-agendamentos" class="space-y-6 hidden">
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
-                        <span>Novo Agendamento de Veículo (Transporte)</span>
+                        <span id="tituloFormAgendamento">Novo Agendamento de Veículo (Transporte)</span>
                     </h2>
-                    <button type="button" id="btnDesbloquearAgendamentos" onclick="pedirSenha('transporte')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1">
-                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-                        <span>Desbloquear Edição</span>
-                    </button>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" id="btnDesbloquearAgendamentos" onclick="pedirSenha('transporte')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1 shadow-sm transition">
+                            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                            <span>Desbloquear Edição</span>
+                        </button>
+                        <button type="button" id="btnCancelarEdicaoAgendamento" onclick="cancelarEdicaoAgendamento()" class="hidden text-xs text-red-600 dark:text-red-400 hover:underline px-2.5 py-1.5 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800 font-semibold">Cancelar Edição</button>
+                    </div>
                 </div>
                 
-                <div class="bg-blue-50/70 dark:bg-blue-950/40 p-4 rounded-lg border border-blue-200 dark:border-blue-900 mb-6 space-y-3">
-                    <label class="block text-xs font-bold uppercase text-blue-900 dark:text-blue-300">Localizar Nota Fiscal:</label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <!-- Caixa de Dupla Busca (NF ou Nº Pedido) -->
+                <div class="bg-blue-50/70 dark:bg-blue-950/40 p-4 rounded-xl border border-blue-200 dark:border-blue-900 mb-6 space-y-3">
+                    <label class="block text-xs font-bold uppercase text-blue-900 dark:text-blue-300">Localizar Pedido (Dupla Opção de Busca):</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <div>
-                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção 1: Digitar número da NF</span>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção A: Buscar por NF</span>
                             <div class="flex space-x-2">
-                                <input type="text" id="buscaTextoNF" placeholder="Digite o número da NF..." class="w-full border border-blue-300 dark:border-blue-800 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
-                                <button type="button" onclick="buscarNotaPorTexto()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap">
+                                <input type="text" id="buscaTextoNF" placeholder="Nº da NF..." class="w-full border border-blue-300 dark:border-blue-800 rounded-lg p-2.5 text-sm font-mono focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
+                                <button type="button" onclick="buscarNotaPorTexto('nf')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap shadow-sm">
                                     <i data-lucide="search" class="w-3.5 h-3.5"></i>
-                                    <span>Buscar NF</span>
+                                    <span>NF</span>
                                 </button>
                             </div>
                         </div>
                         <div>
-                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção 2: Selecionar da lista pendente</span>
-                            <select id="agNotaSelect" onchange="puxarDadosDaNotaSelect()" class="w-full border border-blue-300 dark:border-blue-800 rounded-lg p-2 text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção B: Buscar por Nº Pedido</span>
+                            <div class="flex space-x-2">
+                                <input type="text" id="buscaTextoNP" placeholder="Nº do Pedido..." class="w-full border border-blue-300 dark:border-blue-800 rounded-lg p-2.5 text-sm font-mono focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
+                                <button type="button" onclick="buscarNotaPorTexto('np')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap shadow-sm">
+                                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                                    <span>Pedido</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Ou Selecionar da Lista</span>
+                            <select id="agNotaSelect" onchange="puxarDadosDaNotaSelect()" class="w-full border border-blue-300 dark:border-blue-800 rounded-lg p-2.5 text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
                                 <!-- Preenchido dinamicamente -->
                             </select>
                         </div>
                     </div>
                     <div id="infoNotaSelecionada" class="text-xs text-blue-900 dark:text-blue-300 font-medium pt-1 border-t border-blue-200 dark:border-blue-900">
-                        Localize uma NF cadastrada pelo planejamento.
+                        Localize o pedido digitando a NF, o Número do Pedido ou selecionando na lista.
                     </div>
                 </div>
 
-                <form id="formAgendamento" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <form id="formAgendamento" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="hidden" id="editAgendamentoId">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nota Fiscal (NF)</label>
-                        <input type="text" id="agNotaFiscal" placeholder="Aguardando busca..." required readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nota Fiscal (NF) <span class="text-red-500 font-bold">*</span></label>
+                        <input type="text" id="agNotaFiscal" placeholder="Digite a NF..." required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed shadow-inner">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Doca</label>
-                        <input type="text" id="agDocaVisual" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-400">
+                        <input type="text" id="agDocaVisual" placeholder="Preenchido via Pedido" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Ticket (Preenchido pelo Transporte)</label>
+                        <input type="text" id="agTicket" placeholder="Ex: TKT-1042" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 font-mono cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Número do Pedido</label>
+                        <input type="text" id="agNumeroPedido" placeholder="Preenchido via Pedido" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cliente / Destino</label>
-                        <input type="text" id="agCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <input type="text" id="agCliente" placeholder="Preenchido via Pedido" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data e Hora Chegada</label>
-                        <input type="datetime-local" id="agDataHora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data e Hora de Entrega</label>
+                        <input type="datetime-local" id="agDataHora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Transportadora</label>
-                        <select id="agTransportadora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <select id="agTransportadora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
                             <option value="">-- Selecione --</option>
                             <option value="CIA VERDE">CIA VERDE</option>
                             <option value="EAS">EAS</option>
@@ -275,38 +354,40 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Placa do Veículo</label>
-                        <input type="text" id="agPlaca" placeholder="Ex: ABC-1234" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <input type="text" id="agPlaca" placeholder="Ex: ABC-1234" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Motorista</label>
-                        <input type="text" id="agMotorista" placeholder="Nome do motorista" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <input type="text" id="agMotorista" placeholder="Nome do motorista" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
                     </div>
-                    <div class="md:col-span-2 flex items-end">
-                        <button type="submit" id="btnSalvarAgendamento" disabled class="w-full bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
+                    <div class="md:col-span-3 flex justify-end items-end">
+                        <button type="submit" id="btnSalvarAgendamento" disabled class="w-full md:w-auto bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm">
                             <i data-lucide="save" class="w-4 h-4"></i>
-                            <span>Vincular Agendamento (Bloqueado)</span>
+                            <span id="textoBtnSalvarAgendamento">Vincular Agendamento (Bloqueado)</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             <!-- Tabela de Agendamentos -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Agendamentos Realizados (Visualização Livre)</h3>
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Agendamentos Realizados</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <th class="p-3">Nota Fiscal</th>
-                                <th class="p-3">Doca</th>
-                                <th class="p-3">Data/Hora Chegada</th>
-                                <th class="p-3">Transportadora</th>
-                                <th class="p-3">Placa</th>
-                                <th class="p-3">Motorista</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3 text-center" id="thAcoesAgendamentos">Ações (Exclusivo Admin)</th>
+                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
+                                <th class="p-3.5">Nota Fiscal</th>
+                                <th class="p-3.5">Doca</th>
+                                <th class="p-3.5">Ticket</th>
+                                <th class="p-3.5">Nº Pedido</th>
+                                <th class="p-3.5">Data/Hora de Entrega</th>
+                                <th class="p-3.5">Transportadora</th>
+                                <th class="p-3.5">Placa</th>
+                                <th class="p-3.5">Motorista</th>
+                                <th class="p-3.5">Status</th>
+                                <th class="p-3.5 text-center" id="thAcoesAgendamentos">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaAgendamentosBody" class="divide-y divide-slate-200 dark:divide-slate-800">
@@ -319,63 +400,78 @@
 
         <!-- SEÇÃO 3: TRACKING (CONFIRMAR ENTREGA) -->
         <div id="secao-tracking" class="space-y-6 hidden">
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="check-circle-2" class="w-5 h-5 text-purple-600"></i>
-                        <span>Confirmar Entrega / Baixa no Pedido (Tracking)</span>
+                        <span id="tituloFormTracking">Confirmar Entrega / Baixa no Pedido (Tracking)</span>
                     </h2>
-                    <button type="button" id="btnDesbloquearTracking" onclick="pedirSenha('tracking')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1">
-                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-                        <span>Desbloquear Edição</span>
-                    </button>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" id="btnDesbloquearTracking" onclick="pedirSenha('tracking')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1 shadow-sm transition">
+                            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                            <span>Desbloquear Edição</span>
+                        </button>
+                        <button type="button" id="btnCancelarEdicaoTracking" onclick="cancelarEdicaoTracking()" class="hidden text-xs text-red-600 dark:text-red-400 hover:underline px-2.5 py-1.5 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800 font-semibold">Cancelar Edição</button>
+                    </div>
                 </div>
 
-                <div class="bg-purple-50/80 dark:bg-purple-950/40 p-4 rounded-lg border border-purple-200 dark:border-purple-900 mb-6 space-y-3">
-                    <label class="block text-xs font-bold uppercase text-purple-900 dark:text-purple-300">Localizar Nota Fiscal para dar Baixa:</label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <!-- Caixa de Dupla Busca para Tracking -->
+                <div class="bg-purple-50/80 dark:bg-purple-950/40 p-4 rounded-xl border border-purple-200 dark:border-purple-900 mb-6 space-y-3">
+                    <label class="block text-xs font-bold uppercase text-purple-900 dark:text-purple-300">Localizar Pedido para Dar Baixa (Dupla Opção):</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <div>
-                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção 1: Digitar número da NF</span>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção A: Buscar por NF</span>
                             <div class="flex space-x-2">
-                                <input type="text" id="trcTextoNF" placeholder="Digite o número da NF..." class="w-full border border-purple-300 dark:border-purple-800 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
-                                <button type="button" onclick="buscarNotaTrackingTexto()" class="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap">
+                                <input type="text" id="trcTextoNF" placeholder="Nº da NF..." class="w-full border border-purple-300 dark:border-purple-800 rounded-lg p-2.5 text-sm font-mono focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
+                                <button type="button" onclick="buscarNotaTrackingTexto('nf')" class="bg-purple-600 hover:bg-purple-700 text-white font-medium px-3 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap shadow-sm">
                                     <i data-lucide="search" class="w-3.5 h-3.5"></i>
-                                    <span>Buscar NF</span>
+                                    <span>NF</span>
                                 </button>
                             </div>
                         </div>
                         <div>
-                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção 2: Selecionar da lista de pedidos</span>
-                            <select id="trcNotaSelect" onchange="puxarNotaTrackingSelect()" class="w-full border border-purple-300 dark:border-purple-800 rounded-lg p-2 text-sm font-mono font-bold focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opção B: Buscar por Nº Pedido</span>
+                            <div class="flex space-x-2">
+                                <input type="text" id="trcTextoNP" placeholder="Nº do Pedido..." class="w-full border border-purple-300 dark:border-purple-800 rounded-lg p-2.5 text-sm font-mono focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
+                                <button type="button" onclick="buscarNotaTrackingTexto('np')" class="bg-purple-600 hover:bg-purple-700 text-white font-medium px-3 py-2 rounded-lg text-xs transition flex items-center space-x-1 whitespace-nowrap shadow-sm">
+                                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                                    <span>Pedido</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Ou Selecionar da Lista</span>
+                            <select id="trcNotaSelect" onchange="puxarNotaTrackingSelect()" class="w-full border border-purple-300 dark:border-purple-800 rounded-lg p-2.5 text-sm font-mono font-bold focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
                                 <!-- Preenchido dinamicamente -->
                             </select>
                         </div>
                     </div>
                     <div id="infoTrackingSelecionado" class="text-xs text-purple-900 dark:text-purple-300 font-medium pt-1 border-t border-purple-200 dark:border-purple-900">
-                        Selecione a Nota Fiscal para registrar a confirmação de entrega.
+                        Selecione a Nota Fiscal ou o Número do Pedido para registrar a confirmação de entrega.
                     </div>
                 </div>
 
                 <form id="formTracking" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="hidden" id="editTrackingId">
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nota Fiscal (NF)</label>
-                        <input type="text" id="trcNotaFiscal" placeholder="Aguardando busca..." required readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <input type="text" id="trcNotaFiscal" placeholder="Aguardando busca..." readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cliente / Destino</label>
-                        <input type="text" id="trcCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <input type="text" id="trcCliente" placeholder="Preenchido via NF" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Transportadora / Placa</label>
-                        <input type="text" id="trcTranspPlaca" placeholder="Preenchido via Agendamento" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <input type="text" id="trcTranspPlaca" placeholder="Preenchido via Agendamento" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data e Hora da Entrega Real</label>
-                        <input type="datetime-local" id="trcDataHora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <input type="datetime-local" id="trcDataHora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Status Final da Entrega</label>
-                        <select id="trcStatus" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-semibold cursor-not-allowed">
+                        <select id="trcStatus" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 font-semibold cursor-not-allowed">
                             <option value="ENTREGUE (OK)">ENTREGUE - Sem Avarias</option>
                             <option value="ENTREGUE (COM AVARIA)">ENTREGUE - Com Avaria Parcial</option>
                             <option value="ENTREGUE (FALTANDO ITEM)">ENTREGUE - Faltando Item</option>
@@ -384,32 +480,32 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Observações</label>
-                        <input type="text" id="trcObs" placeholder="Observações obrigatórias em caso de recusa/avaria" disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                        <input type="text" id="trcObs" placeholder="Observações obrigatórias em caso de recusa/avaria" disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-not-allowed">
                     </div>
                     <div class="md:col-span-3 flex justify-end">
-                        <button type="submit" id="btnSalvarTracking" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed">
+                        <button type="submit" id="btnSalvarTracking" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm">
                             <i data-lucide="check-square" class="w-4 h-4"></i>
-                            <span>Confirmar e Dar Baixa (Bloqueado)</span>
+                            <span id="textoBtnSalvarTracking">Confirmar e Dar Baixa (Bloqueado)</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             <!-- Tabela de Tracking -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Baixas e Entregas (Visualização Livre)</h3>
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Baixas e Entregas</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <th class="p-3">Nota Fiscal</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Data/Hora Entrega Real</th>
-                                <th class="p-3">Status Final</th>
-                                <th class="p-3">Observações</th>
-                                <th class="p-3 text-center" id="thAcoesTracking">Ações (Exclusivo Admin)</th>
+                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
+                                <th class="p-3.5">Nota Fiscal</th>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Data/Hora Entrega Real</th>
+                                <th class="p-3.5">Status Final</th>
+                                <th class="p-3.5">Observações</th>
+                                <th class="p-3.5 text-center" id="thAcoesTracking">Ações (Exclusivo Admin)</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaTrackingBody" class="divide-y divide-slate-200 dark:divide-slate-800">
@@ -420,39 +516,89 @@
             </div>
         </div>
 
-        <!-- SEÇÃO 4: CALENDÁRIO / VISÃO CONSOLIDADA -->
+        <!-- SEÇÃO 4: RELATÓRIO / VISÃO CONSOLIDADA E RELATÓRIO EXCEL -->
         <div id="secao-calendario" class="space-y-6 hidden">
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
-                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
-                        <span>Visão Geral e Fluxo do Dia (Acesso Livre)</span>
-                    </h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Consolidado completo para consulta de todos os setores.</p>
+            <!-- Painel de Filtros Avançados de Período e Busca NF / NP -->
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
+                            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-emerald-600"></i>
+                            <span>Relatório Geral e Fluxo da Operação</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Filtre por período e pesquise por NF ou Número do Pedido para consultar e exportar relatórios em Excel.</p>
+                    </div>
+
+                    <!-- Botão Exportar Excel -->
+                    <button onclick="exportarRelatorioExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs transition flex items-center space-x-2 shadow-md">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Exportar para Excel (.xlsx) Profissional</span>
+                    </button>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Filtrar Data:</label>
-                    <input type="date" id="filtroDataAgendamento" onchange="renderizarCalendario()" class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
+
+                <!-- Seleção do Modo de Filtro e Busca Rápida -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 pt-2 border-t border-slate-200 dark:border-slate-800 items-end">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Tipo de Filtro</label>
+                        <select id="tipoFiltroPeriodo" onchange="alternarCamposFiltroPeriodo()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 font-semibold shadow-inner">
+                            <option value="dia">Dia Específico</option>
+                            <option value="mes">Mês Inteiro</option>
+                            <option value="periodo">Período Personalizado</option>
+                        </select>
+                    </div>
+
+                    <!-- Input 1: Dia Específico -->
+                    <div id="boxFiltroDia">
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Selecionar Dia</label>
+                        <input type="date" id="filtroDiaData" onchange="renderizarCalendario()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                    </div>
+
+                    <!-- Input 2: Mês Inteiro -->
+                    <div id="boxFiltroMes" class="hidden">
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Mês/Ano</label>
+                        <input type="month" id="filtroMesData" onchange="renderizarCalendario()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                    </div>
+
+                    <!-- Input 3: Período personalizado (De / Até) -->
+                    <div id="boxFiltroDe" class="hidden">
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Data Inicial (De)</label>
+                        <input type="date" id="filtroDataDe" onchange="renderizarCalendario()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                    </div>
+                    <div id="boxFiltroAte" class="hidden">
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Data Final (Até)</label>
+                        <input type="date" id="filtroDataAte" onchange="renderizarCalendario()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                    </div>
+
+                    <!-- Dupla Busca Rápida por NF ou NP no Relatório -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Busca NF / Pedido</label>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <input type="text" id="filtroRelNF" onkeyup="renderizarCalendario()" placeholder="NF..." class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm font-mono shadow-inner">
+                            <input type="text" id="filtroRelNP" onkeyup="renderizarCalendario()" placeholder="Nº Pedido..." class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2 text-sm font-mono shadow-inner">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <!-- Tabela Consolidada -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
-                    <h3 id="tituloDiaSelecionado" class="font-bold text-slate-700 dark:text-slate-200">Fluxo Operacional do Dia: -</h3>
+                    <h3 id="tituloDiaSelecionado" class="font-bold text-slate-700 dark:text-slate-200">Relatório da Operação: -</h3>
                     <span id="contadorConsolidado" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 text-xs font-semibold rounded-full">0 registro(s)</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <th class="p-3">Status Processo</th>
-                                <th class="p-3">Nota Fiscal (NF)</th>
-                                <th class="p-3">Ticket / Pedido</th>
-                                <th class="p-3">Doca / Horário</th>
-                                <th class="p-3">Transportadora / Placa</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Data Pedido</th>
-                                <th class="p-3">Data Saída Carga</th>
+                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
+                                <th class="p-3.5">Status Processo</th>
+                                <th class="p-3.5">Nota Fiscal (NF)</th>
+                                <th class="p-3.5">Ticket / Nº Pedido</th>
+                                <th class="p-3.5">Doca</th>
+                                <th class="p-3.5">Transportadora / Placa</th>
+                                <th class="p-3.5">Motorista</th>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Data Pedido</th>
+                                <th class="p-3.5">Data de Liberação</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaConsolidadaBody" class="divide-y divide-slate-200 dark:divide-slate-800">
@@ -473,9 +619,45 @@
     <script>
         lucide.createIcons();
 
-        // -------------------------------------------------------------
-        // ALTERNAR TEMA (CLARO / ESCURO)
-        // -------------------------------------------------------------
+        function mostrarToast(mensagem, tipo = 'sucesso') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-emerald-600 text-white';
+            let icone = 'check-circle';
+            if (tipo === 'erro') {
+                bgClass = 'bg-red-600 text-white';
+                icone = 'alert-circle';
+            } else if (tipo === 'aviso') {
+                bgClass = 'bg-amber-600 text-white';
+                icone = 'alert-triangle';
+            }
+
+            toast.className = `pointer-events-auto flex items-center space-x-2 px-4 py-3 rounded-xl shadow-xl text-sm font-medium transition transform translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `<i data-lucide="${icone}" class="w-5 h-5 flex-shrink-0"></i><span>${mensagem}</span>`;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function atualizarKPIs() {
+            const totalPedidos = dadosApp.pedidos.length;
+            const totalAgendados = dadosApp.agendamentos.length;
+            const totalEntregues = dadosApp.tracking.filter(t => t.statusFinal && t.statusFinal.includes('ENTREGUE')).length;
+            const totalRecusas = dadosApp.tracking.filter(t => t.statusFinal && t.statusFinal.includes('RECUSA')).length;
+
+            document.getElementById('kpiTotalPedidos').textContent = totalPedidos;
+            document.getElementById('kpiTotalAgendados').textContent = totalAgendados;
+            document.getElementById('kpiTotalEntregues').textContent = totalEntregues;
+            document.getElementById('kpiTotalRecusas').textContent = totalRecusas;
+        }
+
         function alternarTema() {
             const html = document.documentElement;
             const iconeSol = document.getElementById('iconeSol');
@@ -498,7 +680,6 @@
             lucide.createIcons();
         }
 
-        // Carregar tema salvo
         if (localStorage.getItem('tema_darnel') === 'claro') {
             document.documentElement.classList.remove('dark');
             document.getElementById('iconeSol').classList.add('hidden');
@@ -511,9 +692,6 @@
             document.getElementById('textoTema').textContent = 'Modo Claro';
         }
 
-        // -------------------------------------------------------------
-        // CONFIGURAÇÃO DO FIREBASE
-        // -------------------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyD-1Q--NP9_SBSSLtcXEgrTfNoJ3pE0ync",
             authDomain: "logisticadarnel.firebaseapp.com",
@@ -532,10 +710,10 @@
             db.ref('.info/connected').on('value', (snap) => {
                 const el = document.getElementById('statusConexao');
                 if (snap.val() === true) {
-                    el.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                    el.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm";
                     el.innerHTML = `<span class="w-2 h-2 mr-2 bg-emerald-400 rounded-full animate-pulse"></span>Nuvem Conectada`;
                 } else {
-                    el.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                    el.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-sm";
                     el.innerHTML = `<span class="w-2 h-2 mr-2 bg-amber-400 rounded-full animate-pulse"></span>Conectando...`;
                 }
             });
@@ -543,31 +721,15 @@
             console.warn("Firebase não configurado.");
         }
 
-        let dadosApp = {
-            agendamentos: [],
-            pedidos: [],
-            tracking: []
-        };
-
-        // SENHAS DOS SETORES E ADMINISTRADOR
-        const SENHAS_SETORES = {
-            planejamento: "0321",
-            transporte: "0323",
-            tracking: "0325",
-            admin: "9704"
-        };
-
+        let dadosApp = { agendamentos: [], pedidos: [], tracking: [] };
+        const SENHAS_SETORES = { planejamento: "0321", transporte: "0323", tracking: "0325", admin: "9704" };
         let setorAutenticado = null;
+        let registrosFiltradosAtuais = [];
 
         function pedirSenha(setor) {
             window.setorTemp = setor;
-            const nomes = { 
-                planejamento: 'Planejamento', 
-                transporte: 'Transporte', 
-                tracking: 'Tracking', 
-                admin: 'Administrador Geral' 
-            };
-            document.getElementById('modalSubtitulo').textContent = `Digite a senha para desbloquear o setor de ${nomes[setor]}. (Dica: A senha 9704 desbloqueia acesso de Administrador)`;
+            const nomes = { planejamento: 'Planejamento', transporte: 'Transporte', tracking: 'Tracking', admin: 'Administrador Geral' };
+            document.getElementById('modalSubtitulo').textContent = `Digite a senha para desbloquear o setor de ${nomes[setor]}.`;
             document.getElementById('inputSenhaSetor').value = '';
             document.getElementById('modalSenha').classList.remove('hidden');
             document.getElementById('inputSenhaSetor').focus();
@@ -587,9 +749,9 @@
                 setorAutenticado = (senhaDigitada === SENHAS_SETORES.admin) ? 'admin' : setor;
                 fecharModalSenha();
                 aplicarPermissoes();
-                alert(`Acesso liberado com sucesso!`);
+                mostrarToast('Acesso liberado com sucesso!', 'sucesso');
             } else {
-                alert('Senha incorreta! Tente novamente.');
+                mostrarToast('Senha incorreta! Tente novamente.', 'erro');
                 document.getElementById('inputSenhaSetor').value = '';
             }
         }
@@ -597,7 +759,7 @@
         function fazerLogout() {
             setorAutenticado = null;
             aplicarPermissoes();
-            alert('Sessão bloqueada com segurança.');
+            mostrarToast('Sessão bloqueada com segurança.', 'aviso');
         }
 
         function aplicarPermissoes() {
@@ -614,74 +776,71 @@
                 infoSessao.classList.remove('flex');
             }
 
-            // PERMISSÕES ABA 1: PLANEJAMENTO
             const canPlan = (setorAutenticado === 'planejamento' || isAdmin);
-            const inputsPed = document.querySelectorAll('#secao-pedidos input:not(#filtroDataPedido), #secao-pedidos select');
+            const inputsPed = document.querySelectorAll('#secao-pedidos input:not([id^="filtro"]):not(#filtroDataPedido), #secao-pedidos select');
             inputsPed.forEach(el => {
                 if (canPlan) {
                     el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
+                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
                 } else {
                     el.disabled = true;
-                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
+                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
                 }
             });
             const btnSalvarPed = document.getElementById('btnSalvarPedido');
             if (canPlan) {
                 btnSalvarPed.disabled = false;
-                btnSalvarPed.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-pointer";
+                btnSalvarPed.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm";
                 document.getElementById('textoBtnSalvarPedido').textContent = document.getElementById('editPedidoId').value ? 'Atualizar Pedido Alterado' : 'Salvar Pedido na Nuvem';
                 document.getElementById('btnDesbloquearPedidos').classList.add('hidden');
             } else {
                 btnSalvarPed.disabled = true;
-                btnSalvarPed.className = "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
+                btnSalvarPed.className = "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
                 document.getElementById('textoBtnSalvarPedido').textContent = 'Salvar Pedido na Nuvem (Bloqueado)';
                 document.getElementById('btnDesbloquearPedidos').classList.remove('hidden');
             }
 
-            // PERMISSÕES ABA 2: TRANSPORTE
             const canTrans = (setorAutenticado === 'transporte' || isAdmin);
-            const inputsTransp = document.querySelectorAll('#secao-agendamentos input:not(#buscaTextoNF), #secao-agendamentos select:not(#agNotaSelect)');
+            const inputsTransp = document.querySelectorAll('#secao-agendamentos input:not([id^="buscaTexto"]):not(#agNumeroPedido), #secao-agendamentos select:not(#agNotaSelect)');
             inputsTransp.forEach(el => {
                 if (canTrans) {
                     el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
+                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
                 } else {
                     el.disabled = true;
-                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
+                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
                 }
             });
             const btnSalvarAg = document.getElementById('btnSalvarAgendamento');
             if (canTrans) {
                 btnSalvarAg.disabled = false;
-                btnSalvarAg.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-pointer";
+                btnSalvarAg.className = "w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm";
                 document.getElementById('btnDesbloquearAgendamentos').classList.add('hidden');
             } else {
                 btnSalvarAg.disabled = true;
-                btnSalvarAg.className = "w-full bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
+                btnSalvarAg.className = "w-full md:w-auto bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
                 document.getElementById('btnDesbloquearAgendamentos').classList.remove('hidden');
             }
 
-            // PERMISSÕES ABA 3: TRACKING
             const canTrc = (setorAutenticado === 'tracking' || isAdmin);
-            const inputsTrc = document.querySelectorAll('#secao-tracking input:not(#trcTextoNF), #secao-tracking select:not(#trcNotaSelect)');
+            const inputsTrc = document.querySelectorAll('#secao-tracking input:not([id^="trcTexto"]), #secao-tracking select:not(#trcNotaSelect)');
             inputsTrc.forEach(el => {
                 if (canTrc) {
                     el.disabled = false;
-                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
+                    el.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
                 } else {
                     el.disabled = true;
-                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400', 'cursor-not-allowed');
+                    el.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-200', 'cursor-not-allowed');
                 }
             });
             const btnSalvarTrc = document.getElementById('btnSalvarTracking');
             if (canTrc) {
                 btnSalvarTrc.disabled = false;
-                btnSalvarTrc.className = "bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-pointer";
+                btnSalvarTrc.className = "bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-pointer shadow-sm";
                 document.getElementById('btnDesbloquearTracking').classList.add('hidden');
             } else {
                 btnSalvarTrc.disabled = true;
-                btnSalvarTrc.className = "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 font-medium py-2.5 px-6 rounded-lg text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed";
+                btnSalvarTrc.className = "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium py-2.5 px-6 rounded-xl text-sm transition flex items-center justify-center space-x-2 cursor-not-allowed shadow-sm";
                 document.getElementById('btnDesbloquearTracking').classList.remove('hidden');
             }
 
@@ -698,6 +857,7 @@
                 dadosApp.agendamentos = Object.values(data.agendamentos || {});
                 dadosApp.tracking = Object.values(data.tracking || {});
 
+                atualizarKPIs();
                 carregarSelectNotas();
                 carregarSelectTracking();
                 renderizarTabelasPedidos();
@@ -709,28 +869,21 @@
 
         function salvarNoFirebase() {
             if (!db) return;
-            const objPedidos = {};
-            dadosApp.pedidos.forEach(p => objPedidos[p.id] = p);
-            const objAgendamentos = {};
-            dadosApp.agendamentos.forEach(a => objAgendamentos[a.id] = a);
-            const objTracking = {};
-            dadosApp.tracking.forEach(t => objTracking[t.id] = t);
+            const objPedidos = {}; dadosApp.pedidos.forEach(p => objPedidos[p.id] = p);
+            const objAgendamentos = {}; dadosApp.agendamentos.forEach(a => objAgendamentos[a.id] = a);
+            const objTracking = {}; dadosApp.tracking.forEach(t => objTracking[t.id] = t);
 
-            db.ref('logistica_darnel').set({
-                pedidos: objPedidos,
-                agendamentos: objAgendamentos,
-                tracking: objTracking
-            });
+            db.ref('logistica_darnel').set({ pedidos: objPedidos, agendamentos: objAgendamentos, tracking: objTracking });
         }
 
         function carregarOpcoesDocas() {
             const selectDoca = document.getElementById('pedDoca');
             selectDoca.innerHTML = '';
             for (let i = 1; i <= 38; i++) {
-                const numeroFormatado = i < 10 ? `0${i}` : `${i}`;
+                const num = i < 10 ? `0${i}` : `${i}`;
                 const option = document.createElement('option');
-                option.value = `Doca ${numeroFormatado}`;
-                option.textContent = `Doca ${numeroFormatado}`;
+                option.value = `Doca ${num}`;
+                option.textContent = `Doca ${num}`;
                 selectDoca.appendChild(option);
             }
         }
@@ -740,8 +893,8 @@
             selectNF.innerHTML = '<option value="">-- Selecione na lista --</option>';
             dadosApp.pedidos.forEach(p => {
                 const opt = document.createElement('option');
-                opt.value = p.nota;
-                opt.textContent = `NF: ${p.nota} | Doca: ${p.doca || '-'} | Cliente: ${p.cliente}`;
+                opt.value = p.id;
+                opt.textContent = `NF: ${p.nota || '-'} | Pedido: ${p.numeroPedido || '-'} | Cliente: ${p.cliente}`;
                 selectNF.appendChild(opt);
             });
         }
@@ -751,8 +904,8 @@
             selectTRC.innerHTML = '<option value="">-- Selecione na lista de pedidos --</option>';
             dadosApp.pedidos.forEach(p => {
                 const opt = document.createElement('option');
-                opt.value = p.nota;
-                opt.textContent = `NF: ${p.nota} | Status: ${p.status} | Cliente: ${p.cliente}`;
+                opt.value = p.id;
+                opt.textContent = `NF: ${p.nota || '-'} | Pedido: ${p.numeroPedido || '-'} | Status: ${p.status}`;
                 selectTRC.appendChild(opt);
             });
         }
@@ -760,39 +913,54 @@
         function aplicarDadosNota(pedido) {
             const inputNF = document.getElementById('agNotaFiscal');
             const inputDocaVisual = document.getElementById('agDocaVisual');
+            const inputTicket = document.getElementById('agTicket');
+            const inputNumeroPedido = document.getElementById('agNumeroPedido');
             const inputCliente = document.getElementById('agCliente');
             const infoDiv = document.getElementById('infoNotaSelecionada');
 
             if (pedido) {
-                inputNF.value = pedido.nota;
+                inputNF.value = (pedido.nota && pedido.nota !== '-') ? pedido.nota : '';
                 inputDocaVisual.value = pedido.doca || 'Doca Não Definida';
+                inputNumeroPedido.value = pedido.numeroPedido || '';
                 inputCliente.value = pedido.cliente;
-                infoDiv.innerHTML = `<span class="text-emerald-700 dark:text-emerald-400 font-bold">✓ NF ${pedido.nota} localizada!</span> Doca: <strong>${pedido.doca || '-'}</strong>`;
+                
+                // Se já houver agendamento com ticket para esta NF/Pedido, puxar o ticket existente
+                const agExistente = dadosApp.agendamentos.find(a => (pedido.nota && pedido.nota !== '-' && a.nota === pedido.nota) || (a.numeroPedido && a.numeroPedido === pedido.numeroPedido));
+                inputTicket.value = agExistente && agExistente.ticket ? agExistente.ticket : '';
+
+                infoDiv.innerHTML = `<span class="text-emerald-700 dark:text-emerald-400 font-bold">✓ Pedido localizado!</span> NF: <strong>${pedido.nota || '-'}</strong> | Nº Pedido: <strong>${pedido.numeroPedido || '-'}</strong> | Doca: <strong>${pedido.doca || '-'}</strong>`;
             } else {
-                inputNF.value = '';
-                inputDocaVisual.value = '';
-                inputCliente.value = '';
-                infoDiv.textContent = 'Localize uma NF cadastrada pelo planejamento.';
+                inputNF.value = ''; inputDocaVisual.value = ''; inputTicket.value = ''; inputNumeroPedido.value = ''; inputCliente.value = '';
+                infoDiv.textContent = 'Localize um pedido digitando a NF, o Número do Pedido ou selecionando na lista.';
             }
         }
 
-        function buscarNotaPorTexto() {
-            const termo = document.getElementById('buscaTextoNF').value.trim();
-            if (!termo) { alert('Digite o número da Nota Fiscal.'); return; }
-            const pedidoEncontrado = dadosApp.pedidos.find(p => p.nota.toLowerCase() === termo.toLowerCase());
+        function buscarNotaPorTexto(tipo) {
+            const campoId = tipo === 'nf' ? 'buscaTextoNF' : 'buscaTextoNP';
+            const termo = document.getElementById(campoId).value.trim();
+            if (!termo) { mostrarToast(`Digite o número ${tipo === 'nf' ? 'da NF' : 'do Pedido'}.`, 'aviso'); return; }
+            
+            const pedidoEncontrado = dadosApp.pedidos.find(p => 
+                tipo === 'nf' ? (p.nota && p.nota.toLowerCase() === termo.toLowerCase()) : (p.numeroPedido && p.numeroPedido.toLowerCase() === termo.toLowerCase())
+            );
+
             if (pedidoEncontrado) {
-                document.getElementById('agNotaSelect').value = pedidoEncontrado.nota;
+                document.getElementById('agNotaSelect').value = pedidoEncontrado.id;
                 aplicarDadosNota(pedidoEncontrado);
+                mostrarToast('Pedido localizado com sucesso!', 'sucesso');
             } else {
-                alert(`NF "${termo}" não encontrada.`);
+                mostrarToast(`${tipo === 'nf' ? 'NF' : 'Pedido'} "${termo}" não encontrado.`, 'erro');
                 aplicarDadosNota(null);
             }
         }
 
         function puxarDadosDaNotaSelect() {
-            const notaSel = document.getElementById('agNotaSelect').value;
-            document.getElementById('buscaTextoNF').value = notaSel;
-            const pedidoEncontrado = dadosApp.pedidos.find(p => p.nota === notaSel);
+            const pedIdSel = document.getElementById('agNotaSelect').value;
+            const pedidoEncontrado = dadosApp.pedidos.find(p => p.id == pedIdSel);
+            if (pedidoEncontrado) {
+                document.getElementById('buscaTextoNF').value = (pedidoEncontrado.nota && pedidoEncontrado.nota !== '-') ? pedidoEncontrado.nota : '';
+                document.getElementById('buscaTextoNP').value = pedidoEncontrado.numeroPedido || '';
+            }
             aplicarDadosNota(pedidoEncontrado);
         }
 
@@ -803,34 +971,43 @@
             const infoDiv = document.getElementById('infoTrackingSelecionado');
 
             if (pedido) {
-                const ag = dadosApp.agendamentos.find(a => a.nota === pedido.nota);
-                inputNF.value = pedido.nota;
+                const ag = dadosApp.agendamentos.find(a => (pedido.nota && pedido.nota !== '-' && a.nota === pedido.nota) || (a.numeroPedido && a.numeroPedido === pedido.numeroPedido));
+                inputNF.value = pedido.nota || '-';
                 inputCliente.value = pedido.cliente;
-                inputTransp.value = ag ? `${ag.transportadora} (${ag.placa})` : 'Aguardando Agendamento';
-                infoDiv.innerHTML = `<span class="text-purple-700 dark:text-purple-400 font-bold">✓ NF ${pedido.nota} encontrada!</span> Status: <strong>${pedido.status}</strong>`;
+                inputTransp.value = ag ? `${ag.transportadora} (${ag.placa}) - Ticket: ${ag.ticket || '-'}` : 'Aguardando Agendamento';
+                infoDiv.innerHTML = `<span class="text-purple-700 dark:text-purple-400 font-bold">✓ Pedido localizado!</span> NF: <strong>${pedido.nota || '-'}</strong> | Pedido: <strong>${pedido.numeroPedido || '-'}</strong> | Status: <strong>${pedido.status}</strong>`;
             } else {
                 inputNF.value = ''; inputCliente.value = ''; inputTransp.value = '';
-                infoDiv.textContent = 'Selecione a Nota Fiscal.';
+                infoDiv.textContent = 'Selecione a Nota Fiscal ou o Número do Pedido.';
             }
         }
 
-        function buscarNotaTrackingTexto() {
-            const termo = document.getElementById('trcTextoNF').value.trim();
-            if (!termo) { alert('Digite a NF.'); return; }
-            const pedidoEncontrado = dadosApp.pedidos.find(p => p.nota.toLowerCase() === termo.toLowerCase());
+        function buscarNotaTrackingTexto(tipo) {
+            const campoId = tipo === 'nf' ? 'trcTextoNF' : 'trcTextoNP';
+            const termo = document.getElementById(campoId).value.trim();
+            if (!termo) { mostrarToast(`Digite o número ${tipo === 'nf' ? 'da NF' : 'do Pedido'}.`, 'aviso'); return; }
+            
+            const pedidoEncontrado = dadosApp.pedidos.find(p => 
+                tipo === 'nf' ? (p.nota && p.nota.toLowerCase() === termo.toLowerCase()) : (p.numeroPedido && p.numeroPedido.toLowerCase() === termo.toLowerCase())
+            );
+
             if (pedidoEncontrado) {
-                document.getElementById('trcNotaSelect').value = pedidoEncontrado.nota;
+                document.getElementById('trcNotaSelect').value = pedidoEncontrado.id;
                 aplicarDadosTracking(pedidoEncontrado);
+                mostrarToast('Pedido localizado com sucesso!', 'sucesso');
             } else {
-                alert(`NF "${termo}" não encontrada.`);
+                mostrarToast(`${tipo === 'nf' ? 'NF' : 'Pedido'} "${termo}" não encontrado.`, 'erro');
                 aplicarDadosTracking(null);
             }
         }
 
         function puxarNotaTrackingSelect() {
-            const notaSel = document.getElementById('trcNotaSelect').value;
-            document.getElementById('trcTextoNF').value = notaSel;
-            const pedidoEncontrado = dadosApp.pedidos.find(p => p.nota === notaSel);
+            const pedIdSel = document.getElementById('trcNotaSelect').value;
+            const pedidoEncontrado = dadosApp.pedidos.find(p => p.id == pedIdSel);
+            if (pedidoEncontrado) {
+                document.getElementById('trcTextoNF').value = (pedidoEncontrado.nota && pedidoEncontrado.nota !== '-') ? pedidoEncontrado.nota : '';
+                document.getElementById('trcTextoNP').value = pedidoEncontrado.numeroPedido || '';
+            }
             aplicarDadosTracking(pedidoEncontrado);
         }
 
@@ -846,25 +1023,25 @@
             const btnTrc = document.getElementById('btn-tab-tracking');
 
             secAg.classList.add('hidden'); secCal.classList.add('hidden'); secPed.classList.add('hidden'); secTrc.classList.add('hidden');
-            btnAg.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
-            btnCal.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
-            btnPed.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
-            btnTrc.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+            btnAg.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
+            btnCal.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
+            btnPed.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
+            btnTrc.className = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
 
             if (tab === 'pedidos') {
                 secPed.classList.remove('hidden');
-                btnPed.className = "px-4 py-2 font-semibold text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                btnPed.className = "px-4 py-2 font-semibold text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
             } else if (tab === 'agendamentos') {
                 secAg.classList.remove('hidden');
-                btnAg.className = "px-4 py-2 font-semibold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                btnAg.className = "px-4 py-2 font-semibold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
                 carregarSelectNotas();
             } else if (tab === 'tracking') {
                 secTrc.classList.remove('hidden');
-                btnTrc.className = "px-4 py-2 font-semibold text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                btnTrc.className = "px-4 py-2 font-semibold text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
                 carregarSelectTracking();
             } else {
                 secCal.classList.remove('hidden');
-                btnCal.className = "px-4 py-2 font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap";
+                btnCal.className = "px-4 py-2 font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
                 renderizarCalendario();
             }
         }
@@ -872,99 +1049,154 @@
         // SUBMITS
         document.getElementById('formPedido').addEventListener('submit', function(e) {
             e.preventDefault();
-            if (setorAutenticado !== 'planejamento' && setorAutenticado !== 'admin') { alert('Acesso negado. Desbloqueie com a senha do Planejamento.'); return; }
+            if (setorAutenticado !== 'planejamento' && setorAutenticado !== 'admin') { mostrarToast('Acesso negado. Desbloqueie com a senha do Planejamento.', 'erro'); return; }
             
             const editId = document.getElementById('editPedidoId').value;
-            const nfDigitada = document.getElementById('pedNota').value.trim();
+            const nfDigitada = document.getElementById('pedNota').value.trim() || '-';
+            const npDigitado = document.getElementById('pedNumero').value.trim();
 
             if (editId) {
                 const idx = dadosApp.pedidos.findIndex(p => p.id == editId);
                 if (idx !== -1) {
                     dadosApp.pedidos[idx].nota = nfDigitada;
                     dadosApp.pedidos[idx].doca = document.getElementById('pedDoca').value;
-                    dadosApp.pedidos[idx].ticket = document.getElementById('pedTicket').value;
-                    dadosApp.pedidos[idx].numeroPedido = document.getElementById('pedNumero').value;
+                    dadosApp.pedidos[idx].numeroPedido = npDigitado;
                     dadosApp.pedidos[idx].data = document.getElementById('pedData').value;
                     dadosApp.pedidos[idx].dataSaida = document.getElementById('pedDataSaida').value;
                     dadosApp.pedidos[idx].cliente = document.getElementById('pedCliente').value;
                     dadosApp.pedidos[idx].peso = document.getElementById('pedPeso').value;
                     dadosApp.pedidos[idx].volumes = document.getElementById('pedVolumes').value;
-                    salvarNoFirebase();
-                    cancelarEdicaoPedido();
-                    alert('Pedido atualizado!');
+                    salvarNoFirebase(); cancelarEdicaoPedido();
+                    mostrarToast('Pedido atualizado com sucesso!', 'sucesso');
                 }
             } else {
-                if (dadosApp.pedidos.some(p => p.nota === nfDigitada)) { alert('NF já cadastrada.'); return; }
+                if (nfDigitada !== '-' && dadosApp.pedidos.some(p => p.nota && p.nota.toLowerCase() === nfDigitada.toLowerCase())) { 
+                    mostrarToast('NF já cadastrada no sistema.', 'aviso'); return; 
+                }
                 const novo = {
                     id: Date.now(), nota: nfDigitada, doca: document.getElementById('pedDoca').value,
-                    ticket: document.getElementById('pedTicket').value, numeroPedido: document.getElementById('pedNumero').value,
+                    numeroPedido: npDigitado,
                     data: document.getElementById('pedData').value, dataSaida: document.getElementById('pedDataSaida').value,
                     cliente: document.getElementById('pedCliente').value, peso: document.getElementById('pedPeso').value,
                     volumes: document.getElementById('pedVolumes').value, status: 'Aguardando Veículo'
                 };
                 dadosApp.pedidos.push(novo);
-                salvarNoFirebase();
-                this.reset();
-                alert('Pedido salvo!');
+                salvarNoFirebase(); this.reset();
+                mostrarToast('Pedido salvo na nuvem com sucesso!', 'sucesso');
             }
         });
 
         document.getElementById('formAgendamento').addEventListener('submit', function(e) {
             e.preventDefault();
-            if (setorAutenticado !== 'transporte' && setorAutenticado !== 'admin') { alert('Acesso negado. Desbloqueie com a senha do Transporte.'); return; }
-            const nf = document.getElementById('agNotaFiscal').value;
-            if (!nf) { alert('Selecione uma NF.'); return; }
+            if (setorAutenticado !== 'transporte' && setorAutenticado !== 'admin') { mostrarToast('Acesso negado. Desbloqueie com a senha do Transporte.', 'erro'); return; }
+            
+            const editId = document.getElementById('editAgendamentoId').value;
+            const nf = document.getElementById('agNotaFiscal').value.trim();
+            const np = document.getElementById('agNumeroPedido').value.trim();
+            
+            if (!nf) { mostrarToast('Por favor, digite o Número da Nota Fiscal.', 'aviso'); return; }
 
-            const novoadg = {
-                id: Date.now(), nota: nf, doca: document.getElementById('agDocaVisual').value,
-                cliente: document.getElementById('agCliente').value, dataHora: document.getElementById('agDataHora').value,
-                transportadora: document.getElementById('agTransportadora').value, placa: document.getElementById('agPlaca').value,
-                motorista: document.getElementById('agMotorista').value, status: 'Veículo Agendado'
-            };
-            dadosApp.agendamentos.push(novoadg);
-            const idxPed = dadosApp.pedidos.findIndex(p => p.nota === nf);
-            if (idxPed !== -1) dadosApp.pedidos[idxPed].status = `Agendado (${novoadg.doca})`;
+            const pedidoRel = dadosApp.pedidos.find(p => (np && p.numeroPedido === np) || (p.nota && p.nota === nf));
 
-            salvarNoFirebase();
-            this.reset();
-            aplicarDadosNota(null);
-            alert('Agendamento salvo!');
+            if (editId) {
+                const idx = dadosApp.agendamentos.findIndex(a => a.id == editId);
+                if (idx !== -1) {
+                    dadosApp.agendamentos[idx].nota = nf;
+                    dadosApp.agendamentos[idx].dataHora = document.getElementById('agDataHora').value;
+                    dadosApp.agendamentos[idx].transportadora = document.getElementById('agTransportadora').value;
+                    dadosApp.agendamentos[idx].placa = document.getElementById('agPlaca').value;
+                    dadosApp.agendamentos[idx].motorista = document.getElementById('agMotorista').value;
+                    dadosApp.agendamentos[idx].ticket = document.getElementById('agTicket').value;
+                    dadosApp.agendamentos[idx].numeroPedido = np || (pedidoRel ? pedidoRel.numeroPedido : '-');
+                    
+                    if (pedidoRel) {
+                        const idxPed = dadosApp.pedidos.findIndex(p => p.id === pedidoRel.id);
+                        if (idxPed !== -1) dadosApp.pedidos[idxPed].nota = nf;
+                    }
+
+                    salvarNoFirebase(); cancelarEdicaoAgendamento();
+                    mostrarToast('Agendamento atualizado com sucesso!', 'sucesso');
+                }
+            } else {
+                const novoadg = {
+                    id: Date.now(), nota: nf, doca: document.getElementById('agDocaVisual').value,
+                    ticket: document.getElementById('agTicket').value,
+                    numeroPedido: np || (pedidoRel ? pedidoRel.numeroPedido : '-'),
+                    cliente: document.getElementById('agCliente').value, dataHora: document.getElementById('agDataHora').value,
+                    transportadora: document.getElementById('agTransportadora').value, placa: document.getElementById('agPlaca').value,
+                    motorista: document.getElementById('agMotorista').value, status: 'Veículo Agendado'
+                };
+                dadosApp.agendamentos.push(novoadg);
+                if (pedidoRel) {
+                    const idxPed = dadosApp.pedidos.findIndex(p => p.id === pedidoRel.id);
+                    if (idxPed !== -1) {
+                        dadosApp.pedidos[idxPed].nota = nf; // Atualiza a NF no Pedido
+                        dadosApp.pedidos[idxPed].status = `Agendado (${novoadg.doca})`;
+                    }
+                }
+
+                salvarNoFirebase(); this.reset(); aplicarDadosNota(null);
+                document.getElementById('buscaTextoNF').value = '';
+                document.getElementById('buscaTextoNP').value = '';
+                mostrarToast('Agendamento e NF vinculados com sucesso!', 'sucesso');
+            }
         });
 
         document.getElementById('formTracking').addEventListener('submit', function(e) {
             e.preventDefault();
-            if (setorAutenticado !== 'tracking' && setorAutenticado !== 'admin') { alert('Acesso negado. Desbloqueie com a senha do Tracking.'); return; }
+            if (setorAutenticado !== 'tracking' && setorAutenticado !== 'admin') { mostrarToast('Acesso negado. Desbloqueie com a senha do Tracking.', 'erro'); return; }
+            
+            const editId = document.getElementById('editTrackingId').value;
             const nf = document.getElementById('trcNotaFiscal').value;
-            if (!nf) { alert('Selecione uma NF.'); return; }
+            const cliente = document.getElementById('trcCliente').value;
+            if (!cliente) { mostrarToast('Selecione ou busque um pedido válido.', 'aviso'); return; }
 
-            const baixa = {
-                id: Date.now(), nota: nf, cliente: document.getElementById('trcCliente').value,
-                dataHoraEntrega: document.getElementById('trcDataHora').value,
-                statusFinal: document.getElementById('trcStatus').value, observacoes: document.getElementById('trcObs').value
-            };
-            dadosApp.tracking = dadosApp.tracking.filter(t => t.nota !== nf);
-            dadosApp.tracking.push(baixa);
-            const idxPed = dadosApp.pedidos.findIndex(p => p.nota === nf);
-            if (idxPed !== -1) dadosApp.pedidos[idxPed].status = baixa.statusFinal;
+            const pedidoRel = dadosApp.pedidos.find(p => (nf && nf !== '-' && p.nota === nf) || p.cliente === cliente);
 
-            salvarNoFirebase();
-            this.reset();
-            aplicarDadosTracking(null);
-            alert('Baixa registrada!');
+            if (editId) {
+                const idx = dadosApp.tracking.findIndex(t => t.id == editId);
+                if (idx !== -1) {
+                    dadosApp.tracking[idx].dataHoraEntrega = document.getElementById('trcDataHora').value;
+                    dadosApp.tracking[idx].statusFinal = document.getElementById('trcStatus').value;
+                    dadosApp.tracking[idx].observacoes = document.getElementById('trcObs').value;
+                    
+                    if (pedidoRel) {
+                        const idxPed = dadosApp.pedidos.findIndex(p => p.id === pedidoRel.id);
+                        if (idxPed !== -1) dadosApp.pedidos[idxPed].status = dadosApp.tracking[idx].statusFinal;
+                    }
+
+                    salvarNoFirebase(); cancelarEdicaoTracking();
+                    mostrarToast('Baixa de tracking atualizada com sucesso!', 'sucesso');
+                }
+            } else {
+                const baixa = {
+                    id: Date.now(), nota: nf || '-', cliente: cliente,
+                    dataHoraEntrega: document.getElementById('trcDataHora').value,
+                    statusFinal: document.getElementById('trcStatus').value, observacoes: document.getElementById('trcObs').value
+                };
+                
+                if (pedidoRel) {
+                    dadosApp.tracking = dadosApp.tracking.filter(t => (pedidoRel.nota && pedidoRel.nota !== '-' && t.nota === pedidoRel.nota) || t.cliente === pedidoRel.cliente);
+                    const idxPed = dadosApp.pedidos.findIndex(p => p.id === pedidoRel.id);
+                    if (idxPed !== -1) dadosApp.pedidos[idxPed].status = baixa.statusFinal;
+                }
+                
+                dadosApp.tracking.push(baixa);
+                salvarNoFirebase(); this.reset(); aplicarDadosTracking(null);
+                document.getElementById('trcTextoNF').value = '';
+                document.getElementById('trcTextoNP').value = '';
+                mostrarToast('Baixa de entrega registrada com sucesso!', 'sucesso');
+            }
         });
 
         function editarPedido(id) {
-            if (setorAutenticado !== 'admin') { 
-                alert('Acesso restrito! A edição/atualização de registros cadastrados requer a senha de Administrador (9704).'); 
-                return; 
-            }
+            if (setorAutenticado !== 'admin') { mostrarToast('Acesso restrito! Requer senha de Administrador.', 'erro'); return; }
             const pedido = dadosApp.pedidos.find(p => p.id === id);
             if (!pedido) return;
 
             document.getElementById('editPedidoId').value = pedido.id;
-            document.getElementById('pedNota').value = pedido.nota;
+            document.getElementById('pedNota').value = pedido.nota && pedido.nota !== '-' ? pedido.nota : '';
             document.getElementById('pedDoca').value = pedido.doca;
-            document.getElementById('pedTicket').value = pedido.ticket;
             document.getElementById('pedNumero').value = pedido.numeroPedido;
             document.getElementById('pedData').value = pedido.data;
             document.getElementById('pedDataSaida').value = pedido.dataSaida;
@@ -974,6 +1206,7 @@
             document.getElementById('textoBtnSalvarPedido').textContent = 'Atualizar Pedido Alterado';
             document.getElementById('btnCancelarEdicao').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            mostrarToast('Modo de edição ativado para o pedido.', 'aviso');
         }
 
         function cancelarEdicaoPedido() {
@@ -983,11 +1216,66 @@
             document.getElementById('btnCancelarEdicao').classList.add('hidden');
         }
 
+        function editarAgendamento(id) {
+            if (setorAutenticado !== 'admin') { mostrarToast('Acesso restrito! Requer senha de Administrador.', 'erro'); return; }
+            const ag = dadosApp.agendamentos.find(a => a.id === id);
+            if (!ag) return;
+
+            document.getElementById('editAgendamentoId').value = ag.id;
+            document.getElementById('agNotaFiscal').value = ag.nota && ag.nota !== '-' ? ag.nota : '';
+            document.getElementById('agDocaVisual').value = ag.doca;
+            document.getElementById('agTicket').value = ag.ticket || '';
+            document.getElementById('agNumeroPedido').value = ag.numeroPedido || '';
+            document.getElementById('agCliente').value = ag.cliente;
+            document.getElementById('agDataHora').value = ag.dataHora;
+            document.getElementById('agTransportadora').value = ag.transportadora;
+            document.getElementById('agPlaca').value = ag.placa;
+            document.getElementById('agMotorista').value = ag.motorista;
+
+            document.getElementById('textoBtnSalvarAgendamento').textContent = 'Atualizar Agendamento';
+            document.getElementById('btnCancelarEdicaoAgendamento').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            mostrarToast('Modo de edição ativado para o agendamento.', 'aviso');
+        }
+
+        function cancelarEdicaoAgendamento() {
+            document.getElementById('formAgendamento').reset();
+            document.getElementById('editAgendamentoId').value = '';
+            document.getElementById('textoBtnSalvarAgendamento').textContent = 'Vincular Agendamento (Bloqueado)';
+            document.getElementById('btnCancelarEdicaoAgendamento').classList.add('hidden');
+        }
+
+        function editarTracking(id) {
+            if (setorAutenticado !== 'admin') { mostrarToast('Acesso restrito! Requer senha de Administrador.', 'erro'); return; }
+            const trc = dadosApp.tracking.find(t => t.id === id);
+            if (!trc) return;
+
+            document.getElementById('editTrackingId').value = trc.id;
+            document.getElementById('trcNotaFiscal').value = trc.nota || '-';
+            document.getElementById('trcCliente').value = trc.cliente;
+            
+            const ag = dadosApp.agendamentos.find(a => (trc.nota && trc.nota !== '-' && a.nota === trc.nota) || a.cliente === trc.cliente);
+            document.getElementById('trcTranspPlaca').value = ag ? `${ag.transportadora} (${ag.placa})` : 'Agendamento não encontrado';
+            
+            document.getElementById('trcDataHora').value = trc.dataHoraEntrega;
+            document.getElementById('trcStatus').value = trc.statusFinal;
+            document.getElementById('trcObs').value = trc.observacoes || '';
+
+            document.getElementById('textoBtnSalvarTracking').textContent = 'Atualizar Baixa';
+            document.getElementById('btnCancelarEdicaoTracking').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            mostrarToast('Modo de edição ativado para o tracking.', 'aviso');
+        }
+
+        function cancelarEdicaoTracking() {
+            document.getElementById('formTracking').reset();
+            document.getElementById('editTrackingId').value = '';
+            document.getElementById('textoBtnSalvarTracking').textContent = 'Confirmar e Dar Baixa (Bloqueado)';
+            document.getElementById('btnCancelarEdicaoTracking').classList.add('hidden');
+        }
+
         function excluirItem(tipo, id) {
-            if (setorAutenticado !== 'admin') {
-                alert('Acesso restrito! A exclusão de registros requer a senha de Administrador (9704).');
-                return;
-            }
+            if (setorAutenticado !== 'admin') { mostrarToast('Acesso restrito! Requer senha de Administrador.', 'erro'); return; }
 
             if (confirm('Deseja realmente excluir este registro permanentemente?')) {
                 if (tipo === 'agendamento') dadosApp.agendamentos = dadosApp.agendamentos.filter(i => i.id !== id);
@@ -995,41 +1283,48 @@
                 else {
                     const ped = dadosApp.pedidos.find(p => p.id === id);
                     if (ped) {
-                        dadosApp.agendamentos = dadosApp.agendamentos.filter(a => a.nota !== ped.nota);
-                        dadosApp.tracking = dadosApp.tracking.filter(t => t.nota !== ped.nota);
+                        dadosApp.agendamentos = dadosApp.agendamentos.filter(a => (ped.nota && ped.nota !== '-' && a.nota === ped.nota) || a.numeroPedido === ped.numeroPedido);
+                        dadosApp.tracking = dadosApp.tracking.filter(t => (ped.nota && ped.nota !== '-' && t.nota === ped.nota) || t.cliente === ped.cliente);
                     }
                     dadosApp.pedidos = dadosApp.pedidos.filter(i => i.id !== id);
                 }
                 salvarNoFirebase();
-                alert('Registro excluído com sucesso!');
+                mostrarToast('Registro excluído com sucesso!', 'sucesso');
             }
         }
 
         function renderizarTabelasPedidos() {
             const dataFiltro = document.getElementById('filtroDataPedido').value;
-            const filtrados = dadosApp.pedidos.filter(item => !dataFiltro || item.dataSaida === dataFiltro);
-            const canAdmin = (setorAutenticado === 'admin');
+            const buscaNF = document.getElementById('filtroBuscaNF').value.toLowerCase().trim();
+            const buscaNP = document.getElementById('filtroBuscaNP').value.toLowerCase().trim();
+            
+            const filtrados = dadosApp.pedidos.filter(item => {
+                const matchData = !dataFiltro || item.dataSaida === dataFiltro;
+                const matchNF = !buscaNF || (item.nota && item.nota.toLowerCase().includes(buscaNF));
+                const matchNP = !buscaNP || (item.numeroPedido && item.numeroPedido.toLowerCase().includes(buscaNP));
+                return matchData && matchNF && matchNP;
+            });
 
+            const canAdmin = (setorAutenticado === 'admin');
             document.getElementById('thAcoesPedidos').style.display = canAdmin ? 'table-cell' : 'none';
 
             document.getElementById('tabelaPedidosBody').innerHTML = filtrados.length === 0
-                ? `<tr><td colspan="11" class="p-4 text-center text-slate-400">Nenhum pedido encontrado.</td></tr>`
+                ? `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum pedido encontrado.</td></tr>`
                 : filtrados.map(item => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td class="p-3 font-mono font-bold text-emerald-800 dark:text-emerald-400">${item.nota}</td>
-                        <td class="p-3 font-semibold text-blue-600 dark:text-blue-400">${item.doca || '-'}</td>
-                        <td class="p-3 font-mono text-emerald-700 dark:text-emerald-300">${item.ticket || '-'}</td>
-                        <td class="p-3 font-mono">${item.numeroPedido || '-'}</td>
-                        <td class="p-3 text-slate-600 dark:text-slate-400">${item.data || '-'}</td>
-                        <td class="p-3 font-semibold text-amber-700 dark:text-amber-400">${item.dataSaida || '-'}</td>
-                        <td class="p-3">${item.cliente}</td>
-                        <td class="p-3">${Number(item.peso).toLocaleString('pt-BR')} Kg</td>
-                        <td class="p-3">${item.volumes} vol.</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">${item.status}</span></td>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td class="p-3.5 font-mono font-bold text-emerald-800 dark:text-emerald-400">${item.nota || '-'}</td>
+                        <td class="p-3.5 font-semibold text-blue-600 dark:text-blue-400">${item.doca || '-'}</td>
+                        <td class="p-3.5 font-mono">${item.numeroPedido || '-'}</td>
+                        <td class="p-3.5 text-slate-600 dark:text-slate-400">${item.data || '-'}</td>
+                        <td class="p-3.5 font-semibold text-amber-700 dark:text-amber-400">${item.dataSaida || '-'}</td>
+                        <td class="p-3.5">${item.cliente}</td>
+                        <td class="p-3.5">${Number(item.peso).toLocaleString('pt-BR')} Kg</td>
+                        <td class="p-3.5">${item.volumes} un.</td>
+                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">${item.status}</span></td>
                         ${canAdmin ? `
-                            <td class="p-3 text-center space-x-2">
-                                <button onclick="editarPedido(${item.id})" title="Editar Pedido (Admin)" class="text-blue-500 hover:text-blue-700 p-1"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                                <button onclick="excluirItem('pedido', ${item.id})" title="Excluir Pedido (Admin)" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <td class="p-3.5 text-center space-x-1">
+                                <button onclick="editarPedido(${item.id})" title="Editar Pedido (Admin)" class="p-1.5 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="excluirItem('pedido', ${item.id})" title="Excluir Pedido (Admin)" class="p-1.5 bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </td>
                         ` : ''}
                     </tr>
@@ -1042,19 +1337,22 @@
             document.getElementById('thAcoesAgendamentos').style.display = canAdmin ? 'table-cell' : 'none';
 
             document.getElementById('tabelaAgendamentosBody').innerHTML = dadosApp.agendamentos.length === 0
-                ? `<tr><td colspan="8" class="p-4 text-center text-slate-400">Nenhum agendamento.</td></tr>`
+                ? `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum agendamento registrado.</td></tr>`
                 : dadosApp.agendamentos.map(item => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td class="p-3 font-mono font-bold text-blue-700 dark:text-blue-400">${item.nota}</td>
-                        <td class="p-3 font-semibold text-blue-600 dark:text-blue-400">${item.doca || '-'}</td>
-                        <td class="p-3">${new Date(item.dataHora).toLocaleString('pt-BR')}</td>
-                        <td class="p-3 font-semibold text-slate-800 dark:text-slate-200">${item.transportadora}</td>
-                        <td class="p-3 uppercase font-mono">${item.placa}</td>
-                        <td class="p-3">${item.motorista}</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">${item.status}</span></td>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td class="p-3.5 font-mono font-bold text-blue-700 dark:text-blue-400">${item.nota || '-'}</td>
+                        <td class="p-3.5 font-semibold text-blue-600 dark:text-blue-400">${item.doca || '-'}</td>
+                        <td class="p-3.5 font-mono text-emerald-700 dark:text-emerald-300">${item.ticket || '-'}</td>
+                        <td class="p-3.5 font-mono">${item.numeroPedido || '-'}</td>
+                        <td class="p-3.5">${new Date(item.dataHora).toLocaleString('pt-BR')}</td>
+                        <td class="p-3.5 font-semibold text-slate-800 dark:text-slate-200">${item.transportadora}</td>
+                        <td class="p-3.5 uppercase font-mono">${item.placa}</td>
+                        <td class="p-3.5">${item.motorista}</td>
+                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300">${item.status}</span></td>
                         ${canAdmin ? `
-                            <td class="p-3 text-center">
-                                <button onclick="excluirItem('agendamento', ${item.id})" title="Excluir Agendamento (Admin)" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <td class="p-3.5 text-center space-x-1">
+                                <button onclick="editarAgendamento(${item.id})" title="Editar Agendamento (Admin)" class="p-1.5 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="excluirItem('agendamento', ${item.id})" title="Excluir Agendamento (Admin)" class="p-1.5 bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </td>
                         ` : ''}
                     </tr>
@@ -1067,21 +1365,22 @@
             document.getElementById('thAcoesTracking').style.display = canAdmin ? 'table-cell' : 'none';
 
             document.getElementById('tabelaTrackingBody').innerHTML = dadosApp.tracking.length === 0
-                ? `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma baixa.</td></tr>`
+                ? `<tr><td colspan="6" class="p-6 text-center text-slate-400">Nenhuma baixa de entrega registrada.</td></tr>`
                 : dadosApp.tracking.map(item => {
-                    let badgeColor = 'bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300';
-                    if (item.statusFinal.includes('RECUSA')) badgeColor = 'bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 font-bold';
+                    let badgeColor = 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300';
+                    if (item.statusFinal.includes('RECUSA')) badgeColor = 'bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 font-bold';
 
                     return `
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                            <td class="p-3 font-mono font-bold text-purple-900 dark:text-purple-400">${item.nota}</td>
-                            <td class="p-3 font-medium">${item.cliente}</td>
-                            <td class="p-3">${new Date(item.dataHoraEntrega).toLocaleString('pt-BR')}</td>
-                            <td class="p-3"><span class="px-2 py-1 rounded text-xs ${badgeColor}">${item.statusFinal}</span></td>
-                            <td class="p-3 text-slate-600 dark:text-slate-300 font-medium">${item.observacoes || '-'}</td>
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="p-3.5 font-mono font-bold text-purple-900 dark:text-purple-400">${item.nota || '-'}</td>
+                            <td class="p-3.5 font-medium">${item.cliente}</td>
+                            <td class="p-3.5">${new Date(item.dataHoraEntrega).toLocaleString('pt-BR')}</td>
+                            <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs ${badgeColor}">${item.statusFinal}</span></td>
+                            <td class="p-3.5 text-slate-600 dark:text-slate-300 font-medium">${item.observacoes || '-'}</td>
                             ${canAdmin ? `
-                                <td class="p-3 text-center">
-                                    <button onclick="excluirItem('tracking', ${item.id})" title="Excluir Baixa (Admin)" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <td class="p-3.5 text-center space-x-1">
+                                    <button onclick="editarTracking(${item.id})" title="Editar Tracking (Admin)" class="p-1.5 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                    <button onclick="excluirItem('tracking', ${item.id})" title="Excluir Baixa (Admin)" class="p-1.5 bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                 </td>
                             ` : ''}
                         </tr>
@@ -1090,46 +1389,253 @@
             lucide.createIcons();
         }
 
+        function alternarCamposFiltroPeriodo() {
+            const tipo = document.getElementById('tipoFiltroPeriodo').value;
+            const boxDia = document.getElementById('boxFiltroDia');
+            const boxMes = document.getElementById('boxFiltroMes');
+            const boxDe = document.getElementById('boxFiltroDe');
+            const boxAte = document.getElementById('boxFiltroAte');
+
+            boxDia.classList.add('hidden'); boxMes.classList.add('hidden'); boxDe.classList.add('hidden'); boxAte.classList.add('hidden');
+
+            if (tipo === 'dia') boxDia.classList.remove('hidden');
+            else if (tipo === 'mes') boxMes.classList.remove('hidden');
+            else if (tipo === 'periodo') { boxDe.classList.remove('hidden'); boxAte.classList.remove('hidden'); }
+            renderizarCalendario();
+        }
+
         function renderizarCalendario() {
-            const inputFiltro = document.getElementById('filtroDataAgendamento');
-            if (!inputFiltro.value) inputFiltro.value = new Date().toISOString().split('T')[0];
-            const dataSel = inputFiltro.value;
-            const [ano, mes, dia] = dataSel.split('-');
-            document.getElementById('tituloDiaSelecionado').textContent = `Fluxo Operacional do Dia: ${dia}/${mes}/${ano}`;
+            const tipo = document.getElementById('tipoFiltroPeriodo').value;
+            const hoje = new Date().toISOString().split('T')[0];
 
+            if (!document.getElementById('filtroDiaData').value) document.getElementById('filtroDiaData').value = hoje;
+            if (!document.getElementById('filtroMesData').value) document.getElementById('filtroMesData').value = hoje.substring(0, 7);
+            if (!document.getElementById('filtroDataDe').value) document.getElementById('filtroDataDe').value = hoje;
+            if (!document.getElementById('filtroDataAte').value) document.getElementById('filtroDataAte').value = hoje;
+
+            const filtroNF = document.getElementById('filtroRelNF').value.toLowerCase().trim();
+            const filtroNP = document.getElementById('filtroRelNP').value.toLowerCase().trim();
+
+            let tituloText = "";
             let lista = [];
-            dadosApp.pedidos.forEach(ped => {
-                const ag = dadosApp.agendamentos.find(a => a.nota === ped.nota);
-                const trc = dadosApp.tracking.find(t => t.nota === ped.nota);
-                const dataAg = ag && ag.dataHora ? ag.dataHora.split('T')[0] : '';
 
-                if (ped.data === dataSel || ped.dataSaida === dataSel || dataAg === dataSel) {
-                    lista.push({
-                        nota: ped.nota, ticketPed: `TKT: ${ped.ticket || '-'}`,
-                        docaHora: `${ped.doca || '-'}`, transpPlaca: ag ? `${ag.transportadora} (${ag.placa})` : 'Aguardando',
-                        cliente: ped.cliente, status: trc ? trc.statusFinal : (ag ? `Agendado - ${ped.doca}` : ped.status)
-                    });
-                }
-            });
+            if (tipo === 'dia') {
+                const diaSel = document.getElementById('filtroDiaData').value;
+                const [a, m, d] = diaSel.split('-');
+                tituloText = `Relatório do Dia: ${d}/${m}/${a}`;
 
+                dadosApp.pedidos.forEach(ped => {
+                    const ag = dadosApp.agendamentos.find(a => (ped.nota && ped.nota !== '-' && a.nota === ped.nota) || a.numeroPedido === ped.numeroPedido);
+                    const trc = dadosApp.tracking.find(t => (ped.nota && ped.nota !== '-' && t.nota === ped.nota) || t.cliente === ped.cliente);
+                    const dataAg = ag && ag.dataHora ? ag.dataHora.split('T')[0] : '';
+
+                    if (ped.data === diaSel || ped.dataSaida === diaSel || dataAg === diaSel) {
+                        if (atendeFiltroBusca(ped, filtroNF, filtroNP)) {
+                            lista.push(montarObjetoConsolidado(ped, ag, trc));
+                        }
+                    }
+                });
+            } else if (tipo === 'mes') {
+                const mesSel = document.getElementById('filtroMesData').value;
+                const [a, m] = mesSel.split('-');
+                tituloText = `Relatório Mensal: ${m}/${a}`;
+
+                dadosApp.pedidos.forEach(ped => {
+                    const ag = dadosApp.agendamentos.find(a => (ped.nota && ped.nota !== '-' && a.nota === ped.nota) || a.numeroPedido === ped.numeroPedido);
+                    const trc = dadosApp.tracking.find(t => (ped.nota && ped.nota !== '-' && t.nota === ped.nota) || t.cliente === ped.cliente);
+                    const dataAg = ag && ag.dataHora ? ag.dataHora.split('T')[0] : '';
+
+                    if ((ped.data && ped.data.startsWith(mesSel)) || (ped.dataSaida && ped.dataSaida.startsWith(mesSel)) || (dataAg && dataAg.startsWith(mesSel))) {
+                        if (atendeFiltroBusca(ped, filtroNF, filtroNP)) {
+                            lista.push(montarObjetoConsolidado(ped, ag, trc));
+                        }
+                    }
+                });
+            } else if (tipo === 'periodo') {
+                const deSel = document.getElementById('filtroDataDe').value;
+                const ateSel = document.getElementById('filtroDataAte').value;
+                const [a1, m1, d1] = deSel.split('-'); const [a2, m2, d2] = ateSel.split('-');
+                tituloText = `Relatório do Período: ${d1}/${m1}/${a1} até ${d2}/${m2}/${a2}`;
+
+                dadosApp.pedidos.forEach(ped => {
+                    const ag = dadosApp.agendamentos.find(a => (ped.nota && ped.nota !== '-' && a.nota === ped.nota) || a.numeroPedido === ped.numeroPedido);
+                    const trc = dadosApp.tracking.find(t => (ped.nota && ped.nota !== '-' && t.nota === ped.nota) || t.cliente === ped.cliente);
+                    const dataAg = ag && ag.dataHora ? ag.dataHora.split('T')[0] : '';
+
+                    if ((ped.data >= deSel && ped.data <= ateSel) || (ped.dataSaida >= deSel && ped.dataSaida <= ateSel) || (dataAg >= deSel && dataAg <= ateSel)) {
+                        if (atendeFiltroBusca(ped, filtroNF, filtroNP)) {
+                            lista.push(montarObjetoConsolidado(ped, ag, trc));
+                        }
+                    }
+                });
+            }
+
+            registrosFiltradosAtuais = lista;
+            document.getElementById('tituloDiaSelecionado').textContent = tituloText;
             document.getElementById('contadorConsolidado').textContent = `${lista.length} registro(s)`;
+
             document.getElementById('tabelaConsolidadaBody').innerHTML = lista.length === 0
-                ? `<tr><td colspan="8" class="p-4 text-center text-slate-400">Nenhum evento para este dia.</td></tr>`
-                : lista.map(i => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">${i.status}</span></td>
-                        <td class="p-3 font-mono font-bold">${i.nota}</td>
-                        <td class="p-3 font-mono text-xs">${i.ticketPed}</td>
-                        <td class="p-3 font-semibold text-indigo-600 dark:text-indigo-400">${i.docaHora}</td>
-                        <td class="p-3">${i.transpPlaca}</td>
-                        <td class="p-3">${i.cliente}</td>
-                        <td class="p-3">-</td><td class="p-3">-</td>
-                    </tr>
-                `).join('');
+                ? `<tr><td colspan="9" class="p-6 text-center text-slate-400">Nenhum registro encontrado para este período/busca.</td></tr>`
+                : lista.map(i => {
+                    let badgeClass = "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold";
+                    if (i.status.includes('ENTREGUE')) badgeClass = "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 font-bold";
+                    if (i.status.includes('RECUSA')) badgeClass = "bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 font-bold";
+                    if (i.status.includes('Agendado')) badgeClass = "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 font-bold";
+
+                    return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs ${badgeClass}">${i.status}</span></td>
+                            <td class="p-3.5 font-mono font-bold text-emerald-700 dark:text-emerald-400">${i.nota || '-'}</td>
+                            <td class="p-3.5 font-mono text-xs">${i.ticket} / ${i.numeroPedido}</td>
+                            <td class="p-3.5 font-semibold text-blue-600 dark:text-blue-400">${i.doca}</td>
+                            <td class="p-3.5 font-medium">${i.transportadoraPlaca}</td>
+                            <td class="p-3.5 text-slate-600 dark:text-slate-300">${i.motorista}</td>
+                            <td class="p-3.5 font-medium">${i.cliente}</td>
+                            <td class="p-3.5 text-slate-500">${i.dataPedido}</td>
+                            <td class="p-3.5 text-amber-700 dark:text-amber-400 font-medium">${i.dataSaida}</td>
+                        </tr>
+                    `;
+                }).join('');
             lucide.createIcons();
         }
 
-        function limparFiltroPedido() { document.getElementById('filtroDataPedido').value = ''; renderizarTabelasPedidos(); }
+        function atendeFiltroBusca(ped, nf, np) {
+            const matchNF = !nf || (ped.nota && ped.nota.toLowerCase().includes(nf));
+            const matchNP = !np || (ped.numeroPedido && ped.numeroPedido.toLowerCase().includes(np));
+            return matchNF && matchNP;
+        }
+
+        function montarObjetoConsolidado(ped, ag, trc) {
+            let statusFinal = ped.status;
+            if (ag) statusFinal = `Agendado (${ag.doca || ped.doca})`;
+            if (trc) statusFinal = trc.statusFinal;
+
+            return {
+                nota: ped.nota || '-', ticket: ag ? (ag.ticket || '-') : '-', numeroPedido: ped.numeroPedido || '-',
+                doca: ped.doca || '-', cliente: ped.cliente || '-', dataPedido: ped.data || '-',
+                dataSaida: ped.dataSaida || '-', peso: ped.peso || '-', volumes: ped.volumes || '-',
+                transportadora: ag ? ag.transportadora : 'Aguardando', placa: ag ? ag.placa : '-',
+                motorista: ag ? ag.motorista : '-', dataHoraAgendada: ag && ag.dataHora ? new Date(ag.dataHora).toLocaleString('pt-BR') : '-',
+                transportadoraPlaca: ag ? `${ag.transportadora} (${ag.placa})` : 'Aguardando Agendamento',
+                status: statusFinal, observacoes: trc ? (trc.observacoes || '-') : '-'
+            };
+        }
+
+        // -------------------------------------------------------------
+        // EXPORTAÇÃO EXCEL PROFISSIONAL (COM CORES, FONTES E BORDAS)
+        // -------------------------------------------------------------
+        async function exportarRelatorioExcel() {
+            if (!registrosFiltradosAtuais || registrosFiltradosAtuais.length === 0) {
+                mostrarToast('Não há dados filtrados na tela para exportar.', 'aviso');
+                return;
+            }
+
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Relatório Logística');
+
+            worksheet.columns = [
+                { header: 'Status da Carga', key: 'status', width: 26 },
+                { header: 'Nota Fiscal (NF)', key: 'nota', width: 16 },
+                { header: 'Ticket', key: 'ticket', width: 14 },
+                { header: 'Número do Pedido', key: 'numeroPedido', width: 18 },
+                { header: 'Doca Agendada', key: 'doca', width: 16 },
+                { header: 'Transportadora', key: 'transportadora', width: 22 },
+                { header: 'Placa', key: 'placa', width: 14 },
+                { header: 'Motorista', key: 'motorista', width: 22 },
+                { header: 'Cliente / Destino', key: 'cliente', width: 28 },
+                { header: 'Data do Pedido', key: 'dataPedido', width: 16 },
+                { header: 'Data de Liberação', key: 'dataSaida', width: 18 },
+                { header: 'Data/Hora de Entrega', key: 'dataHoraAgendada', width: 24 },
+                { header: 'Peso (Kg)', key: 'peso', width: 14 },
+                { header: 'Qtd do Pedido', key: 'volumes', width: 15 },
+                { header: 'Observações', key: 'observacoes', width: 35 }
+            ];
+
+            registrosFiltradosAtuais.forEach(item => {
+                worksheet.addRow({
+                    status: item.status,
+                    nota: item.nota,
+                    ticket: item.ticket,
+                    numeroPedido: item.numeroPedido,
+                    doca: item.doca,
+                    transportadora: item.transportadora,
+                    placa: item.placa,
+                    motorista: item.motorista,
+                    cliente: item.cliente,
+                    dataPedido: item.dataPedido,
+                    dataSaida: item.dataSaida,
+                    dataHoraAgendada: item.dataHoraAgendada,
+                    peso: Number(item.peso) || item.peso,
+                    volumes: Number(item.volumes) || item.volumes,
+                    observacoes: item.observacoes
+                });
+            });
+
+            // 1. Estilização do Cabeçalho
+            const headerRow = worksheet.getRow(1);
+            headerRow.height = 26;
+            headerRow.eachCell((cell) => {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } }; // Azul Escuro Slate
+                cell.font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FFFFFFFF' } }; // Texto Branco
+                cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FF0F172A' } },
+                    left: { style: 'thin', color: { argb: 'FF334155' } },
+                    bottom: { style: 'medium', color: { argb: 'FF0F172A' } },
+                    right: { style: 'thin', color: { argb: 'FF334155' } }
+                };
+            });
+
+            // 2. Estilização das Linhas (Zebrado + Alinhamentos)
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+                row.height = 20;
+                const ePar = (rowNumber % 2 === 0);
+
+                row.eachCell((cell, colNumber) => {
+                    cell.font = { name: 'Arial', size: 10, color: { argb: 'FF334155' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ePar ? 'FFF8FAFC' : 'FFFFFFFF' } };
+                    cell.border = {
+                        top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                    };
+
+                    if ([2, 3, 4, 5, 7, 10, 11, 12, 13, 14].includes(colNumber)) {
+                        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                    } else {
+                        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                    }
+                });
+            });
+
+            // 3. Ativar Filtros Automáticos
+            worksheet.autoFilter = {
+                from: { row: 1, column: 1 },
+                to: { row: worksheet.rowCount, column: worksheet.columnCount }
+            };
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            
+            const dataHoje = new Date().toISOString().split('T')[0];
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Relatorio_Logistica_Darnel_${dataHoje}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            mostrarToast('Planilha Excel profissional baixada com sucesso!', 'sucesso');
+        }
+
+        function limparFiltroPedido() { 
+            document.getElementById('filtroDataPedido').value = ''; 
+            document.getElementById('filtroBuscaNF').value = ''; 
+            document.getElementById('filtroBuscaNP').value = ''; 
+            renderizarTabelasPedidos(); 
+        }
 
         carregarOpcoesDocas();
         escutarBanco();
