@@ -163,15 +163,23 @@
         <div id="secao-pedidos" class="space-y-6">
 
             <!-- Sub-Abas Internas da Aba 1 -->
-            <div class="flex space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                <button onclick="mudarSubTab('dedicada')" id="btn-sub-dedicada" class="px-4 py-2 text-xs font-bold uppercase rounded-lg bg-emerald-600 text-white shadow transition flex items-center space-x-1.5">
-                    <i data-lucide="box" class="w-3.5 h-3.5"></i>
-                    <span>1A. Carga Dedicada / Paletizada (Cliente Único)</span>
-                </button>
-                <button onclick="mudarSubTab('itinerante')" id="btn-sub-itinerante" class="px-4 py-2 text-xs font-bold uppercase rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 transition flex items-center space-x-1.5">
-                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                    <span>1B. Carga Itinerante (Importação WMS & Rota)</span>
-                </button>
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-2">
+                <div class="flex space-x-2">
+                    <button onclick="mudarSubTab('dedicada')" id="btn-sub-dedicada" class="px-4 py-2 text-xs font-bold uppercase rounded-lg bg-emerald-600 text-white shadow transition flex items-center space-x-1.5">
+                        <i data-lucide="box" class="w-3.5 h-3.5"></i>
+                        <span>1A. Carga Dedicada / Paletizada (Cliente Único)</span>
+                    </button>
+                    <button onclick="mudarSubTab('itinerante')" id="btn-sub-itinerante" class="px-4 py-2 text-xs font-bold uppercase rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                        <span>1B. Carga Itinerante (Importação WMS & Rota)</span>
+                    </button>
+                </div>
+                <div>
+                    <button type="button" onclick="pedirSenha('planejamento')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1 shadow-sm">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                        <span>Desbloquear Edição (Planejamento)</span>
+                    </button>
+                </div>
             </div>
 
             <!-- SUB-ABA 1A: CARGA DEDICADA / PALETIZADA (CLIENTE ÚNICO) -->
@@ -188,27 +196,27 @@
                     <form id="formCargaDedicada" onsubmit="salvarCargaDedicada(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nota Fiscal (NF) *</label>
-                            <input type="text" id="dedNotaFiscal" placeholder="Ex: NF-9021" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold shadow-inner">
+                            <input type="text" id="dedNotaFiscal" placeholder="Ex: NF-9021" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold shadow-inner">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nº Pedido *</label>
-                            <input type="text" id="dedNumPedido" placeholder="Ex: PED-102" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
+                            <input type="text" id="dedNumPedido" placeholder="Ex: PED-102" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data de Entrega *</label>
-                            <input type="date" id="dedDataEntrega" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner">
+                            <input type="date" id="dedDataEntrega" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cliente *</label>
-                            <input type="text" id="dedCliente" placeholder="Nome do Cliente" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner">
+                            <input type="text" id="dedCliente" placeholder="Nome do Cliente" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Cidade / UF *</label>
-                            <input type="text" id="dedDestino" placeholder="Ex: Curitiba, PR" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner">
+                            <input type="text" id="dedDestino" placeholder="Ex: Curitiba, PR" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Tipo de Veículo *</label>
-                            <select id="dedTipoVeiculo" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold shadow-inner">
+                            <select id="dedTipoVeiculo" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold shadow-inner">
                                 <option value="">-- Selecione --</option>
                                 <option value="Carreta Fechada">Carreta Fechada</option>
                                 <option value="Bitrem">Bitrem</option>
@@ -219,25 +227,22 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Qtd. Paletes *</label>
-                            <input type="number" id="dedPaletes" placeholder="Ex: 26" required min="1" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
+                            <input type="number" id="dedPaletes" placeholder="Ex: 26" required min="1" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Peso (Kg) *</label>
-                            <input type="number" id="dedPeso" placeholder="Ex: 15000" required min="1" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
+                            <input type="number" id="dedPeso" placeholder="Ex: 15000" required min="1" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Volume (m³) <span class="text-slate-400 font-normal">(Opcional)</span></label>
-                            <input type="number" step="0.01" id="dedMetroCubico" placeholder="Ex: 85.5" min="0" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
+                            <input type="number" step="0.01" id="dedMetroCubico" placeholder="Ex: 85.5" min="0" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
                         </div>
                         <div class="md:col-span-3">
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Observações do Planejador</label>
-                            <textarea id="dedObservacao" rows="2" placeholder="Observações importantes sobre descarga, horários ou restrições do cliente..." class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner"></textarea>
+                            <textarea id="dedObservacao" rows="2" placeholder="Observações importantes sobre descarga, horários ou restrições do cliente..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner"></textarea>
                         </div>
                         <div class="md:col-span-4 flex items-end justify-end">
-                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition shadow flex items-center space-x-2">
-                                <i data-lucide="check" class="w-4 h-4"></i>
-                                <span>Cadastrar Carga Dedicada</span>
-                            </button>
+                            <button type="submit" id="btnSalvarDedicada" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Cadastrar Carga Dedicada</button>
                         </div>
                     </form>
                 </div>
@@ -780,7 +785,7 @@
             renderizarTabelasTracking();
         }
 
-        // MAPA COMPLETO VIA MAPBOX (INSIRA SUA API KEY GRATUITA ABAIXO)
+        // MAPA COMPLETO VIA MAPBOX
         function inicializarMapa() {
             if (mapaObj) {
                 mapaObj.invalidateSize();
@@ -788,8 +793,7 @@
             }
             mapaObj = L.map('mapaRotas').setView(COORDENADAS_DARNEL, 10);
             
-            // COLE SUA API KEY DO MAPBOX AQUI (Ex: pk.eyJ1... )
-            const MAPBOX_API_KEY = 'pk.eyJ1IjoibWF5Y293OTcwNCIsImEiOiJjbXZpNzM0d3EwMm5jMndweHZmanJrZHVmIn0.QaeBVZ7F3sZnRS7qEhBOdg';
+            const MAPBOX_API_KEY = 'pk.eyJ1IjoiZ2VtaW5pYWkiLCJhIjoiY2x2Y3d2ajY3MDFqMzJscXg4MXVjMmxjayJ9.exemplo'; // Insira sua chave Mapbox
 
             L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${MAPBOX_API_KEY}`, {
                 tileSize: 512,
@@ -1192,6 +1196,18 @@
                 infoSessao.classList.remove('flex');
             }
 
+            const canPlanejamento = (setorAutenticado === 'planejamento' || isAdmin);
+            document.querySelectorAll('#formCargaDedicada input, #formCargaDedicada select, #formCargaDedicada textarea').forEach(el => {
+                el.disabled = !canPlanejamento;
+                if (!canPlanejamento) el.classList.add('bg-slate-100', 'dark:bg-slate-800');
+                else el.classList.remove('bg-slate-100', 'dark:bg-slate-800');
+            });
+            const btnDedicada = document.getElementById('btnSalvarDedicada');
+            if (btnDedicada) {
+                btnDedicada.disabled = !canPlanejamento;
+                btnDedicada.className = canPlanejamento ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition shadow flex items-center space-x-2" : "bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition";
+            }
+
             const canTrans = (setorAutenticado === 'transporte' || isAdmin);
             document.querySelectorAll('#formAgendamento input, #formAgendamento select').forEach(el => el.disabled = !canTrans);
             const btnAg = document.getElementById('btnSalvarAgendamento');
@@ -1500,7 +1516,6 @@
                 return tipo === subTabAtiva;
             });
 
-            // FILTRO DE PERÍODO DE DATA
             if (subTabAtiva === 'itinerante' && filtroDataAtivo.inicio && filtroDataAtivo.fim) {
                 const dInicio = new Date(filtroDataAtivo.inicio + 'T00:00:00');
                 const dFim = new Date(filtroDataAtivo.fim + 'T23:59:59');
@@ -1511,7 +1526,6 @@
                 });
             }
 
-            // FILTRO DE REGIÃO LOGÍSTICA
             if (subTabAtiva === 'itinerante' && filtroRegiaoAtivo !== 'TODAS') {
                 pedidosFiltrados = pedidosFiltrados.filter(p => pertencerARegiao(p.destinoCidade || p.cliente, filtroRegiaoAtivo));
             }
@@ -1552,7 +1566,6 @@
                         </tr>
                     `).join('');
             } else {
-                // AGRUPAR POR CLIENTE PARA EVITAR POLUIÇÃO VISUAL
                 const mapaClientes = {};
                 pedidosFiltrados.forEach(p => {
                     const nomeCli = p.cliente || 'Cliente Desconhecido';
