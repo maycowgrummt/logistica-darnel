@@ -17,12 +17,23 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- SheetJS (XLSX) - Leitor de Excel Ultra Robusto -->
+    <!-- SheetJS (XLSX) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <!-- Firebase SDKs Compat -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        /* Oculta a barra de rolagem feia mantendo o scroll horizontal funcional */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
@@ -30,42 +41,62 @@
     <div id="toastContainer" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
     <!-- Cabeçalho Principal -->
-    <header class="bg-slate-900 dark:bg-slate-900 text-white shadow-lg border-b border-slate-800">
+    <header class="bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-md border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
-                    <i data-lucide="truck" class="w-7 h-7 text-amber-400"></i>
+                    <i data-lucide="truck" class="w-7 h-7 text-amber-500 dark:text-amber-400"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide">LOGÍSTICA DARNEL - ARAUCÁRIA</h1>
-                    <p class="text-xs text-slate-400">Controle Integrado & Roteirização em Tempo Real</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Controle Integrado & Roteirização em Tempo Real</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <button onclick="pedirSenha('admin')" id="btnAdminGlobal" class="px-3 py-2 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition border border-amber-500/30 flex items-center space-x-1.5 text-xs font-bold shadow-sm" title="Painel do Administrador">
+                <button onclick="alternarPainelAlertas()" class="relative p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-amber-600 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alertas de Alteração de Datas">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Alertas</span>
+                    <span id="badgeQtdAlertas" class="hidden absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white dark:border-slate-900">0</span>
+                </button>
+
+                <button onclick="pedirSenha('admin')" id="btnAdminGlobal" class="px-3 py-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition border border-amber-500/30 flex items-center space-x-1.5 text-xs font-bold shadow-sm" title="Painel do Administrador">
                     <i data-lucide="shield-alert" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Admin</span>
                 </button>
 
-                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-lg bg-slate-800 text-amber-400 hover:bg-slate-700 transition border border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alternar Modo Claro/Escuro">
+                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-amber-600 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alternar Modo Claro/Escuro">
                     <i data-lucide="sun" id="iconeSol" class="w-4 h-4 hidden"></i>
                     <i data-lucide="moon" id="iconeLua" class="w-4 h-4"></i>
                     <span id="textoTema" class="hidden sm:inline">Modo Escuro</span>
                 </button>
 
-                <div id="infoSessaoAtiva" class="hidden items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs shadow-sm">
-                    <span class="text-slate-400">Setor logado:</span>
-                    <span id="nomeSetorLogado" class="font-bold text-amber-400">Nenhum</span>
-                    <button onclick="fazerLogout()" class="ml-2 text-red-400 hover:text-red-300 underline text-xs font-medium">Bloquear</button>
+                <div id="infoSessaoAtiva" class="hidden items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs shadow-sm">
+                    <span class="text-slate-500 dark:text-slate-400">Setor logado:</span>
+                    <span id="nomeSetorLogado" class="font-bold text-amber-600 dark:text-amber-400">Nenhum</span>
+                    <button onclick="fazerLogout()" class="ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-300 underline text-xs font-medium">Bloquear</button>
                 </div>
 
-                <span id="statusConexao" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-sm">
-                    <span class="w-2 h-2 mr-2 bg-amber-400 rounded-full animate-pulse"></span>
+                <span id="statusConexao" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 shadow-sm">
+                    <span class="w-2 h-2 mr-2 bg-amber-500 rounded-full animate-pulse"></span>
                     Iniciando...
                 </span>
             </div>
         </div>
     </header>
+
+    <!-- Painel Suspenso de Alertas de Alteração -->
+    <div id="painelAlertas" class="hidden max-w-7xl mx-auto px-4 w-full mt-4">
+        <div class="bg-white dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 p-4 rounded-2xl shadow-xl space-y-3">
+            <div class="flex justify-between items-center border-b border-rose-200 dark:border-rose-500/20 pb-2">
+                <h3 class="font-bold text-rose-700 dark:text-rose-400 text-sm flex items-center space-x-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                    <span>Central de Alertas: Alterações de Datas no Fluxo</span>
+                </h3>
+                <button onclick="limparAlertasLidos()" class="text-xs text-rose-600 dark:text-rose-300 hover:underline font-medium">Marcar todos como lidos</button>
+            </div>
+            <div id="listaAlertasAlteracoes" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
+        </div>
+    </div>
 
     <!-- Modal para Senha -->
     <div id="modalSenha" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
@@ -126,43 +157,51 @@
             </div>
             <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Recusas / Alertas</p>
-                    <h4 id="kpiTotalRecusas" class="text-2xl font-extrabold text-red-600 dark:text-red-400 mt-1">0</h4>
+                    <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Alertas de Datas</p>
+                    <h4 id="kpiTotalAlertas" class="text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-1">0</h4>
                 </div>
-                <div class="p-3 bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 rounded-xl">
+                <div class="p-3 bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 rounded-xl">
                     <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Abas Principais -->
-        <div class="flex space-x-2 sm:space-x-4 border-b border-slate-300 dark:border-slate-800 pb-2 overflow-x-auto">
-            <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="px-4 py-2 font-semibold text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
-                <i data-lucide="package" class="w-4 h-4"></i>
-                <span>1. Criar/Importar Carga & Rota</span>
-            </button>
-            <button onclick="mudarTab('agendamentos')" id="btn-tab-agendamentos" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
-                <i data-lucide="list" class="w-4 h-4"></i>
-                <span>2. Gerenciar Agendamentos (Transporte)</span>
-            </button>
-            <button onclick="mudarTab('operacao')" id="btn-tab-operacao" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
-                <i data-lucide="boxes" class="w-4 h-4"></i>
-                <span>3. Operação Logística</span>
-            </button>
-            <button onclick="mudarTab('tracking')" id="btn-tab-tracking" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
-                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                <span>4. Tracking (Confirmar Entrega)</span>
-            </button>
-            <button onclick="mudarTab('calendario')" id="btn-tab-calendario" class="px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors">
-                <i data-lucide="calendar" class="w-4 h-4"></i>
-                <span>5. Relatório e Fluxo por Período</span>
-            </button>
+        <!-- Abas Principais (Estilo Moderno com Cards Sem Scrollbar Visível) -->
+        <div class="bg-slate-200/60 dark:bg-slate-900/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner">
+            <div class="flex space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
+                <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-sm scale-[1.01]">
+                    <i data-lucide="package" class="w-4 h-4"></i>
+                    <span>1. Criar Carga & Rota</span>
+                </button>
+                <button onclick="mudarTab('operacao')" id="btn-tab-operacao" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60 border border-transparent">
+                    <i data-lucide="boxes" class="w-4 h-4"></i>
+                    <span>2. Operação Logística</span>
+                </button>
+                <button onclick="mudarTab('faturamento')" id="btn-tab-faturamento" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60 border border-transparent">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span>3. Faturamento</span>
+                </button>
+                <button onclick="mudarTab('comercial')" id="btn-tab-comercial" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60 border border-transparent">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i>
+                    <span>4. Comercial</span>
+                </button>
+                <button onclick="mudarTab('agendamentos')" id="btn-tab-agendamentos" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60 border border-transparent">
+                    <i data-lucide="list" class="w-4 h-4"></i>
+                    <span>5. Agendamentos (Transporte)</span>
+                </button>
+                <button onclick="mudarTab('tracking')" id="btn-tab-tracking" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60 border border-transparent">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                    <span>6. Tracking (Entrega)</span>
+                </button>
+                <button onclick="mudarTab('calendario')" id="btn-tab-calendario" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60 border border-transparent">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>7. Relatório & Fluxo</span>
+                </button>
+            </div>
         </div>
 
         <!-- ABA 1: CRIAR PEDIDOS / CARGA -->
         <div id="secao-pedidos" class="space-y-6">
-
-            <!-- Sub-Abas Internas da Aba 1 -->
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-2">
                 <div class="flex space-x-2">
                     <button onclick="mudarSubTab('dedicada')" id="btn-sub-dedicada" class="px-4 py-2 text-xs font-bold uppercase rounded-lg bg-emerald-600 text-white shadow transition flex items-center space-x-1.5">
@@ -182,7 +221,7 @@
                 </div>
             </div>
 
-            <!-- SUB-ABA 1A: CARGA DEDICADA / PALETIZADA (CLIENTE ÚNICO) -->
+            <!-- SUB-ABA 1A: CARGA DEDICADA -->
             <div id="subsecao-dedicada" class="space-y-6">
                 <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -190,7 +229,7 @@
                             <i data-lucide="package-plus" class="w-5 h-5"></i>
                             <span>Cadastro de Carga Dedicada (Paletizada)</span>
                         </h2>
-                        <span class="text-xs text-slate-400">Campos marcados com * são obrigatórios</span>
+                        <span class="text-xs text-slate-400">Campos com * obrigatórios</span>
                     </div>
 
                     <form id="formCargaDedicada" onsubmit="salvarCargaDedicada(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -239,7 +278,7 @@
                         </div>
                         <div class="md:col-span-3">
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Observações do Planejador</label>
-                            <textarea id="dedObservacao" rows="2" placeholder="Observações importantes sobre descarga, horários ou restrições do cliente..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner"></textarea>
+                            <textarea id="dedObservacao" rows="2" placeholder="Digite observações importantes para os próximos setores..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner"></textarea>
                         </div>
                         <div class="md:col-span-4 flex items-end justify-end">
                             <button type="submit" id="btnSalvarDedicada" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Cadastrar Carga Dedicada</button>
@@ -248,19 +287,15 @@
                 </div>
             </div>
 
-            <!-- SUB-ABA 1B: CARGA ITINERANTE (IMPORTAÇÃO WMS & ROTA) -->
+            <!-- SUB-ABA 1B: CARGA ITINERANTE -->
             <div id="subsecao-itinerante" class="space-y-6 hidden">
                 <div class="bg-gradient-to-r from-emerald-900/30 to-indigo-900/30 dark:from-emerald-950/50 dark:to-indigo-950/50 p-6 rounded-2xl shadow-md border border-emerald-500/30 space-y-4">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                        <div>
-                            <h2 class="text-lg font-bold flex items-center space-x-2 text-emerald-700 dark:text-emerald-300">
-                                <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
-                               <span>Importação WMS & Seleção Automática por Data e Região</span>
-                            </h2>
-                            <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Importe a planilha WMS e use os filtros combinados. Clientes com múltiplos pedidos são agrupados automaticamente na tela.</p>
-                        </div>
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-bold flex items-center space-x-2 text-emerald-700 dark:text-emerald-300">
+                            <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
+                           <span>Importação WMS & Seleção Automática</span>
+                        </h2>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-emerald-500/20 items-center">
                         <div class="md:col-span-2">
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Selecionar Planilha WMS (.xlsx ou .csv)</label>
@@ -275,18 +310,8 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO DE FILTRO POR DATA, REGIÃO E ROTEIRIZAÇÃO AUTOMÁTICA -->
+                <!-- FILTRO -->
                 <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-                        <div>
-                            <h3 class="text-md font-bold flex items-center space-x-2 text-indigo-600 dark:text-indigo-400">
-                                <i data-lucide="map-pin" class="w-5 h-5"></i>
-                                <span>Filtro Inteligente: Data & Região Metropolitana / Macrorregião</span>
-                            </h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Combine a data com a região desejada. O sistema filtra, consolida os clientes e otimiza a rota em 1 clique.</p>
-                        </div>
-                    </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-6 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 items-end">
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Data Inicial</label>
@@ -300,22 +325,22 @@
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Região / Destino</label>
                             <select id="filtroRegiao" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-xs font-semibold shadow-inner">
                                 <option value="TODAS">-- Todas as Regiões --</option>
-                                <option value="CURITIBA_RMC_LITORAL">Curitiba, RMC & Litoral do PR (Juntos)</option>
-                                <option value="CURITIBA_RMC">Apenas Curitiba & Região Metropolitana</option>
-                                <option value="LITORAL_PR">Apenas Litoral do Paraná</option>
-                                <option value="CAMPOS_GERAIS">Campos Gerais & Centro-Sul PR</option>
-                                <option value="NORTE_PR">Norte & Noroeste PR (Londrina/Maringá)</option>
-                                <option value="OESTE_PR">Oeste & Sudoeste PR (Cascavel/Foz)</option>
-                                <option value="SANTA_CATARINA">Santa Catarina (SC)</option>
-                                <option value="SAO_PAULO">São Paulo (SP)</option>
+                                <option value="CURITIBA_RMC_LITORAL">Curitiba, RMC & Litoral PR</option>
+                                <option value="CURITIBA_RMC">Apenas Curitiba & RMC</option>
+                                <option value="LITORAL_PR">Apenas Litoral PR</option>
+                                <option value="CAMPOS_GERAIS">Campos Gerais PR</option>
+                                <option value="NORTE_PR">Norte PR</option>
+                                <option value="OESTE_PR">Oeste PR</option>
+                                <option value="SANTA_CATARINA">Santa Catarina</option>
+                                <option value="SAO_PAULO">São Paulo</option>
                             </select>
                         </div>
                         <div class="flex space-x-1.5">
-                            <button type="button" onclick="aplicarFiltrosCombinados()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl shadow transition flex items-center justify-center space-x-1" title="Aplicar Filtros">
+                            <button type="button" onclick="aplicarFiltrosCombinados()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl shadow transition flex items-center justify-center space-x-1">
                                 <i data-lucide="filter" class="w-3.5 h-3.5"></i>
                                 <span>Filtrar</span>
                             </button>
-                            <button type="button" onclick="limparFiltrosCombinados()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl shadow transition flex items-center justify-center space-x-1" title="Limpar Filtros e Restaurar Estado">
+                            <button type="button" onclick="limparFiltrosCombinados()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl shadow transition flex items-center justify-center space-x-1">
                                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                                 <span>Limpar</span>
                             </button>
@@ -328,56 +353,26 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-                        <div>
-                            <span class="block text-xs font-semibold text-slate-500 uppercase">Origem</span>
-                            <span class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-1">
-                                <i data-lucide="building-2" class="w-3.5 h-3.5 text-amber-500"></i>
-                                <span>Darnel - Araucária, PR</span>
-                            </span>
-                        </div>
-                        <div>
-                            <span class="block text-xs font-semibold text-slate-500 uppercase">Total de Paradas (Clientes)</span>
-                            <span id="rotNumParadas" class="text-sm font-bold text-indigo-600 dark:text-indigo-400">0 selecionada(s)</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs font-semibold text-slate-500 uppercase">Distância Estimada</span>
-                            <span id="rotDistanciaTotal" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">0 Km</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs font-semibold text-slate-500 uppercase">Tempo Estimado de Viagem</span>
-                            <span id="rotTempoTotal" class="text-sm font-bold text-purple-600 dark:text-purple-400">0h 00min</span>
-                        </div>
-                    </div>
-
                     <div class="relative w-full h-80 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 shadow-inner z-10">
                         <div id="mapaRotas" class="w-full h-full bg-slate-200 dark:bg-slate-800"></div>
                     </div>
 
                     <div id="listaSequenciaRota" class="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                        Selecione as datas e/ou região acima para filtrar e roteirizar automaticamente.
+                        Selecione as datas e/ou região acima para filtrar e roteirizar.
                     </div>
                 </div>
             </div>
 
-            <!-- Tabela de Pedidos / Cargas (Filtrada e Consolidada por Cliente) -->
+            <!-- Tabela de Pedidos -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-center gap-3">
-                    <h3 id="tituloTabelaPedidos" class="font-bold text-slate-700 dark:text-slate-200">Cargas Consolidadas por Cliente</h3>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="pedirSenhaParaLimparTudo()" class="text-xs text-red-600 dark:text-red-400 hover:underline px-3 py-1.5 bg-red-50 dark:bg-red-950/50 rounded-lg border border-red-200 dark:border-red-900 font-bold flex items-center space-x-1 transition shadow-sm">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            <span>Excluir Cargas desta Sub-Aba (Admin)</span>
-                        </button>
-                        <button onclick="renderizarTabelasPedidos()" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg border border-emerald-200 dark:border-emerald-900 font-semibold">Atualizar Lista</button>
-                    </div>
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
+                    <h3 id="tituloTabelaPedidos" class="font-bold text-slate-700 dark:text-slate-200">Cargas Consolidadas</h3>
+                    <button onclick="pedirSenhaParaLimparTudo()" class="text-xs text-red-600 hover:underline px-3 py-1.5 bg-red-50 dark:bg-red-950/50 rounded-lg border border-red-200 font-bold">Excluir Cargas (Admin)</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr id="tabelaCabecalhoTr" class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <!-- Dinâmico conforme a sub-aba -->
-                            </tr>
+                            <tr id="tabelaCabecalhoTr" class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs"></tr>
                         </thead>
                         <tbody id="tabelaPedidosBody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
                     </table>
@@ -385,43 +380,293 @@
             </div>
         </div>
 
-        <!-- ABA 2: AGENDAMENTOS -->
-        <div id="secao-agendamentos" class="space-y-6 hidden">
+        <!-- ABA 2: OPERAÇÃO LOGÍSTICA -->
+        <div id="secao-operacao" class="space-y-6 hidden">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
+                        <i data-lucide="boxes" class="w-5 h-5 text-amber-500"></i>
+                        <span>Registro de Carregamento (Operação)</span>
+                    </h2>
+                    <button type="button" onclick="pedirSenha('operacao')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 font-semibold">Desbloquear</button>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Selecionar Pedido para Carregamento:</label>
+                    <select id="opNotaSelect" onchange="puxarDadosOperacaoSelect()" class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-800 font-mono font-bold">
+                        <option value="">-- Selecione um pedido --</option>
+                    </select>
+                </div>
+                <form id="formOperacao" onsubmit="salvarOperacao(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº do Pedido</label>
+                        <input type="text" id="opNumPedido" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="opNotaFiscal" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Início Carregamento</label>
+                        <input type="time" id="opHoraInicio" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Fim Carregamento</label>
+                        <input type="time" id="opHoraFim" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Equipe Responsável</label>
+                        <input type="text" id="opEquipe" placeholder="Ex: Equipe A" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações da Operação</label>
+                        <input type="text" id="opObservacao" placeholder="Ex: Carga reforçada com cinta extra..." disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
+                    </div>
+                    <div class="md:col-span-3 flex justify-end">
+                        <button type="submit" id="btnSalvarOperacao" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Salvar Carregamento</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50"><h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Carregamento</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead><tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs"><th class="p-3.5">Pedido</th><th class="p-3.5">Nota Fiscal (NF)</th><th class="p-3.5">Início / Fim</th><th class="p-3.5">Equipe</th><th class="p-3.5">Observações</th><th class="p-3.5 text-center">Ações</th></tr></thead>
+                        <tbody id="tabelaOperacaoBody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 3: FATURAMENTO -->
+        <div id="secao-faturamento" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
+                        <i data-lucide="file-text" class="w-5 h-5 text-cyan-500"></i>
+                        <span>Lançamento de Faturamento e Emissão de Notas</span>
+                    </h2>
+                    <button type="button" onclick="pedirSenha('faturamento')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border font-semibold">Desbloquear</button>
+                </div>
+
+                <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <label class="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">Vincular Pedido / Carga:</label>
+                        <div class="flex items-center space-x-4 text-xs font-semibold">
+                            <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                                <input type="radio" name="modoVincularFat" value="lista" checked onchange="alternarModoVincularFat('lista')" class="text-cyan-600">
+                                <span>Encontrar na lista</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                                <input type="radio" name="modoVincularFat" value="digitar" onchange="alternarModoVincularFat('digitar')" class="text-cyan-600">
+                                <span>Digitar número do pedido</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="containerFatSelect">
+                        <select id="fatSelectPedido" onchange="puxarDadosFaturamentoSelect()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                            <option value="">-- Selecione um pedido na lista --</option>
+                        </select>
+                    </div>
+                    <div id="containerFatInputText" class="hidden flex space-x-2">
+                        <input type="text" id="fatInputNumPedidoBusca" placeholder="Digite a NF ou Pedido" class="flex-1 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                        <button type="button" onclick="buscarEPreencherPedidoDigitado()" class="px-4 py-2.5 bg-cyan-600 text-white font-bold rounded-lg text-xs">Buscar</button>
+                    </div>
+                </div>
+
+                <form id="formFaturamento" onsubmit="salvarFaturamento(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº do Pedido *</label>
+                        <input type="text" id="fatNumPedido" placeholder="Ex: PED-102" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF) *</label>
+                        <input type="text" id="fatNotaFiscal" placeholder="Ex: NF-10492" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Material Estrechado? *</label>
+                        <select id="fatEstrechado" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold">
+                            <option value="">-- Selecione --</option>
+                            <option value="SIM">SIM</option>
+                            <option value="NÃO">NÃO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Qtd. de Paletes *</label>
+                        <input type="number" id="fatQtdPaletes" placeholder="Ex: 24" required min="1" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data de Faturamento *</label>
+                        <input type="date" id="fatDataFaturamento" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Total NF (Kg) *</label>
+                        <input type="number" step="0.01" id="fatTotalKg" placeholder="Ex: 12500" required min="0.01" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações do Faturamento</label>
+                        <input type="text" id="fatObservacao" placeholder="Ex: Nota emitida com substituição tributária..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div class="md:col-span-3 flex justify-end pt-2">
+                        <button type="submit" id="btnSalvarFaturamento" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Lançar Faturamento</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center"><h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Faturamentos</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead><tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs"><th class="p-3.5">Nº Pedido</th><th class="p-3.5">Nota Fiscal (NF)</th><th class="p-3.5">Data Faturamento</th><th class="p-3.5">Estrechado</th><th class="p-3.5">Paletes</th><th class="p-3.5">Total Kg</th><th class="p-3.5">Observações</th><th class="p-3.5 text-center">Ações</th></tr></thead>
+                        <tbody id="tabelaFaturamentoBody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 4: COMERCIAL -->
+        <div id="secao-comercial" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
+                        <i data-lucide="briefcase" class="w-5 h-5 text-teal-500"></i>
+                        <span>Acompanhamento e Agendamento Comercial</span>
+                    </h2>
+                    <button type="button" onclick="pedirSenha('comercial')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border font-semibold">Desbloquear</button>
+                </div>
+
+                <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <label class="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">Vincular Pedido:</label>
+                        <div class="flex items-center space-x-4 text-xs font-semibold">
+                            <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                                <input type="radio" name="modoVincularCom" value="lista" checked onchange="alternarModoVincularCom('lista')" class="text-teal-600">
+                                <span>Encontrar na lista</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                                <input type="radio" name="modoVincularCom" value="digitar" onchange="alternarModoVincularCom('digitar')" class="text-teal-600">
+                                <span>Digitar número do pedido</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="containerComSelect">
+                        <select id="comSelectPedido" onchange="puxarDadosComercialSelect()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                            <option value="">-- Selecione um pedido na lista --</option>
+                        </select>
+                    </div>
+                    <div id="containerComInputText" class="hidden flex space-x-2">
+                        <input type="text" id="comInputNumPedidoBusca" placeholder="Digite o número do pedido" class="flex-1 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                        <button type="button" onclick="buscarEPreencherPedidoComercialDigitado()" class="px-4 py-2.5 bg-teal-600 text-white font-bold rounded-lg text-xs">Buscar</button>
+                    </div>
+                </div>
+
+                <form id="formComercial" onsubmit="salvarComercial(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Número do Pedido *</label>
+                        <input type="text" id="comNumPedido" placeholder="Ex: PED-102" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="comNotaFiscal" readonly placeholder="Automático" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-teal-600 dark:text-teal-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data de Solicitação *</label>
+                        <input type="date" id="comDataSolicitacao" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Agenda Solic. *</label>
+                        <input type="date" id="comDataAgendaSolicitada" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Agenda Confirmada *</label>
+                        <input type="date" id="comDataAgendaConfirmada" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Horário *</label>
+                        <input type="time" id="comHorario" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket *</label>
+                        <input type="text" id="comTicket" placeholder="Ex: TKT-9842" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações Comerciais</label>
+                        <input type="text" id="comObservacao" placeholder="Ex: Cliente solicita aviso prévio antes da entrega..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div class="md:col-span-3 flex justify-end pt-2">
+                        <button type="submit" id="btnSalvarComercial" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Salvar Tratativa Comercial</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center"><h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico Comercial</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead><tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs"><th class="p-3.5">Nº Pedido</th><th class="p-3.5">Nota Fiscal (NF)</th><th class="p-3.5">Solicitação</th><th class="p-3.5">Agenda Solic.</th><th class="p-3.5">Agenda Conf.</th><th class="p-3.5">Horário</th><th class="p-3.5">Ticket</th><th class="p-3.5">Observações</th><th class="p-3.5 text-center">Ações</th></tr></thead>
+                        <tbody id="tabelaComercialBody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 5: AGENDAMENTOS (TRANSPORTE) -->
+        <div id="secao-agendamentos" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                     <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
                         <span>Novo Agendamento de Veículo (Transporte)</span>
                     </h2>
-                    <button type="button" onclick="pedirSenha('transporte')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1">
-                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-                        <span>Desbloquear Edição</span>
-                    </button>
+                    <button type="button" onclick="pedirSenha('transporte')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 font-semibold">Desbloquear</button>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Selecionar Pedido Cadastrado:</label>
-                    <select id="agNotaSelect" onchange="puxarDadosDaNotaSelect()" class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-800 font-mono font-bold">
-                        <option value="">-- Selecione um pedido --</option>
-                    </select>
+                <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <label class="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">Vincular Pedido:</label>
+                        <div class="flex items-center space-x-4 text-xs font-semibold">
+                            <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                                <input type="radio" name="modoVincularAg" value="lista" checked onchange="alternarModoVincularAg('lista')" class="text-blue-600">
+                                <span>Encontrar na lista</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                                <input type="radio" name="modoVincularAg" value="digitar" onchange="alternarModoVincularAg('digitar')" class="text-blue-600">
+                                <span>Digitar número do pedido</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="containerAgSelect">
+                        <select id="agNotaSelect" onchange="puxarDadosDaNotaSelect()" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                            <option value="">-- Selecione um pedido na lista --</option>
+                        </select>
+                    </div>
+                    <div id="containerAgInputText" class="hidden flex space-x-2">
+                        <input type="text" id="agInputNumPedidoBusca" placeholder="Digite o número do pedido" class="flex-1 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                        <button type="button" onclick="buscarEPreencherPedidoAgendamentoDigitado()" class="px-4 py-2.5 bg-blue-600 text-white font-bold rounded-lg text-xs">Buscar</button>
+                    </div>
                 </div>
 
                 <form id="formAgendamento" onsubmit="salvarAgendamento(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal / Pedido</label>
-                        <input type="text" id="agNotaFiscal" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono font-bold">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº do Pedido</label>
+                        <input type="text" id="agNumPedido" readonly class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket (Transporte)</label>
-                        <input type="text" id="agTicket" placeholder="Ex: TKT-1042" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="agNotaFiscal" readonly class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-blue-600 dark:text-blue-400">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data/Hora Entrega</label>
-                        <input type="datetime-local" id="agDataHora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket (Automático)</label>
+                        <input type="text" id="agTicket" placeholder="Ex: TKT-1042" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-indigo-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Transportadora</label>
-                        <select id="agTransportadora" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-semibold">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data de Entrega *</label>
+                        <input type="date" id="agDataEntrega" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Horário de Entrega *</label>
+                        <input type="time" id="agHoraEntrega" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Transportadora *</label>
+                        <select id="agTransportadora" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold">
                             <option value="">-- Selecione --</option>
                             <option value="CIA VERDE">CIA VERDE</option>
                             <option value="EAS">EAS</option>
@@ -432,33 +677,37 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Placa</label>
-                        <input type="text" id="agPlaca" placeholder="Ex: ABC-1234" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Placa *</label>
+                        <input type="text" id="agPlaca" placeholder="Ex: ABC-1234" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Motorista</label>
-                        <input type="text" id="agMotorista" placeholder="Nome do motorista" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Motorista *</label>
+                        <input type="text" id="agMotorista" placeholder="Nome do motorista" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações do Transporte</label>
+                        <input type="text" id="agObservacao" placeholder="Ex: Motorista com EPIs completos..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div class="md:col-span-3 flex justify-end">
                         <button type="submit" id="btnSalvarAgendamento" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Vincular Agendamento</button>
                     </div>
                 </form>
             </div>
-
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Agendamentos Realizados</h3>
-                </div>
+                <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50"><h3 class="font-bold text-slate-700 dark:text-slate-200">Agendamentos Realizados</h3></div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <th class="p-3.5">Referência</th>
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs">
+                                <th class="p-3.5">Pedido</th>
+                                <th class="p-3.5">Nota Fiscal (NF)</th>
                                 <th class="p-3.5">Ticket</th>
-                                <th class="p-3.5">Data/Hora</th>
+                                <th class="p-3.5">Data Entrega</th>
+                                <th class="p-3.5">Horário</th>
                                 <th class="p-3.5">Transportadora</th>
                                 <th class="p-3.5">Placa</th>
                                 <th class="p-3.5">Motorista</th>
+                                <th class="p-3.5">Observações</th>
                                 <th class="p-3.5 text-center">Ações</th>
                             </tr>
                         </thead>
@@ -468,68 +717,7 @@
             </div>
         </div>
 
-        <!-- ABA 3: OPERAÇÃO -->
-        <div id="secao-operacao" class="space-y-6 hidden">
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
-                        <i data-lucide="boxes" class="w-5 h-5 text-amber-500"></i>
-                        <span>Registro de Carregamento (Operação)</span>
-                    </h2>
-                    <button type="button" onclick="pedirSenha('operacao')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold">Desbloquear</button>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Selecionar Pedido para Carregamento:</label>
-                    <select id="opNotaSelect" onchange="puxarDadosOperacaoSelect()" class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-800 font-mono font-bold">
-                        <option value="">-- Selecione um pedido --</option>
-                    </select>
-                </div>
-
-                <form id="formOperacao" onsubmit="salvarOperacao(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Referência / Pedido</label>
-                        <input type="text" id="opNotaFiscal" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Início Carregamento</label>
-                        <input type="time" id="opHoraInicio" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Fim Carregamento</label>
-                        <input type="time" id="opHoraFim" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Equipe Responsável</label>
-                        <input type="text" id="opEquipe" placeholder="Ex: Equipe A (João, Marcos)" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" id="btnSalvarOperacao" disabled class="w-full bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Salvar Carregamento</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Carregamento</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <th class="p-3.5">Referência</th>
-                                <th class="p-3.5">Início / Fim</th>
-                                <th class="p-3.5">Equipe</th>
-                                <th class="p-3.5 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelaOperacaoBody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ABA 4: TRACKING -->
+        <!-- ABA 6: TRACKING -->
         <div id="secao-tracking" class="space-y-6 hidden">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
@@ -537,55 +725,52 @@
                         <i data-lucide="check-circle-2" class="w-5 h-5 text-purple-600"></i>
                         <span>Confirmar Entrega / Baixa (Tracking)</span>
                     </h2>
-                    <button type="button" onclick="pedirSenha('tracking')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold">Desbloquear</button>
+                    <button type="button" onclick="pedirSenha('tracking')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border font-semibold">Desbloquear</button>
                 </div>
-
                 <div class="mb-4">
                     <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Selecionar Pedido para Baixa:</label>
-                    <select id="trcNotaSelect" onchange="puxarDadosTrackingSelect()" class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-800 font-mono font-bold">
+                    <select id="trcNotaSelect" onchange="puxarDadosTrackingSelect()" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
                         <option value="">-- Selecione um pedido --</option>
                     </select>
                 </div>
-
                 <form id="formTracking" onsubmit="salvarTracking(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Referência / Pedido</label>
-                        <input type="text" id="trcNotaFiscal" readonly class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono font-bold">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº do Pedido</label>
+                        <input type="text" id="trcNumPedido" readonly class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="trcNotaFiscal" readonly class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-purple-600 dark:text-purple-400">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status Final da Entrega</label>
-                        <select id="trcStatus" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-semibold">
+                        <select id="trcStatus" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold">
                             <option value="ENTREGUE (OK)">ENTREGUE - Sem Avarias</option>
                             <option value="ENTREGUE (COM AVARIA)">ENTREGUE - Com Avaria Parcial</option>
                             <option value="RECUSA TOTAL">RECUSA TOTAL</option>
                         </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações da Entrega / Canhoto</label>
+                        <input type="text" id="trcObservacao" placeholder="Ex: Canhoto assinado por João da Silva..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div class="md:col-span-2 flex justify-end">
                         <button type="submit" id="btnSalvarTracking" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Confirmar e Dar Baixa</button>
                     </div>
                 </form>
             </div>
-
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Baixas</h3>
-                </div>
+                <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50"><h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Baixas</h3></div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <th class="p-3.5">Referência</th>
-                                <th class="p-3.5">Status Final</th>
-                                <th class="p-3.5 text-center">Ações</th>
-                            </tr>
-                        </thead>
+                        <thead><tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs"><th class="p-3.5">Pedido</th><th class="p-3.5">Nota Fiscal (NF)</th><th class="p-3.5">Status Final</th><th class="p-3.5">Observações</th><th class="p-3.5 text-center">Ações</th></tr></thead>
                         <tbody id="tabelaTrackingBody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ABA 5: RELATÓRIO E EXCEL -->
+        <!-- ABA 7: RELATÓRIO E EXCEL -->
         <div id="secao-calendario" class="space-y-6 hidden">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
                 <div class="flex justify-between items-center">
@@ -597,21 +782,13 @@
                 </div>
             </div>
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Consolidado da Operação (Todas as Cargas)</h3>
+                <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200">Consolidado da Operação</h3>
                     <span id="contadorConsolidado" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-300 text-xs font-semibold rounded-full">0 registro(s)</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase text-xs">
-                                <th class="p-3.5">Tipo</th>
-                                <th class="p-3.5">Pedido</th>
-                                <th class="p-3.5">Destino</th>
-                                <th class="p-3.5">Cliente</th>
-                                <th class="p-3.5">Data Requerida</th>
-                            </tr>
-                        </thead>
+                        <thead><tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs"><th class="p-3.5">Tipo</th><th class="p-3.5">Pedido</th><th class="p-3.5">Nota Fiscal (NF)</th><th class="p-3.5">Destino</th><th class="p-3.5">Cliente</th><th class="p-3.5">Data Requerida</th><th class="p-3.5">Observações</th></tr></thead>
                         <tbody id="tabelaConsolidadaBody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
                     </table>
                 </div>
@@ -635,6 +812,7 @@
             let icone = 'check-circle';
             if (tipo === 'erro') { bgClass = 'bg-red-600 text-white'; icone = 'alert-circle'; }
             else if (tipo === 'aviso') { bgClass = 'bg-amber-600 text-white'; icone = 'alert-triangle'; }
+            else if (tipo === 'alerta_data') { bgClass = 'bg-rose-700 text-white border border-rose-500 shadow-2xl'; icone = 'bell-ring'; }
 
             toast.className = `pointer-events-auto flex items-center space-x-2 px-4 py-3 rounded-xl shadow-xl text-sm font-medium transition transform translate-y-2 opacity-0 ${bgClass}`;
             toast.innerHTML = `<i data-lucide="${icone}" class="w-5 h-5 flex-shrink-0"></i><span>${mensagem}</span>`;
@@ -645,14 +823,14 @@
             setTimeout(() => {
                 toast.classList.add('translate-y-2', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
-            }, 3500);
+            }, 5000);
         }
 
         function atualizarKPIs() {
             document.getElementById('kpiTotalPedidos').textContent = dadosApp.pedidos.length;
             document.getElementById('kpiTotalAgendados').textContent = dadosApp.agendamentos.length;
             document.getElementById('kpiTotalEntregues').textContent = dadosApp.tracking.filter(t => t.statusFinal && t.statusFinal.includes('ENTREGUE')).length;
-            document.getElementById('kpiTotalRecusas').textContent = dadosApp.tracking.filter(t => t.statusFinal && t.statusFinal.includes('RECUSA')).length;
+            document.getElementById('kpiTotalAlertas').textContent = (dadosApp.alertasAlteracao || []).length;
         }
 
         function alternarTema() {
@@ -689,10 +867,15 @@
             document.getElementById('textoTema').textContent = 'Modo Claro';
         }
 
-        let dadosApp = { agendamentos: [], pedidos: [], operacao: [], tracking: [] };
+        let dadosApp = { agendamentos: [], pedidos: [], operacao: [], faturamento: [], comercial: [], tracking: [], alertasAlteracao: [] };
         try {
             const local = localStorage.getItem('dados_logistica_darnel');
-            if (local) dadosApp = JSON.parse(local);
+            if (local) {
+                dadosApp = JSON.parse(local);
+                if (!dadosApp.faturamento) dadosApp.faturamento = [];
+                if (!dadosApp.comercial) dadosApp.comercial = [];
+                if (!dadosApp.alertasAlteracao) dadosApp.alertasAlteracao = [];
+            }
         } catch(e) { console.warn("Erro ao ler backup local:", e); }
 
         let db;
@@ -700,13 +883,17 @@
         let setorAutenticado = null;
         let subTabAtiva = 'dedicada';
         let mapaObj = null;
-        let marcadoresMapa = [];
-        let camadaLinhaRota = null;
-        let filtroDataAtivo = { inicio: '', fim: '' };
-        let filtroRegiaoAtivo = 'TODAS';
 
         const COORDENADAS_DARNEL = [-25.5946, -49.3980];
-        const SENHAS_SETORES = { planejamento: "0321", transporte: "0323", operacao: "0327", tracking: "0325", admin: "9704" };
+        const SENHAS_SETORES = { 
+            planejamento: "0321", 
+            transporte: "0323", 
+            operacao: "0327", 
+            faturamento: "0329", 
+            comercial: "0331",
+            tracking: "0325", 
+            admin: "9704" 
+        };
 
         const firebaseConfig = {
             apiKey: "AIzaSyD-1Q--NP9_SBSSLtcXEgrTfNoJ3pE0ync",
@@ -729,11 +916,14 @@
         function salvarDados() {
             localStorage.setItem('dados_logistica_darnel', JSON.stringify(dadosApp));
             if (db) {
-                const obj = { pedidos: {}, agendamentos: {}, operacao: {}, tracking: {} };
+                const obj = { pedidos: {}, agendamentos: {}, operacao: {}, faturamento: {}, comercial: {}, tracking: {}, alertasAlteracao: {} };
                 dadosApp.pedidos.forEach(p => obj.pedidos[p.id] = p);
                 dadosApp.agendamentos.forEach(a => obj.agendamentos[a.id] = a);
                 dadosApp.operacao.forEach(o => obj.operacao[o.id] = o);
+                dadosApp.faturamento.forEach(f => obj.faturamento[f.id] = f);
+                dadosApp.comercial.forEach(c => obj.comercial[c.id] = c);
                 dadosApp.tracking.forEach(t => obj.tracking[t.id] = t);
+                (dadosApp.alertasAlteracao || []).forEach(al => obj.alertasAlteracao[al.id] = al);
 
                 db.ref('logistica_darnel').set(obj).catch(err => console.warn(err));
             }
@@ -761,7 +951,10 @@
                             dadosApp.pedidos = Object.values(data.pedidos || {});
                             dadosApp.agendamentos = Object.values(data.agendamentos || {});
                             dadosApp.operacao = Object.values(data.operacao || {});
+                            dadosApp.faturamento = Object.values(data.faturamento || {});
+                            dadosApp.comercial = Object.values(data.comercial || {});
                             dadosApp.tracking = Object.values(data.tracking || {});
+                            dadosApp.alertasAlteracao = Object.values(data.alertasAlteracao || {});
                             localStorage.setItem('dados_logistica_darnel', JSON.stringify(dadosApp));
                         }
                         atualizarInterfaceGeral();
@@ -779,32 +972,30 @@
         function atualizarInterfaceGeral() {
             atualizarKPIs();
             carregarSelectsGerais();
+            renderizarPainelAlertas();
             renderizarTabelasPedidos();
             renderizarTabelasAgendamentos();
             renderizarTabelasOperacao();
+            renderizarTabelasFaturamento();
+            renderizarTabelasComercial();
             renderizarTabelasTracking();
         }
 
-        // MAPA COMPLETO VIA MAPBOX
         function inicializarMapa() {
             if (mapaObj) {
                 mapaObj.invalidateSize();
                 return;
             }
             mapaObj = L.map('mapaRotas').setView(COORDENADAS_DARNEL, 10);
-            
-            const MAPBOX_API_KEY = 'pk.eyJ1IjoibWF5Y293OTcwNCIsImEiOiJjbXZpNzM0d3EwMm5jMndweHZmanJrZHVmIn0.QaeBVZ7F3sZnRS7qEhBOdg'; // Insira sua chave Mapbox
+            const MAPBOX_API_KEY = 'SUA_API_KEY_DO_MAPBOX_AQUI';
 
-            L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${MAPBOX_API_KEY}`, {
-                tileSize: 512,
-                zoomOffset: -1,
-                maxZoom: 19,
-                attribution: '&copy; <a href="https://www.mapbox.com/">Mapbox</a>'
+            L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_API_KEY}`, {
+                tileSize: 512, zoomOffset: -1, maxZoom: 19
             }).addTo(mapaObj);
 
             const iconeDarnel = L.divIcon({
                 className: 'custom-div-icon',
-                html: "<div style='background-color:#d97706; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.4);'>D</div>",
+                html: "<div style='background-color:#d97706; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; border:2px solid white;'>D</div>",
                 iconSize: [28, 28], iconAnchor: [14, 14]
             });
             L.marker(COORDENADAS_DARNEL, { icon: iconeDarnel }).addTo(mapaObj).bindPopup("<b>Fábrica Darnel Araucária</b>");
@@ -838,7 +1029,6 @@
                 if (tituloTabela) tituloTabela.textContent = "Cargas Consolidadas por Cliente (WMS)";
                 setTimeout(() => { if (mapaObj) mapaObj.invalidateSize(); }, 200);
             }
-
             renderizarTabelasPedidos();
         }
 
@@ -850,20 +1040,16 @@
             }
 
             const rawData = document.getElementById('dedDataEntrega').value;
-            let dataBR = rawData;
-            if (rawData && rawData.includes('-')) {
-                const p = rawData.split('-');
-                dataBR = `${p[2]}/${p[1]}/${p[0]}`;
-            }
+            let dataBR = formatarDataParaExibicao(rawData);
 
-            const novoId = Date.now();
             const novoPedido = {
-                id: novoId,
+                id: Date.now(),
                 tipoCarga: 'dedicada',
                 nota: document.getElementById('dedNotaFiscal').value.trim(),
                 numeroPedido: document.getElementById('dedNumPedido').value.trim(),
                 destinoCidade: document.getElementById('dedDestino').value.trim(),
                 dataSaida: dataBR,
+                dataOriginalPlanejamento: dataBR,
                 cliente: document.getElementById('dedCliente').value.trim(),
                 tipoVeiculo: document.getElementById('dedTipoVeiculo').value,
                 paletes: Number(document.getElementById('dedPaletes').value) || 0,
@@ -895,48 +1081,20 @@
         function formatarDataBR(valorExcel) {
             if (!valorExcel) return '';
             if (valorExcel instanceof Date && !isNaN(valorExcel)) {
-                const dia = String(valorExcel.getDate()).padStart(2, '0');
-                const mes = String(valorExcel.getMonth() + 1).padStart(2, '0');
-                const ano = valorExcel.getFullYear();
-                return `${dia}/${mes}/${ano}`;
+                return `${String(valorExcel.getDate()).padStart(2, '0')}/${String(valorExcel.getMonth() + 1).padStart(2, '0')}/${valorExcel.getFullYear()}`;
             }
             if (typeof valorExcel === 'number' && !isNaN(valorExcel)) {
                 const dataBase = new Date(1899, 11, 30);
                 dataBase.setDate(dataBase.getDate() + valorExcel);
-                const dia = String(dataBase.getDate()).padStart(2, '0');
-                const mes = String(dataBase.getMonth() + 1).padStart(2, '0');
-                const ano = dataBase.getFullYear();
-                return `${dia}/${mes}/${ano}`;
+                return `${String(dataBase.getDate()).padStart(2, '0')}/${String(dataBase.getMonth() + 1).padStart(2, '0')}/${dataBase.getFullYear()}`;
             }
             let strVal = String(valorExcel).trim();
-            const d = new Date(strVal);
-            if (!isNaN(d.getTime()) && strVal.length > 5 && !strVal.includes('/')) {
-                const dia = String(d.getDate()).padStart(2, '0');
-                const mes = String(d.getMonth() + 1).padStart(2, '0');
-                const ano = d.getFullYear();
-                return `${dia}/${mes}/${ano}`;
-            }
             if (strVal.includes('-')) {
                 const partes = strVal.split(' ')[0].split('-');
-                if (partes.length === 3) {
-                    return `${partes[2].padStart(2, '0')}/${partes[1].padStart(2, '0')}/${partes[0]}`;
-                }
+                if (partes.length === 3) return `${partes[2].padStart(2, '0')}/${partes[1].padStart(2, '0')}/${partes[0]}`;
             }
-            if (strVal.includes('/')) {
-                return strVal.split(' ')[0];
-            }
+            if (strVal.includes('/')) return strVal.split(' ')[0];
             return strVal;
-        }
-
-        function converterDataBRparaDateObj(dataBR) {
-            if (!dataBR) return new Date('9999-12-31');
-            if (dataBR.includes('/')) {
-                const p = dataBR.split('/');
-                if (p.length === 3) {
-                    return new Date(p[2], p[1] - 1, p[0]);
-                }
-            }
-            return new Date(dataBR);
         }
 
         function importarPlanilhaWMS() {
@@ -958,8 +1116,7 @@
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                    const primeiraAba = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[primeiraAba];
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                     const linhas = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
                     const idxF_Cliente = colunaExcelParaIndice('F');
@@ -971,39 +1128,35 @@
                     const idxAV_Qtd = colunaExcelParaIndice('AV');
 
                     let importedCount = 0;
-
                     for (let i = 1; i < linhas.length; i++) {
                         const row = linhas[i];
                         if (!row || row.length === 0) continue;
-
                         const statusWMS = row[idxAS_Status] !== undefined ? String(row[idxAS_Status]).trim().toUpperCase() : '';
 
                         if (statusWMS === 'ANÁLISE' || statusWMS === 'ANALISE' || statusWMS === 'PUBLICADO' || statusWMS === 'EM CARGA') {
-                            
                             const numPedido = row[idxAA_Pedido] !== undefined ? String(row[idxAA_Pedido]).trim() : `PED-${i}`;
                             const qtdPedido = row[idxAV_Qtd] !== undefined ? Number(row[idxAV_Qtd]) || 1 : 1;
                             const nomeCliente = row[idxF_Cliente] !== undefined ? String(row[idxF_Cliente]).trim() : `Cliente ${i}`;
                             const cidade = row[idxL_Cidade] !== undefined ? String(row[idxL_Cidade]).trim() : '';
                             const estado = row[idxM_Estado] !== undefined ? String(row[idxM_Estado]).trim() : '';
                             const destino = (cidade && estado) ? `${cidade} - ${estado}` : (cidade || estado || 'Curitiba - PR');
-                            
-                            const valorBrutoData = row[idxR_Data];
-                            let dataReqBR = formatarDataBR(valorBrutoData);
+                            let dataReqBR = formatarDataBR(row[idxR_Data]);
 
-                            const novoId = Date.now() + i;
                             const novoPedido = {
-                                id: novoId,
+                                id: Date.now() + i,
                                 tipoCarga: 'itinerante',
                                 numeroPedido: numPedido,
+                                nota: `NF-${numPedido}`,
                                 qtdPedido: qtdPedido,
                                 statusWMS: statusWMS,
                                 cliente: nomeCliente,
                                 destinoCidade: destino,
                                 dataSaida: dataReqBR,
+                                dataOriginalPlanejamento: dataReqBR,
+                                observacao: '-',
                                 status: statusWMS,
                                 sequenciaRota: 0
                             };
-
                             dadosApp.pedidos.push(novoPedido);
                             importedCount++;
                         }
@@ -1011,96 +1164,31 @@
 
                     if (importedCount > 0) {
                         salvarDados();
-                        mostrarToast(`${importedCount} pedidos WMS importados com sucesso!`, 'sucesso');
+                        mostrarToast(`${importedCount} pedidos WMS importados!`, 'sucesso');
                         input.value = '';
                         renderizarTabelasPedidos();
                     } else {
-                        mostrarToast('Nenhum pedido encontrado com os status Análise, Publicado ou Em Carga.', 'aviso');
+                        mostrarToast('Nenhum pedido compatível encontrado.', 'aviso');
                     }
                 } catch (err) {
-                    console.error(err);
                     mostrarToast('Erro ao ler a planilha WMS.', 'erro');
                 }
             };
             reader.readAsArrayBuffer(arquivo);
         }
 
-        function pertencerARegiao(destino, regiaoAlvo) {
-            if (regiaoAlvo === 'TODAS') return true;
-            const destLower = destino.toLowerCase();
-
-            const cwb_rmc = ["curitiba", "araucaria", "araucária", "são josé dos pinhais", "sao jose dos pinhais", "colombo", "pinhais", "campo largo", "fazenda rio grande", "almirante tamandaré", "piraquara", "campina grande do sul", "quatro barras"];
-            const litoral = ["paranaguá", "paranagua", "matinhos", "guaratuba", "pontal do paraná", "pontal do parana", "antonina", "morretes"];
-
-            if (regiaoAlvo === 'CURITIBA_RMC_LITORAL') {
-                const combinados = [...cwb_rmc, ...litoral];
-                return combinados.some(termo => destLower.includes(termo));
-            }
-
-            const mapaRegioes = {
-                "CURITIBA_RMC": cwb_rmc,
-                "LITORAL_PR": litoral,
-                "CAMPOS_GERAIS": ["ponta grossa", "castro", "guarapuava", "telêmaco borba", "telemaco borba", "irati", "uniao da vitória", "união da vitória", "jaguariaíva", "palmeira"],
-                "NORTE_PR": ["londrina", "maringá", "maringa", "apucarana", "arapongas", "cambé", "rolândia", "umuarama", "campo mourão", "paranavaí"],
-                "OESTE_PR": ["cascavel", "foz do iguaçu", "foz do iguacu", "toledo", "pato branco", "francisco beltrão", "medianeira", "marechal Cândido rondon"],
-                "SANTA_CATARINA": ["joinville", "florianópolis", "florianopolis", "blumenau", "itajai", "itajaí", "são josé", "sao jose", "chapecó", "chapeco", "criciúma", "jaraguá do sul", "navegantes", "tubarão", "palhoça"],
-                "SAO_PAULO": ["são paulo", "sao paulo", "campinas", "guarulhos", "bernardo", "andré", "osasco", "sorocaba", "jundiaí", "jundiai", "santos", "são josé dos campos"]
-            };
-
-            const termos = mapaRegioes[regiaoAlvo];
-            if (!termos) return true;
-            return termos.some(termo => destLower.includes(termo));
-        }
-
         function aplicarFiltrosCombinados() {
-            const dtInicio = document.getElementById('filtroDataInicio').value; 
-            const dtFim = document.getElementById('filtroDataFim').value; 
-            const regiao = document.getElementById('filtroRegiao').value;
-
-            filtroDataAtivo.inicio = dtInicio;
-            filtroDataAtivo.fim = dtFim;
-            filtroRegiaoAtivo = regiao;
-
+            filtroDataAtivo.inicio = document.getElementById('filtroDataInicio').value; 
+            filtroDataAtivo.fim = document.getElementById('filtroDataFim').value; 
+            filtroRegiaoAtivo = document.getElementById('filtroRegiao').value;
             renderizarTabelasPedidos();
-
-            setTimeout(() => {
-                const checkboxes = document.querySelectorAll('.chkClienteRota');
-                checkboxes.forEach(chk => chk.checked = true);
-
-                if (checkboxes.length > 0) {
-                    gerarRotaOtimizada();
-                    mostrarToast(`${checkboxes.length} clientes consolidados selecionados e roteirizados automaticamente!`, 'sucesso');
-                } else {
-                    mostrarToast('Nenhum pedido encontrado para o filtro selecionado.', 'aviso');
-                }
-            }, 100);
         }
 
         function limparFiltrosCombinados() {
-            filtroDataAtivo.inicio = '';
-            filtroDataAtivo.fim = '';
-            filtroRegiaoAtivo = 'TODAS';
-
             document.getElementById('filtroDataInicio').value = '';
             document.getElementById('filtroDataFim').value = '';
             document.getElementById('filtroRegiao').value = 'TODAS';
-
             renderizarTabelasPedidos();
-
-            const checkboxes = document.querySelectorAll('.chkClienteRota');
-            checkboxes.forEach(chk => chk.checked = false);
-
-            if (mapaObj) {
-                marcadoresMapa.forEach(m => mapaObj.removeLayer(m));
-                if (camadaLinhaRota) mapaObj.removeLayer(camadaLinhaRota);
-                marcadoresMapa = [];
-                document.getElementById('listaSequenciaRota').innerHTML = 'Selecione as datas e/ou região acima...';
-                document.getElementById('rotNumParadas').textContent = '0 selecionada(s)';
-                document.getElementById('rotDistanciaTotal').textContent = '0 Km';
-                document.getElementById('rotTempoTotal').textContent = '0h 00min';
-            }
-
-            mostrarToast('Filtros limpos. Estado original restaurado.', 'sucesso');
         }
 
         function pedirSenha(setor) {
@@ -1112,16 +1200,9 @@
         }
 
         function pedirSenhaParaLimparTudo() {
-            const pedidosSubAba = dadosApp.pedidos.filter(p => (p.tipoCarga || 'dedicada') === subTabAtiva);
-            if (pedidosSubAba.length === 0) {
-                mostrarToast('Não há registros nesta sub-aba para excluir.', 'aviso');
-                return;
-            }
             window.setorTemp = 'limpar_pedidos_geral';
-            document.getElementById('modalSubtitulo').textContent = `Digite a senha de ADMIN para excluir TODOS os registros da sub-aba atual.`;
             document.getElementById('inputSenhaSetor').value = '';
             document.getElementById('modalSenha').classList.remove('hidden');
-            document.getElementById('inputSenhaSetor').focus();
         }
 
         function fecharModalSenha() {
@@ -1138,10 +1219,7 @@
                 if (senhaDigitada === SENHAS_SETORES.admin) {
                     fecharModalSenha();
                     executarLimpezaGeralPedidos();
-                } else {
-                    mostrarToast('Senha de Administrador incorreta!', 'erro');
-                    document.getElementById('inputSenhaSetor').value = '';
-                }
+                } else { mostrarToast('Senha incorreta!', 'erro'); }
                 return;
             }
 
@@ -1150,10 +1228,7 @@
                 fecharModalSenha();
                 aplicarPermissoes();
                 mostrarToast('Acesso liberado!', 'sucesso');
-            } else {
-                mostrarToast('Senha incorreta!', 'erro');
-                document.getElementById('inputSenhaSetor').value = '';
-            }
+            } else { mostrarToast('Senha incorreta!', 'erro'); }
         }
 
         function executarLimpezaGeralPedidos() {
@@ -1162,18 +1237,6 @@
             renderizarTabelasPedidos();
             carregarSelectsGerais();
             atualizarKPIs();
-            
-            if (mapaObj) {
-                marcadoresMapa.forEach(m => mapaObj.removeLayer(m));
-                if (camadaLinhaRota) mapaObj.removeLayer(camadaLinhaRota);
-                marcadoresMapa = [];
-                document.getElementById('listaSequenciaRota').innerHTML = 'Selecione as datas e/ou região acima...';
-                document.getElementById('rotNumParadas').textContent = '0 selecionada(s)';
-                document.getElementById('rotDistanciaTotal').textContent = '0 Km';
-                document.getElementById('rotTempoTotal').textContent = '0h 00min';
-            }
-
-            mostrarToast(`Registros da sub-aba excluídos!`, 'sucesso');
         }
 
         function fazerLogout() {
@@ -1188,321 +1251,398 @@
             const isAdmin = (setorAutenticado === 'admin');
 
             if (setorAutenticado) {
-                infoSessao.classList.remove('hidden');
-                infoSessao.classList.add('flex');
+                infoSessao.classList.remove('hidden'); infoSessao.classList.add('flex');
                 nomeSetor.textContent = isAdmin ? 'ADMINISTRADOR' : setorAutenticado.toUpperCase();
             } else {
-                infoSessao.classList.add('hidden');
-                infoSessao.classList.remove('flex');
+                infoSessao.classList.add('hidden'); infoSessao.classList.remove('flex');
             }
 
             const canPlanejamento = (setorAutenticado === 'planejamento' || isAdmin);
-            document.querySelectorAll('#formCargaDedicada input, #formCargaDedicada select, #formCargaDedicada textarea').forEach(el => {
-                el.disabled = !canPlanejamento;
-                if (!canPlanejamento) el.classList.add('bg-slate-100', 'dark:bg-slate-800');
-                else el.classList.remove('bg-slate-100', 'dark:bg-slate-800');
-            });
-            const btnDedicada = document.getElementById('btnSalvarDedicada');
-            if (btnDedicada) {
-                btnDedicada.disabled = !canPlanejamento;
-                btnDedicada.className = canPlanejamento ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition shadow flex items-center space-x-2" : "bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition";
-            }
+            document.querySelectorAll('#formCargaDedicada input, #formCargaDedicada select, #formCargaDedicada textarea').forEach(el => el.disabled = !canPlanejamento);
+            document.getElementById('btnSalvarDedicada').disabled = !canPlanejamento;
+
+            const canFat = (setorAutenticado === 'faturamento' || isAdmin);
+            document.querySelectorAll('#formFaturamento input, #formFaturamento select').forEach(el => el.disabled = !canFat);
+            document.getElementById('btnSalvarFaturamento').disabled = !canFat;
+
+            const canCom = (setorAutenticado === 'comercial' || isAdmin);
+            document.querySelectorAll('#formComercial input, #formComercial select').forEach(el => el.disabled = !canCom);
+            document.getElementById('btnSalvarComercial').disabled = !canCom;
 
             const canTrans = (setorAutenticado === 'transporte' || isAdmin);
             document.querySelectorAll('#formAgendamento input, #formAgendamento select').forEach(el => el.disabled = !canTrans);
-            const btnAg = document.getElementById('btnSalvarAgendamento');
-            if(btnAg) { btnAg.disabled = !canTrans; btnAg.className = canTrans ? "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition shadow" : "bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition"; }
+            document.getElementById('btnSalvarAgendamento').disabled = !canTrans;
 
             const canOp = (setorAutenticado === 'operacao' || isAdmin);
             document.querySelectorAll('#formOperacao input, #formOperacao select').forEach(el => el.disabled = !canOp);
-            const btnOp = document.getElementById('btnSalvarOperacao');
-            if(btnOp) { btnOp.disabled = !canOp; btnOp.className = canOp ? "bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition shadow" : "bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition"; }
+            document.getElementById('btnSalvarOperacao').disabled = !canOp;
 
             const canTrc = (setorAutenticado === 'tracking' || isAdmin);
             document.querySelectorAll('#formTracking input, #formTracking select').forEach(el => el.disabled = !canTrc);
-            const btnTrc = document.getElementById('btnSalvarTracking');
-            if(btnTrc) { btnTrc.disabled = !canTrc; btnTrc.className = canTrc ? "bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-6 rounded-xl text-sm transition shadow" : "bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition"; }
-        }
-
-        const COORDENADAS_CIDADES = {
-            "curitiba": [-25.4284, -49.2733],
-            "araucaria": [-25.5946, -49.3980],
-            "araucária": [-25.5946, -49.3980],
-            "são josé dos pinhais": [-25.5324, -49.2062],
-            "colombo": [-25.2917, -49.2242],
-            "pinhais": [-25.4431, -49.1917],
-            "campo largo": [-25.4592, -49.5278],
-            "fazenda rio grande": [-25.6628, -49.3056],
-            "paranaguá": [-25.5200, -48.5092],
-            "matinhos": [-25.8175, -48.5428],
-            "guaratuba": [-25.8828, -48.5753],
-            "ponta grossa": [-25.0950, -50.1619],
-            "castro": [-24.7911, -50.0119],
-            "guarapuava": [-25.3906, -51.4628],
-            "londrina": [-23.3045, -51.1696],
-            "maringá": [-23.4210, -51.9331],
-            "maringa": [-23.4210, -51.9331],
-            "apucarana": [-23.5517, -51.4614],
-            "cascavel": [-24.9578, -53.4594],
-            "foz do iguaçu": [-25.5163, -54.5854],
-            "toledo": [-24.7136, -53.7431],
-            "joinville": [-26.3045, -48.8464],
-            "florianópolis": [-27.5954, -48.5480],
-            "blumenau": [-26.9194, -49.0661],
-            "são paulo": [-23.5505, -46.6333],
-            "campinas": [-22.9056, -47.0608]
-        };
-
-        async function obterCoordenadas(destino) {
-            const destLower = destino.toLowerCase();
-            for (const [cidade, coords] of Object.entries(COORDENADAS_CIDADES)) {
-                if (destLower.includes(cidade)) return coords;
-            }
-            try {
-                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destino + ', Brasil')}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                if (data && data.length > 0) return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-            } catch (e) { console.warn(e); }
-            return [-25.5000, -49.3000];
-        }
-
-        function calcularDistanciaKm(coord1, coord2) {
-            const R = 6371;
-            const dLat = (coord2[0] - coord1[0]) * Math.PI / 180;
-            const dLon = (coord2[1] - coord1[1]) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(coord1[0] * Math.PI / 180) * Math.cos(coord2[0] * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-
-        async function otimizarSequenciaClientes(clientesUnicos) {
-            if (clientesUnicos.length <= 1) return clientesUnicos;
-
-            const listaComCoords = [];
-            for (const cli of clientesUnicos) {
-                const destStr = cli.destinoCidade || cli.cliente;
-                const coords = await obterCoordenadas(destStr);
-                listaComCoords.push({ item: cli, coords: coords });
-            }
-
-            const resultadoOrdenado = [];
-            let pontoAtual = COORDENADAS_DARNEL;
-            const naoVisitados = [...listaComCoords];
-
-            while (naoVisitados.length > 0) {
-                let indiceMaisProximo = 0;
-                let menorDistancia = Infinity;
-
-                for (let i = 0; i < naoVisitados.length; i++) {
-                    const dist = calcularDistanciaKm(pontoAtual, naoVisitados[i].coords);
-                    if (dist < menorDistancia) {
-                        menorDistancia = dist;
-                        indiceMaisProximo = i;
-                    }
-                }
-
-                const proximo = naoVisitados.splice(indiceMaisProximo, 1)[0];
-                resultadoOrdenado.push(proximo);
-                pontoAtual = proximo.coords;
-            }
-
-            return resultadoOrdenado.map(item => item.item);
-        }
-
-        async function gerarRotaOtimizada() {
-            const checkboxes = document.querySelectorAll('.chkClienteRota:checked');
-            if (checkboxes.length === 0) {
-                mostrarToast('Selecione pelo menos 1 cliente na tabela para traçar a rota.', 'aviso');
-                return;
-            }
-
-            mostrarToast('Calculando rota inteligente por proximidade...', 'aviso');
-            inicializarMapa();
-
-            marcadoresMapa.forEach(m => mapaObj.removeLayer(m));
-            if (camadaLinhaRota) mapaObj.removeLayer(camadaLinhaRota);
-            marcadoresMapa = [];
-
-            const clientesSelecionadosNomes = Array.from(checkboxes).map(c => c.value);
-            const clientesBrutos = window.clientesAgrupadosCache || [];
-            const selecionados = clientesBrutos.filter(c => clientesSelecionadosNomes.includes(c.cliente));
-
-            const clientesOrdenados = await otimizarSequenciaClientes(selecionados);
-
-            let latLngsParaLinha = [COORDENADAS_DARNEL];
-            let resumoHTML = "<strong>Ordem Lógica de Descarregamento (Clientes Otimizados):</strong><ol class='list-decimal pl-5 space-y-1 mt-1'>";
-            let sequenciaAtual = 1;
-
-            for (const cli of clientesOrdenados) {
-                const destinoStr = cli.destinoCidade || cli.cliente;
-                const coords = await obterCoordenadas(destinoStr);
-
-                latLngsParaLinha.push(coords);
-                cli.sequenciaRota = sequenciaAtual;
-
-                const iconMarker = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: `<div style='background-color:#4f46e5; color:white; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.4);'>${sequenciaAtual}</div>`,
-                    iconSize: [26, 26], iconAnchor: [13, 13]
-                });
-
-                const m = L.marker(coords, { icon: iconMarker }).addTo(mapaObj)
-                    .bindPopup(`<b>${sequenciaAtual}ª Parada: ${cli.cliente}</b><br>Destino: ${destinoStr}<br>Qtd Pedidos: ${cli.totalPedidos} | Total Qtd: ${cli.somaQtd}`);
-                marcadoresMapa.push(m);
-
-                resumoHTML += `<li><strong>${sequenciaAtual}ª Parada:</strong> ${cli.cliente} (${destinoStr}) - ${cli.totalPedidos} pedido(s) consolidado(s)</li>`;
-                sequenciaAtual++;
-            }
-
-            resumoHTML += "</ol>";
-            document.getElementById('listaSequenciaRota').innerHTML = resumoHTML;
-            document.getElementById('rotNumParadas').textContent = `${clientesOrdenados.length} cliente(s)`;
-
-            camadaLinhaRota = L.polyline(latLngsParaLinha, { color: '#4f46e5', weight: 4, opacity: 0.8, dashArray: '8, 8' }).addTo(mapaObj);
-            
-            setTimeout(() => {
-                mapaObj.invalidateSize();
-                mapaObj.fitBounds(camadaLinhaRota.getBounds(), { padding: [40, 40] });
-            }, 100);
-
-            let distTotalKm = 0;
-            for (let i = 0; i < latLngsParaLinha.length - 1; i++) {
-                const p1 = L.latLng(latLngsParaLinha[i]);
-                const p2 = L.latLng(latLngsParaLinha[i+1]);
-                distTotalKm += (p1.distanceTo(p2) / 1000) * 1.25;
-            }
-
-            document.getElementById('rotDistanciaTotal').textContent = `${Math.max(15, Math.round(distTotalKm))} Km (Aprox)`;
-            document.getElementById('rotTempoTotal').textContent = `~${Math.max(1, Math.floor(distTotalKm / 65))}h`;
-
-            mostrarToast('Rota otimizada por cliente gerada com sucesso!', 'sucesso');
-        }
-
-        function marcarTodosClientesRota(chkMaster) {
-            const checkboxes = document.querySelectorAll('.chkClienteRota');
-            checkboxes.forEach(c => c.checked = chkMaster.checked);
+            document.getElementById('btnSalvarTracking').disabled = !canTrc;
         }
 
         function mudarTab(tab) {
             const secPed = document.getElementById('secao-pedidos');
-            const secAg = document.getElementById('secao-agendamentos');
             const secOp = document.getElementById('secao-operacao');
+            const secFat = document.getElementById('secao-faturamento');
+            const secCom = document.getElementById('secao-comercial');
+            const secAg = document.getElementById('secao-agendamentos');
             const secTrc = document.getElementById('secao-tracking');
             const secCal = document.getElementById('secao-calendario');
-            
-            const btnPed = document.getElementById('btn-tab-pedidos');
-            const btnAg = document.getElementById('btn-tab-agendamentos');
-            const btnOp = document.getElementById('btn-tab-operacao');
-            const btnTrc = document.getElementById('btn-tab-tracking');
-            const btnCal = document.getElementById('btn-tab-calendario');
 
-            secPed.classList.add('hidden'); secAg.classList.add('hidden'); secOp.classList.add('hidden'); secTrc.classList.add('hidden'); secCal.classList.add('hidden');
-            const defClass = "px-4 py-2 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-            btnPed.className = defClass; btnAg.className = defClass; btnOp.className = defClass; btnTrc.className = defClass; btnCal.className = defClass;
+            secPed.classList.add('hidden'); secOp.classList.add('hidden'); secFat.classList.add('hidden'); 
+            secCom.classList.add('hidden'); secAg.classList.add('hidden'); secTrc.classList.add('hidden'); secCal.classList.add('hidden');
 
-            if (tab === 'pedidos') {
-                secPed.classList.remove('hidden');
-                btnPed.className = "px-4 py-2 font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-            } else if (tab === 'agendamentos') {
-                secAg.classList.remove('hidden');
-                btnAg.className = "px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-            } else if (tab === 'operacao') {
-                secOp.classList.remove('hidden');
-                btnOp.className = "px-4 py-2 font-semibold text-amber-600 border-b-2 border-amber-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-            } else if (tab === 'tracking') {
-                secTrc.classList.remove('hidden');
-                btnTrc.className = "px-4 py-2 font-semibold text-purple-600 border-b-2 border-purple-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-            } else {
-                secCal.classList.remove('hidden');
-                btnCal.className = "px-4 py-2 font-semibold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none flex items-center space-x-2 whitespace-nowrap transition-colors";
-                renderizarCalendario();
+            // Atualiza o estilo visual dos botões de abas (Pills de Alto Nível)
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60 border border-transparent";
+            });
+
+            const btnAtivo = document.getElementById(`btn-tab-${tab}`);
+            if (btnAtivo) {
+                btnAtivo.className = "tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-sm scale-[1.01]";
             }
+
+            if (tab === 'pedidos') secPed.classList.remove('hidden');
+            else if (tab === 'operacao') secOp.classList.remove('hidden');
+            else if (tab === 'faturamento') secFat.classList.remove('hidden');
+            else if (tab === 'comercial') secCom.classList.remove('hidden');
+            else if (tab === 'agendamentos') secAg.classList.remove('hidden');
+            else if (tab === 'tracking') secTrc.classList.remove('hidden');
+            else { secCal.classList.remove('hidden'); renderizarCalendario(); }
         }
 
         function carregarSelectsGerais() {
             const selAg = document.getElementById('agNotaSelect');
             const selOp = document.getElementById('opNotaSelect');
+            const selFat = document.getElementById('fatSelectPedido');
+            const selCom = document.getElementById('comSelectPedido');
             const selTrc = document.getElementById('trcNotaSelect');
 
-            if (selAg) selAg.innerHTML = '<option value="">-- Selecione um pedido --</option>';
+            if (selAg) selAg.innerHTML = '<option value="">-- Selecione um pedido na lista --</option>';
             if (selOp) selOp.innerHTML = '<option value="">-- Selecione um pedido --</option>';
+            if (selFat) selFat.innerHTML = '<option value="">-- Selecione um pedido na lista --</option>';
+            if (selCom) selCom.innerHTML = '<option value="">-- Selecione um pedido na lista --</option>';
             if (selTrc) selTrc.innerHTML = '<option value="">-- Selecione um pedido --</option>';
 
             dadosApp.pedidos.forEach(p => {
                 const tipoTexto = (p.tipoCarga === 'dedicada') ? '[DEDICADA]' : '[WMS]';
                 const identificador = p.numeroPedido || p.nota;
-                const texto = `${tipoTexto} Pedido: ${identificador} | Cliente: ${p.cliente}`;
+                const texto = `${tipoTexto} Pedido: ${identificador} | NF: ${p.nota || '-'} | Cliente: ${p.cliente}`;
                 if (selAg) { const opt = document.createElement('option'); opt.value = identificador; opt.textContent = texto; selAg.appendChild(opt); }
                 if (selOp) { const opt = document.createElement('option'); opt.value = identificador; opt.textContent = texto; selOp.appendChild(opt); }
+                if (selFat) { const opt = document.createElement('option'); opt.value = identificador; opt.textContent = texto; selFat.appendChild(opt); }
+                if (selCom) { const opt = document.createElement('option'); opt.value = identificador; opt.textContent = texto; selCom.appendChild(opt); }
                 if (selTrc) { const opt = document.createElement('option'); opt.value = identificador; opt.textContent = texto; selTrc.appendChild(opt); }
             });
         }
 
+        function alternarModoVincularFat(modo) {
+            document.getElementById('containerFatSelect').classList.toggle('hidden', modo !== 'lista');
+            document.getElementById('containerFatInputText').classList.toggle('hidden', modo === 'lista');
+        }
+
+        function alternarModoVincularCom(modo) {
+            document.getElementById('containerComSelect').classList.toggle('hidden', modo !== 'lista');
+            document.getElementById('containerComInputText').classList.toggle('hidden', modo === 'lista');
+        }
+
+        function alternarModoVincularAg(modo) {
+            document.getElementById('containerAgSelect').classList.toggle('hidden', modo !== 'lista');
+            document.getElementById('containerAgInputText').classList.toggle('hidden', modo === 'lista');
+        }
+
+        function preencherDadosTransportePorPedido(identificador) {
+            const val = identificador.trim();
+            if (!val) return;
+            document.getElementById('agNumPedido').value = val;
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido && p.numeroPedido.toLowerCase() === val.toLowerCase()) || (p.nota && p.nota.toLowerCase() === val.toLowerCase()));
+            if (ped) {
+                document.getElementById('agNotaFiscal').value = ped.nota || '-';
+            }
+
+            const com = (dadosApp.comercial || []).find(c => c.numPedido.toLowerCase() === val.toLowerCase());
+            if (com && com.ticket) {
+                document.getElementById('agTicket').value = com.ticket;
+                mostrarToast(`Ticket ${com.ticket} puxado automaticamente do setor Comercial!`, 'sucesso');
+            } else {
+                document.getElementById('agTicket').value = '';
+            }
+        }
+
         function puxarDadosDaNotaSelect() {
             const val = document.getElementById('agNotaSelect').value;
-            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === val || p.nota === val));
-            if (ped) document.getElementById('agNotaFiscal').value = ped.numeroPedido || ped.nota;
+            preencherDadosTransportePorPedido(val);
+        }
+
+        function buscarEPreencherPedidoAgendamentoDigitado() {
+            const termo = document.getElementById('agInputNumPedidoBusca').value.trim();
+            if (!termo) {
+                mostrarToast('Digite o número do pedido para buscar.', 'aviso');
+                return;
+            }
+            preencherDadosTransportePorPedido(termo);
+            mostrarToast(`Pedido ${termo.toUpperCase()} localizado!`, 'sucesso');
         }
 
         function puxarDadosOperacaoSelect() {
             const val = document.getElementById('opNotaSelect').value;
             const ped = dadosApp.pedidos.find(p => (p.numeroPedido === val || p.nota === val));
-            if (ped) document.getElementById('opNotaFiscal').value = ped.numeroPedido || ped.nota;
+            if (ped) {
+                document.getElementById('opNumPedido').value = ped.numeroPedido || '-';
+                document.getElementById('opNotaFiscal').value = ped.nota || '-';
+            }
+        }
+
+        function puxarDadosFaturamentoSelect() {
+            const val = document.getElementById('fatSelectPedido').value;
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === val || p.nota === val));
+            if (ped) {
+                document.getElementById('fatNumPedido').value = ped.numeroPedido || '-';
+                document.getElementById('fatNotaFiscal').value = ped.nota || ped.numeroPedido;
+                if (ped.paletes) document.getElementById('fatQtdPaletes').value = ped.paletes;
+                if (ped.peso) document.getElementById('fatTotalKg').value = ped.peso;
+            }
+        }
+
+        function puxarDadosComercialSelect() {
+            const val = document.getElementById('comSelectPedido').value;
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === val || p.nota === val));
+            if (ped) {
+                document.getElementById('comNumPedido').value = ped.numeroPedido || '-';
+                document.getElementById('comNotaFiscal').value = ped.nota || '-';
+            }
+        }
+
+        function buscarEPreencherPedidoDigitado() {
+            const termo = document.getElementById('fatInputNumPedidoBusca').value.trim().toLowerCase();
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido && p.numeroPedido.toLowerCase() === termo) || (p.nota && p.nota.toLowerCase() === termo));
+            if (ped) {
+                document.getElementById('fatNumPedido').value = ped.numeroPedido || '-';
+                document.getElementById('fatNotaFiscal').value = ped.nota || ped.numeroPedido;
+                mostrarToast(`Pedido localizado!`, 'sucesso');
+            }
+        }
+
+        function buscarEPreencherPedidoComercialDigitado() {
+            const termo = document.getElementById('comInputNumPedidoBusca').value.trim().toLowerCase();
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido && p.numeroPedido.toLowerCase() === termo) || (p.nota && p.nota.toLowerCase() === termo));
+            if (ped) {
+                document.getElementById('comNumPedido').value = ped.numeroPedido || '-';
+                document.getElementById('comNotaFiscal').value = ped.nota || '-';
+                mostrarToast(`Pedido localizado!`, 'sucesso');
+            }
         }
 
         function puxarDadosTrackingSelect() {
             const val = document.getElementById('trcNotaSelect').value;
             const ped = dadosApp.pedidos.find(p => (p.numeroPedido === val || p.nota === val));
-            if (ped) document.getElementById('trcNotaFiscal').value = ped.numeroPedido || ped.nota;
+            if (ped) {
+                document.getElementById('trcNumPedido').value = ped.numeroPedido || '-';
+                document.getElementById('trcNotaFiscal').value = ped.nota || '-';
+            }
+        }
+
+        function registrarAlertaAlteracaoData(numPedido, setorResponsavel, dataOriginal, dataNova) {
+            if (!dadosApp.alertasAlteracao) dadosApp.alertasAlteracao = [];
+            dadosApp.alertasAlteracao.unshift({
+                id: Date.now(),
+                numPedido: numPedido,
+                setorResponsavel: setorResponsavel.toUpperCase(),
+                dataOriginal: dataOriginal || 'Não informada',
+                dataNova: dataNova,
+                dataHoraRegistro: new Date().toLocaleString('pt-BR'),
+                lido: false
+            });
+            salvarDados();
+            renderizarPainelAlertas();
+            mostrarToast(`⚠️ ATENÇÃO: O setor ${setorResponsavel.toUpperCase()} alterou a data do pedido ${numPedido} para ${dataNova}!`, 'alerta_data');
+        }
+
+        function alternarPainelAlertas() {
+            document.getElementById('painelAlertas').classList.toggle('hidden');
+        }
+
+        function renderizarPainelAlertas() {
+            const container = document.getElementById('listaAlertasAlteracoes');
+            const badge = document.getElementById('badgeQtdAlertas');
+            if(!container) return;
+            const alertas = dadosApp.alertasAlteracao || [];
+            if(badge) {
+                badge.textContent = alertas.length;
+                if(alertas.length > 0) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
+            }
+            if(alertas.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 dark:text-slate-400 italic">Nenhum alerta de alteração não notificada registrado.</p>`;
+                return;
+            }
+            container.innerHTML = alertas.map(al => `
+                <div class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-500/30 p-2.5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-rose-800 dark:text-rose-300">Pedido ${al.numPedido}</span>
+                        <span class="text-slate-700 dark:text-slate-300"> alterado pelo setor </span>
+                        <span class="font-bold text-amber-600 dark:text-amber-400">${al.setorResponsavel}</span>.
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            Original: <span class="line-through text-rose-600 dark:text-rose-400">${al.dataOriginal}</span> &rarr; Nova: <span class="font-bold text-emerald-600 dark:text-emerald-400">${al.dataNova}</span>
+                            <span class="ml-2 text-[10px] text-slate-400 dark:text-slate-500">(${al.dataHoraRegistro})</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function limparAlertasLidos() {
+            dadosApp.alertasAlteracao = [];
+            salvarDados();
+            renderizarPainelAlertas();
+            atualizarKPIs();
+            mostrarToast('Alertas marcados como lidos.', 'sucesso');
+        }
+
+        function formatarDataParaExibicao(valData) {
+            if (!valData) return '-';
+            if (valData.includes('-')) {
+                const p = valData.split('-');
+                if (p.length === 3) return `${p[2]}/${p[1]}/${p[0]}`;
+            }
+            return valData;
         }
 
         function salvarAgendamento(e) {
             e.preventDefault();
-            const novo = {
+            const numPedido = document.getElementById('agNumPedido').value;
+            const nf = document.getElementById('agNotaFiscal').value;
+            const rawData = document.getElementById('agDataEntrega').value;
+            const horaEntrega = document.getElementById('agHoraEntrega').value;
+            const dataFormatadaBR = formatarDataParaExibicao(rawData);
+
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === numPedido || p.nota === numPedido));
+            if (ped && ped.dataSaida && ped.dataSaida !== dataFormatadaBR) {
+                registrarAlertaAlteracaoData(numPedido, 'TRANSPORTE', ped.dataSaida, dataFormatadaBR);
+                ped.dataSaida = dataFormatadaBR;
+                ped.temAlertaData = true;
+            }
+
+            dadosApp.agendamentos.push({
                 id: Date.now(),
-                nota: document.getElementById('agNotaFiscal').value,
+                numPedido: numPedido,
+                nota: nf,
                 ticket: document.getElementById('agTicket').value,
-                dataHora: document.getElementById('agDataHora').value,
+                dataEntrega: dataFormatadaBR,
+                horaEntrega: horaEntrega,
                 transportadora: document.getElementById('agTransportadora').value,
                 placa: document.getElementById('agPlaca').value,
-                motorista: document.getElementById('agMotorista').value
-            };
-            dadosApp.agendamentos.push(novo);
+                motorista: document.getElementById('agMotorista').value,
+                observacao: document.getElementById('agObservacao').value.trim() || '-'
+            });
             salvarDados();
             renderizarTabelasAgendamentos();
+            renderizarTabelasPedidos();
             mostrarToast('Agendamento salvo com sucesso!', 'sucesso');
             document.getElementById('formAgendamento').reset();
+            document.getElementById('agNotaSelect').value = '';
+            document.getElementById('agInputNumPedidoBusca').value = '';
         }
 
         function salvarOperacao(e) {
             e.preventDefault();
-            const novo = {
+            dadosApp.operacao.push({
                 id: Date.now(),
+                numPedido: document.getElementById('opNumPedido').value,
                 nota: document.getElementById('opNotaFiscal').value,
                 horaInicio: document.getElementById('opHoraInicio').value,
                 horaFim: document.getElementById('opHoraFim').value,
-                equipe: document.getElementById('opEquipe').value
-            };
-            dadosApp.operacao.push(novo);
+                equipe: document.getElementById('opEquipe').value,
+                observacao: document.getElementById('opObservacao').value.trim() || '-'
+            });
             salvarDados();
             renderizarTabelasOperacao();
-            mostrarToast('Carregamento registrado com sucesso!', 'sucesso');
+            mostrarToast('Carregamento registrado!', 'sucesso');
             document.getElementById('formOperacao').reset();
+        }
+
+        function salvarFaturamento(e) {
+            e.preventDefault();
+            if (setorAutenticado !== 'faturamento' && setorAutenticado !== 'admin') {
+                mostrarToast('Acesso negado.', 'erro'); return;
+            }
+            const numPedido = document.getElementById('fatNumPedido').value.trim();
+            const numNF = document.getElementById('fatNotaFiscal').value.trim();
+            const rawData = document.getElementById('fatDataFaturamento').value;
+            let dataBR = formatarDataParaExibicao(rawData);
+
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === numPedido || p.nota === numPedido));
+            if (ped && ped.dataSaida && ped.dataSaida !== dataBR) {
+                registrarAlertaAlteracaoData(numPedido, 'FATURAMENTO', ped.dataSaida, dataBR);
+                ped.dataSaida = dataBR;
+                ped.temAlertaData = true;
+            }
+
+            dadosApp.faturamento.push({
+                id: Date.now(),
+                numPedido: numPedido,
+                estrechado: document.getElementById('fatEstrechado').value,
+                qtdPaletes: Number(document.getElementById('fatQtdPaletes').value) || 0,
+                dataFaturamento: dataBR,
+                notaFiscal: numNF,
+                totalKg: Number(document.getElementById('fatTotalKg').value) || 0,
+                observacao: document.getElementById('fatObservacao').value.trim() || '-'
+            });
+            salvarDados();
+            renderizarTabelasFaturamento();
+            renderizarTabelasPedidos();
+            mostrarToast('Faturamento registrado!', 'sucesso');
+            document.getElementById('formFaturamento').reset();
+        }
+
+        function salvarComercial(e) {
+            e.preventDefault();
+            if (setorAutenticado !== 'comercial' && setorAutenticado !== 'admin') {
+                mostrarToast('Acesso negado.', 'erro'); return;
+            }
+            const numPedido = document.getElementById('comNumPedido').value.trim();
+            const nf = document.getElementById('comNotaFiscal').value.trim();
+            const dataConfirmadaBR = formatarDataParaExibicao(document.getElementById('comDataAgendaConfirmada').value);
+
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === numPedido || p.nota === numPedido));
+            if (ped && ped.dataSaida && ped.dataSaida !== dataConfirmadaBR) {
+                registrarAlertaAlteracaoData(numPedido, 'COMERCIAL', ped.dataSaida, dataConfirmadaBR);
+                ped.dataSaida = dataConfirmadaBR;
+                ped.temAlertaData = true;
+            }
+
+            dadosApp.comercial.push({
+                id: Date.now(),
+                numPedido: numPedido,
+                nota: nf,
+                dataSolicitacao: formatarDataParaExibicao(document.getElementById('comDataSolicitacao').value),
+                dataAgendaSolicitada: formatarDataParaExibicao(document.getElementById('comDataAgendaSolicitada').value),
+                dataAgendaConfirmada: dataConfirmadaBR,
+                horario: document.getElementById('comHorario').value,
+                ticket: document.getElementById('comTicket').value.trim(),
+                observacao: document.getElementById('comObservacao').value.trim() || '-'
+            });
+            salvarDados();
+            renderizarTabelasComercial();
+            renderizarTabelasPedidos();
+            mostrarToast('Tratativa Comercial salva!', 'sucesso');
+            document.getElementById('formComercial').reset();
         }
 
         function salvarTracking(e) {
             e.preventDefault();
-            const novo = {
+            dadosApp.tracking.push({
                 id: Date.now(),
+                numPedido: document.getElementById('trcNumPedido').value,
                 nota: document.getElementById('trcNotaFiscal').value,
-                statusFinal: document.getElementById('trcStatus').value
-            };
-            dadosApp.tracking.push(novo);
+                statusFinal: document.getElementById('trcStatus').value,
+                observacao: document.getElementById('trcObservacao').value.trim() || '-'
+            });
             salvarDados();
             renderizarTabelasTracking();
-            mostrarToast('Baixa de tracking salva com sucesso!', 'sucesso');
+            mostrarToast('Baixa salva com sucesso!', 'sucesso');
             document.getElementById('formTracking').reset();
         }
 
@@ -1511,106 +1651,48 @@
             const trHead = document.getElementById('tabelaCabecalhoTr');
             if(!tbody || !trHead) return;
 
-            let pedidosFiltrados = dadosApp.pedidos.filter(p => {
-                const tipo = p.tipoCarga || 'dedicada';
-                return tipo === subTabAtiva;
-            });
-
-            if (subTabAtiva === 'itinerante' && filtroDataAtivo.inicio && filtroDataAtivo.fim) {
-                const dInicio = new Date(filtroDataAtivo.inicio + 'T00:00:00');
-                const dFim = new Date(filtroDataAtivo.fim + 'T23:59:59');
-
-                pedidosFiltrados = pedidosFiltrados.filter(p => {
-                    const dPedido = converterDataBRparaDateObj(p.dataSaida);
-                    return dPedido >= dInicio && dPedido <= dFim;
-                });
-            }
-
-            if (subTabAtiva === 'itinerante' && filtroRegiaoAtivo !== 'TODAS') {
-                pedidosFiltrados = pedidosFiltrados.filter(p => pertencerARegiao(p.destinoCidade || p.cliente, filtroRegiaoAtivo));
-            }
+            let pedidosFiltrados = dadosApp.pedidos.filter(p => (p.tipoCarga || 'dedicada') === subTabAtiva);
 
             if (subTabAtiva === 'dedicada') {
                 trHead.innerHTML = `
-                    <th class="p-3.5 text-center"><input type="checkbox" onclick="marcarTodosPedidosRota(this)"></th>
-                    <th class="p-3.5">NF</th>
-                    <th class="p-3.5">Nº Pedido</th>
-                    <th class="p-3.5">Destino</th>
-                    <th class="p-3.5">Data Entrega</th>
-                    <th class="p-3.5">Cliente</th>
-                    <th class="p-3.5">Veículo</th>
-                    <th class="p-3.5">Paletes</th>
-                    <th class="p-3.5">Peso (Kg)</th>
-                    <th class="p-3.5">m³</th>
-                    <th class="p-3.5">Obs</th>
-                    <th class="p-3.5">Status</th>
-                    <th class="p-3.5 text-center">Ações</th>
+                    <th class="p-3.5 text-center"><input type="checkbox"></th>
+                    <th class="p-3.5">Nº Pedido</th><th class="p-3.5">NF</th><th class="p-3.5">Destino</th>
+                    <th class="p-3.5">Data Agendada</th><th class="p-3.5">Cliente</th><th class="p-3.5">Veículo</th>
+                    <th class="p-3.5">Paletes</th><th class="p-3.5">Peso</th><th class="p-3.5">Observações</th><th class="p-3.5">Status</th><th class="p-3.5 text-center">Ações</th>
                 `;
                 tbody.innerHTML = pedidosFiltrados.length === 0
-                    ? `<tr><td colspan="13" class="p-6 text-center text-slate-400">Nenhuma carga dedicada cadastrada.</td></tr>`
+                    ? `<tr><td colspan="12" class="p-6 text-center text-slate-400">Nenhuma carga dedicada.</td></tr>`
                     : pedidosFiltrados.map(item => `
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td class="p-3.5 text-center"><input type="checkbox" value="${item.id}" class="chkPedidoRota rounded border-slate-300 text-indigo-600"></td>
-                            <td class="p-3.5 font-mono font-bold text-emerald-800 dark:text-emerald-400">${item.nota}</td>
-                            <td class="p-3.5 font-mono">${item.numeroPedido || '-'}</td>
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 ${item.temAlertaData ? 'bg-rose-50 dark:bg-rose-950/20' : ''}">
+                            <td class="p-3.5 text-center"><input type="checkbox"></td>
+                            <td class="p-3.5 font-mono font-bold">${item.numeroPedido || '-'}</td>
+                            <td class="p-3.5 font-mono font-bold text-emerald-600 dark:text-emerald-400">${item.nota || '-'}</td>
                             <td class="p-3.5 text-xs font-bold">${item.destinoCidade || '-'}</td>
-                            <td class="p-3.5 font-mono font-semibold text-amber-600">${item.dataSaida || '-'}</td>
+                            <td class="p-3.5 font-mono font-bold ${item.temAlertaData ? 'text-rose-600 dark:text-rose-500 animate-pulse' : 'text-amber-600 dark:text-amber-400'}">
+                                ${item.dataSaida || '-'}
+                                ${item.temAlertaData ? '<span class="block text-[10px] text-rose-500 font-bold">⚠️ Data Alterada</span>' : ''}
+                            </td>
                             <td class="p-3.5 font-medium">${item.cliente}</td>
-                            <td class="p-3.5 text-xs font-semibold text-blue-600">${item.tipoVeiculo || '-'}</td>
+                            <td class="p-3.5 text-xs font-semibold text-blue-600 dark:text-blue-400">${item.tipoVeiculo || '-'}</td>
                             <td class="p-3.5 font-mono">${item.paletes || 0}</td>
                             <td class="p-3.5 font-mono">${Number(item.peso || 0).toLocaleString('pt-BR')} Kg</td>
-                            <td class="p-3.5 font-mono">${item.metroCubico ? Number(item.metroCubico).toLocaleString('pt-BR') + ' m³' : '-'}</td>
-                            <td class="p-3.5 text-xs italic text-slate-400">${item.observacao || '-'}</td>
-                            <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-300">${item.status}</span></td>
-                            <td class="p-3.5 text-center"><button onclick="deletarItem('pedidos', ${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold">Excluir</button></td>
+                            <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 italic">${item.observacao || '-'}</td>
+                            <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">${item.status}</span></td>
+                            <td class="p-3.5 text-center"><button onclick="deletarItem('pedidos', ${item.id})" class="text-red-500 font-bold text-xs hover:underline">Excluir</button></td>
                         </tr>
                     `).join('');
             } else {
-                const mapaClientes = {};
-                pedidosFiltrados.forEach(p => {
-                    const nomeCli = p.cliente || 'Cliente Desconhecido';
-                    if (!mapaClientes[nomeCli]) {
-                        mapaClientes[nomeCli] = {
-                            cliente: nomeCli,
-                            destinoCidade: p.destinoCidade || 'Curitiba - PR',
-                            statusWMS: p.statusWMS || 'PUBLICADO',
-                            dataSaida: p.dataSaida || '-',
-                            totalPedidos: 0,
-                            somaQtd: 0,
-                            listaPedidosStr: []
-                        };
-                    }
-                    mapaClientes[nomeCli].totalPedidos += 1;
-                    mapaClientes[nomeCli].somaQtd += Number(p.qtdPedido || 1);
-                    mapaClientes[nomeCli].listaPedidosStr.push(p.numeroPedido);
-                });
-
-                const clientesUnicos = Object.values(mapaClientes);
-                window.clientesAgrupadosCache = clientesUnicos;
-
-                trHead.innerHTML = `
-                    <th class="p-3.5 text-center"><input type="checkbox" onclick="marcarTodosClientesRota(this)"></th>
-                    <th class="p-3.5">Nome Cliente (F)</th>
-                    <th class="p-3.5">Qtd Pedidos</th>
-                    <th class="p-3.5">Total Volumes (AV)</th>
-                    <th class="p-3.5">Cidade / Estado (L & M)</th>
-                    <th class="p-3.5">Data Requerida (R)</th>
-                    <th class="p-3.5">Nº dos Pedidos Consolidados</th>
-                `;
-
-                tbody.innerHTML = clientesUnicos.length === 0
-                    ? `<tr><td colspan="7" class="p-6 text-center text-slate-400">Nenhum pedido WMS encontrado para este filtro.</td></tr>`
-                    : clientesUnicos.map(cli => `
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td class="p-3.5 text-center"><input type="checkbox" value="${cli.cliente}" class="chkClienteRota rounded border-slate-300 text-indigo-600"></td>
-                            <td class="p-3.5 font-bold text-slate-800 dark:text-slate-100">${cli.cliente}</td>
-                            <td class="p-3.5 font-mono font-semibold text-indigo-600 dark:text-indigo-400">${cli.totalPedidos} pedido(s)</td>
-                            <td class="p-3.5 font-mono font-semibold">${cli.somaQtd}</td>
-                            <td class="p-3.5 text-xs font-semibold text-blue-600">${cli.destinoCidade}</td>
-                            <td class="p-3.5 font-mono font-semibold text-amber-600">${cli.dataSaida}</td>
-                            <td class="p-3.5 font-mono text-xs text-slate-500 max-w-xs truncate" title="${cli.listaPedidosStr.join(', ')}">${cli.listaPedidosStr.join(', ')}</td>
-                        </tr>
-                    `).join('');
+                trHead.innerHTML = `<th class="p-3.5">Cliente</th><th class="p-3.5">Qtd</th><th class="p-3.5">Cidade</th><th class="p-3.5">Data Requerida</th><th class="p-3.5">Pedidos / NF</th><th class="p-3.5">Observações</th>`;
+                tbody.innerHTML = pedidosFiltrados.map(cli => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-3.5 font-bold">${cli.cliente}</td>
+                        <td class="p-3.5 font-mono">${cli.qtdPedido || 1}</td>
+                        <td class="p-3.5 text-xs">${cli.destinoCidade}</td>
+                        <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400">${cli.dataSaida}</td>
+                        <td class="p-3.5 font-mono text-xs">${cli.numeroPedido} | NF: ${cli.nota || '-'}</td>
+                        <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 italic">${cli.observacao || '-'}</td>
+                    </tr>
+                `).join('');
             }
             lucide.createIcons();
         }
@@ -1620,13 +1702,16 @@
             if(!tbody) return;
             tbody.innerHTML = dadosApp.agendamentos.map(i => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="p-3.5 font-mono font-bold">${i.nota}</td>
-                    <td class="p-3.5 font-mono">${i.ticket}</td>
-                    <td class="p-3.5 font-mono">${i.dataHora}</td>
+                    <td class="p-3.5 font-mono font-bold">${i.numPedido || '-'}</td>
+                    <td class="p-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">${i.nota || '-'}</td>
+                    <td class="p-3.5 font-mono text-indigo-600 dark:text-indigo-400 font-bold">${i.ticket}</td>
+                    <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400 font-bold">${i.dataEntrega || i.dataHora || '-'}</td>
+                    <td class="p-3.5 font-mono">${i.horaEntrega || '-'}</td>
                     <td class="p-3.5">${i.transportadora}</td>
                     <td class="p-3.5 font-mono">${i.placa}</td>
                     <td class="p-3.5">${i.motorista}</td>
-                    <td class="p-3.5 text-center"><button onclick="deletarItem('agendamentos', ${i.id})" class="text-red-500 text-xs font-bold">Excluir</button></td>
+                    <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 italic">${i.observacao || '-'}</td>
+                    <td class="p-3.5 text-center"><button onclick="deletarItem('agendamentos', ${i.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
                 </tr>
             `).join('');
         }
@@ -1636,10 +1721,47 @@
             if(!tbody) return;
             tbody.innerHTML = dadosApp.operacao.map(i => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="p-3.5 font-mono font-bold">${i.nota}</td>
+                    <td class="p-3.5 font-mono font-bold">${i.numPedido || '-'}</td>
+                    <td class="p-3.5 font-mono font-bold text-emerald-600 dark:text-emerald-400">${i.nota || '-'}</td>
                     <td class="p-3.5 font-mono">${i.horaInicio} às ${i.horaFim}</td>
                     <td class="p-3.5">${i.equipe}</td>
-                    <td class="p-3.5 text-center"><button onclick="deletarItem('operacao', ${i.id})" class="text-red-500 text-xs font-bold">Excluir</button></td>
+                    <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 italic">${i.observacao || '-'}</td>
+                    <td class="p-3.5 text-center"><button onclick="deletarItem('operacao', ${i.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarTabelasFaturamento() {
+            const tbody = document.getElementById('tabelaFaturamentoBody');
+            if(!tbody) return;
+            tbody.innerHTML = (dadosApp.faturamento || []).map(item => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td class="p-3.5 font-mono font-bold">${item.numPedido || '-'}</td>
+                    <td class="p-3.5 font-mono font-bold text-cyan-600 dark:text-cyan-400">${item.notaFiscal}</td>
+                    <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400">${item.dataFaturamento}</td>
+                    <td class="p-3.5 font-semibold">${item.estrechado}</td>
+                    <td class="p-3.5 font-mono">${item.qtdPaletes}</td>
+                    <td class="p-3.5 font-mono">${Number(item.totalKg).toLocaleString('pt-BR')} Kg</td>
+                    <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 italic">${item.observacao || '-'}</td>
+                    <td class="p-3.5 text-center"><button onclick="deletarItem('faturamento', ${item.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarTabelasComercial() {
+            const tbody = document.getElementById('tabelaComercialBody');
+            if(!tbody) return;
+            tbody.innerHTML = (dadosApp.comercial || []).map(item => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td class="p-3.5 font-mono font-bold text-teal-600 dark:text-teal-400">${item.numPedido}</td>
+                    <td class="p-3.5 font-mono font-bold">${item.nota || '-'}</td>
+                    <td class="p-3.5 font-mono">${item.dataSolicitacao}</td>
+                    <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400">${item.dataAgendaSolicitada}</td>
+                    <td class="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">${item.dataAgendaConfirmada}</td>
+                    <td class="p-3.5 font-mono">${item.horario}</td>
+                    <td class="p-3.5 font-mono text-indigo-600 dark:text-indigo-400 font-bold">${item.ticket}</td>
+                    <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 italic">${item.observacao || '-'}</td>
+                    <td class="p-3.5 text-center"><button onclick="deletarItem('comercial', ${item.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
                 </tr>
             `).join('');
         }
@@ -1649,9 +1771,11 @@
             if(!tbody) return;
             tbody.innerHTML = dadosApp.tracking.map(i => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="p-3.5 font-mono font-bold">${i.nota}</td>
-                    <td class="p-3.5 font-semibold text-purple-600">${i.statusFinal}</td>
-                    <td class="p-3.5 text-center"><button onclick="deletarItem('tracking', ${i.id})" class="text-red-500 text-xs font-bold">Excluir</button></td>
+                    <td class="p-3.5 font-mono font-bold">${i.numPedido || '-'}</td>
+                    <td class="p-3.5 font-mono font-bold text-purple-600 dark:text-purple-400">${i.nota || '-'}</td>
+                    <td class="p-3.5 font-semibold text-purple-600 dark:text-purple-400">${i.statusFinal}</td>
+                    <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 italic">${i.observacao || '-'}</td>
+                    <td class="p-3.5 text-center"><button onclick="deletarItem('tracking', ${i.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
                 </tr>
             `).join('');
         }
@@ -1662,35 +1786,33 @@
             if(!tbody) return;
             tbody.innerHTML = dadosApp.pedidos.map(item => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="p-3.5 text-xs font-bold uppercase ${item.tipoCarga === 'itinerante' ? 'text-indigo-400' : 'text-emerald-400'}">${item.tipoCarga || 'dedicada'}</td>
-                    <td class="p-3.5 font-mono font-bold">${item.numeroPedido || item.nota}</td>
+                    <td class="p-3.5 text-xs font-bold uppercase ${item.tipoCarga === 'itinerante' ? 'text-indigo-500 dark:text-indigo-400' : 'text-emerald-600 dark:text-emerald-400'}">${item.tipoCarga || 'dedicada'}</td>
+                    <td class="p-3.5 font-mono font-bold">${item.numeroPedido || '-'}</td>
+                    <td class="p-3.5 font-mono font-bold text-emerald-600 dark:text-emerald-400">${item.nota || '-'}</td>
                     <td class="p-3.5">${item.destinoCidade || '-'}</td>
                     <td class="p-3.5">${item.cliente}</td>
-                    <td class="p-3.5 font-mono text-amber-600">${item.dataSaida || '-'}</td>
+                    <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400">${item.dataSaida || '-'}</td>
+                    <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 italic">${item.observacao || '-'}</td>
                 </tr>
             `).join('');
         }
 
         function deletarItem(colecao, id) {
-            if (setorAutenticado !== 'admin' && setorAutenticado !== 'planejamento') {
-                mostrarToast('Apenas administradores ou planejamento podem excluir.', 'aviso');
-                return;
-            }
             dadosApp[colecao] = dadosApp[colecao].filter(item => item.id !== id);
             salvarDados();
-            renderizarTabelasPedidos();
-            renderizarTabelasAgendamentos();
-            renderizarTabelasOperacao();
-            renderizarTabelasTracking();
-            carregarSelectsGerais();
-            atualizarKPIs();
-            mostrarToast('Registro excluído.', 'sucesso');
+            atualizarInterfaceGeral();
+            mostrarToast('Registro excluído com sucesso.', 'sucesso');
         }
 
         function exportarRelatorioExcel() {
             const wb = XLSX.utils.book_new();
-            const wsPedidos = XLSX.utils.json_to_sheet(dadosApp.pedidos);
-            XLSX.utils.book_append_sheet(wb, wsPedidos, "Cargas_Pedidos");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dadosApp.pedidos), "Cargas_Pedidos");
+            if (dadosApp.faturamento?.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dadosApp.faturamento), "Faturamento");
+            if (dadosApp.comercial?.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dadosApp.comercial), "Comercial");
+            if (dadosApp.agendamentos?.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dadosApp.agendamentos), "Transporte_Agendamentos");
+            if (dadosApp.operacao?.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dadosApp.operacao), "Operacao_Carregamento");
+            if (dadosApp.tracking?.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dadosApp.tracking), "Tracking_Baixas");
+            if (dadosApp.alertasAlteracao?.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dadosApp.alertasAlteracao), "Alertas_Divergencias");
             XLSX.writeFile(wb, "Relatorio_Logistica_Darnel.xlsx");
             mostrarToast('Relatório Excel exportado com sucesso!', 'sucesso');
         }
