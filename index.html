@@ -135,6 +135,35 @@
         </div>
     </div>
 
+    <!-- Modal para Edição Admin -->
+    <div id="modalEdicaoAdmin" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-lg w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
+                        <i data-lucide="edit-3" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-white text-base">Editar Registro (Administrador)</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Correção rápida de dados sem necessidade de recriar do zero.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalEdicao()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="salvarEdicaoAdmin(event)" id="formEdicaoAdmin" class="space-y-3">
+                <input type="hidden" id="editColecao">
+                <input type="hidden" id="editId">
+                <div id="camposDinamicosEdicao" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    <!-- Dinamicamente preenchido -->
+                </div>
+                <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <button type="button" onclick="fecharModalEdicao()" class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 text-sm bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium shadow transition">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Corpo da Aplicação -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
 
@@ -1497,6 +1526,202 @@
             else { secCal.classList.remove('hidden'); renderizarCalendario(); }
         }
 
+        // --- SISTEMA DE EDIÇÃO DE REGISTROS (ADMIN) ---
+        function abrirModalEdicao(colecao, id) {
+            if (setorAutenticado !== 'admin') {
+                mostrarToast('Apenas o Administrador pode editar registros. Desbloqueie com a senha de Admin.', 'erro');
+                return;
+            }
+            const item = (dadosApp[colecao] || []).find(i => i.id === id);
+            if (!item) {
+                mostrarToast('Registro não encontrado.', 'erro');
+                return;
+            }
+
+            document.getElementById('editColecao').value = colecao;
+            document.getElementById('editId').value = id;
+            const container = document.getElementById('camposDinamicosEdicao');
+            container.innerHTML = '';
+
+            let html = '';
+            if (colecao === 'pedidos') {
+                html = `
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº Pedido</label>
+                        <input type="text" id="edit_numeroPedido" value="${item.numeroPedido || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="edit_nota" value="${item.nota || ''}" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cliente</label>
+                        <input type="text" id="edit_cliente" value="${item.cliente || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cidade / Destino</label>
+                        <input type="text" id="edit_destinoCidade" value="${item.destinoCidade || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Agendada (DD/MM/AAAA)</label>
+                        <input type="text" id="edit_dataSaida" value="${item.dataSaida || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Paletes</label>
+                        <input type="number" id="edit_paletes" value="${item.paletes || item.qtdPedido || 0}" min="1" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Peso (Kg)</label>
+                        <input type="number" id="edit_peso" value="${item.peso || 0}" min="1" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                `;
+            } else if (colecao === 'faturamento') {
+                html = `
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº Pedido</label>
+                        <input type="text" id="edit_numPedido" value="${item.numPedido || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="edit_notaFiscal" value="${item.notaFiscal || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Faturamento</label>
+                        <input type="text" id="edit_dataFaturamento" value="${item.dataFaturamento || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Total Kg</label>
+                        <input type="number" step="0.01" id="edit_totalKg" value="${item.totalKg || 0}" min="0.01" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                `;
+            } else if (colecao === 'comercial') {
+                html = `
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº Pedido</label>
+                        <input type="text" id="edit_numPedido" value="${item.numPedido || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Agenda Confirmada</label>
+                        <input type="text" id="edit_dataAgendaConfirmada" value="${item.dataAgendaConfirmada || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket</label>
+                        <input type="text" id="edit_ticket" value="${item.ticket || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                `;
+            } else if (colecao === 'agendamentos') {
+                html = `
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº Pedido</label>
+                        <input type="text" id="edit_numPedido" value="${item.numPedido || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket</label>
+                        <input type="text" id="edit_ticket" value="${item.ticket || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Entrega</label>
+                        <input type="text" id="edit_dataEntrega" value="${item.dataEntrega || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Placa</label>
+                        <input type="text" id="edit_placa" value="${item.placa || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                `;
+            } else if (colecao === 'operacao') {
+                html = `
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº Carga</label>
+                        <input type="text" id="edit_numCarga" value="${item.numCarga || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº Pedido</label>
+                        <input type="text" id="edit_numPedido" value="${item.numPedido || ''}" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Equipe</label>
+                        <input type="text" id="edit_equipe" value="${item.equipe || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
+                `;
+            } else if (colecao === 'tracking') {
+                html = `
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº Pedido</label>
+                        <input type="text" id="edit_numPedido" value="${item.numPedido || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status Final</label>
+                        <select id="edit_statusFinal" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold">
+                            <option value="ENTREGUE (OK)" ${item.statusFinal === 'ENTREGUE (OK)' ? 'selected' : ''}>ENTREGUE - Sem Avarias</option>
+                            <option value="ENTREGUE (COM AVARIA)" ${item.statusFinal === 'ENTREGUE (COM AVARIA)' ? 'selected' : ''}>ENTREGUE - Com Avaria Parcial</option>
+                            <option value="RECUSA TOTAL" ${item.statusFinal === 'RECUSA TOTAL' ? 'selected' : ''}>RECUSA TOTAL</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            document.getElementById('modalEdicaoAdmin').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function fecharModalEdicao() {
+            document.getElementById('modalEdicaoAdmin').classList.add('hidden');
+        }
+
+        function salvarEdicaoAdmin(e) {
+            e.preventDefault();
+            if (setorAutenticado !== 'admin') {
+                mostrarToast('Apenas o Administrador pode salvar edições.', 'erro');
+                return;
+            }
+
+            const colecao = document.getElementById('editColecao').value;
+            const id = Number(document.getElementById('editId').value);
+            const item = (dadosApp[colecao] || []).find(i => i.id === id);
+
+            if (!item) {
+                mostrarToast('Registro não encontrado.', 'erro');
+                return;
+            }
+
+            if (colecao === 'pedidos') {
+                item.numeroPedido = document.getElementById('edit_numeroPedido').value.trim().toUpperCase();
+                item.nota = document.getElementById('edit_nota').value.trim().toUpperCase();
+                item.cliente = document.getElementById('edit_cliente').value.trim();
+                item.destinoCidade = document.getElementById('edit_destinoCidade').value.trim();
+                item.dataSaida = document.getElementById('edit_dataSaida').value.trim();
+                item.paletes = Number(document.getElementById('edit_paletes').value) || 1;
+                item.peso = Number(document.getElementById('edit_peso').value) || 1;
+            } else if (colecao === 'faturamento') {
+                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                item.notaFiscal = document.getElementById('edit_notaFiscal').value.trim().toUpperCase();
+                item.dataFaturamento = document.getElementById('edit_dataFaturamento').value.trim();
+                item.totalKg = Number(document.getElementById('edit_totalKg').value) || 0.01;
+            } else if (colecao === 'comercial') {
+                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                item.dataAgendaConfirmada = document.getElementById('edit_dataAgendaConfirmada').value.trim();
+                item.ticket = document.getElementById('edit_ticket').value.trim().toUpperCase();
+            } else if (colecao === 'agendamentos') {
+                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                item.ticket = document.getElementById('edit_ticket').value.trim().toUpperCase();
+                item.dataEntrega = document.getElementById('edit_dataEntrega').value.trim();
+                item.placa = document.getElementById('edit_placa').value.trim().toUpperCase();
+            } else if (colecao === 'operacao') {
+                item.numCarga = document.getElementById('edit_numCarga').value.trim().toUpperCase();
+                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                item.equipe = document.getElementById('edit_equipe').value.trim();
+            } else if (colecao === 'tracking') {
+                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                item.statusFinal = document.getElementById('edit_statusFinal').value;
+            }
+
+            salvarDados();
+            atualizarInterfaceGeral();
+            fecharModalEdicao();
+            mostrarToast('Registro atualizado com sucesso!', 'sucesso');
+        }
+
         function carregarSelectsGerais() {
             const selAg = document.getElementById('agNotaSelect');
             const selFat = document.getElementById('fatSelectPedido');
@@ -1680,7 +1905,6 @@
                 dataHoraRegistro: new Date().toLocaleString('pt-BR'),
                 lido: false
             });
-            // Mantém apenas os últimos 50 alertas para otimizar armazenamento
             if (dadosApp.alertasAlteracao.length > 50) {
                 dadosApp.alertasAlteracao = dadosApp.alertasAlteracao.slice(0, 50);
             }
@@ -1933,7 +2157,18 @@
                             <td class="p-3.5 text-xs font-semibold text-blue-600 dark:text-blue-400">${item.tipoVeiculo || '-'}</td>
                             <td class="p-3.5 font-mono">${item.paletes || 0}</td>
                             <td class="p-3.5">${renderizarBadgeStatus(item.numeroPedido || item.nota)}</td>
-                            <td class="p-3.5 text-center"><button onclick="deletarItem('pedidos', ${item.id})" class="text-red-500 font-bold text-xs hover:underline">Excluir</button></td>
+                            <td class="p-3.5 text-center">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <button onclick="abrirModalEdicao('pedidos', ${item.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                        <span>Editar</span>
+                                    </button>
+                                    <button onclick="deletarItem('pedidos', ${item.id})" class="text-red-500 font-bold text-xs hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        <span>Excluir</span>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     `).join('');
             } else {
@@ -1946,7 +2181,18 @@
                         <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400">${cli.dataSaida}</td>
                         <td class="p-3.5 font-mono text-xs">${cli.numeroPedido} | NF: ${obterNFDoPedido(cli.numeroPedido)}</td>
                         <td class="p-3.5">${renderizarBadgeStatus(cli.numeroPedido)}</td>
-                        <td class="p-3.5 text-center"><button onclick="deletarItem('pedidos', ${cli.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
+                        <td class="p-3.5 text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <button onclick="abrirModalEdicao('pedidos', ${cli.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                    <span>Editar</span>
+                                </button>
+                                <button onclick="deletarItem('pedidos', ${cli.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    <span>Excluir</span>
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                 `).join('');
             }
@@ -1965,9 +2211,21 @@
                     <td class="p-3.5">${i.transportadora}</td>
                     <td class="p-3.5 font-mono text-xs">${i.placa} / ${i.motorista}</td>
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
-                    <td class="p-3.5 text-center"><button onclick="deletarItem('agendamentos', ${i.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="abrirModalEdicao('agendamentos', ${i.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button onclick="deletarItem('agendamentos', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <span>Excluir</span>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
+            lucide.createIcons();
         }
 
         function renderizarTabelasOperacao() {
@@ -1981,9 +2239,21 @@
                     <td class="p-3.5 font-mono">${i.horaInicio} às ${i.horaFim}</td>
                     <td class="p-3.5">${i.equipe}</td>
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
-                    <td class="p-3.5 text-center"><button onclick="deletarItem('operacao', ${i.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="abrirModalEdicao('operacao', ${i.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button onclick="deletarItem('operacao', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <span>Excluir</span>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
+            lucide.createIcons();
         }
 
         function renderizarTabelasFaturamento() {
@@ -1998,9 +2268,21 @@
                     <td class="p-3.5 font-mono">${item.qtdPaletes}</td>
                     <td class="p-3.5 font-mono">${Number(item.totalKg).toLocaleString('pt-BR')} Kg</td>
                     <td class="p-3.5">${renderizarBadgeStatus(item.numPedido)}</td>
-                    <td class="p-3.5 text-center"><button onclick="deletarItem('faturamento', ${item.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="abrirModalEdicao('faturamento', ${item.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button onclick="deletarItem('faturamento', ${item.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <span>Excluir</span>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
+            lucide.createIcons();
         }
 
         function renderizarTabelasComercial() {
@@ -2014,9 +2296,21 @@
                     <td class="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">${item.dataAgendaConfirmada}</td>
                     <td class="p-3.5 font-mono text-indigo-600 dark:text-indigo-400 font-bold">${item.ticket}</td>
                     <td class="p-3.5">${renderizarBadgeStatus(item.numPedido)}</td>
-                    <td class="p-3.5 text-center"><button onclick="deletarItem('comercial', ${item.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="abrirModalEdicao('comercial', ${item.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button onclick="deletarItem('comercial', ${item.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <span>Excluir</span>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
+            lucide.createIcons();
         }
 
         function renderizarTabelasTracking() {
@@ -2029,9 +2323,21 @@
                     <td class="p-3.5 font-mono font-bold text-indigo-600 dark:text-indigo-400">${i.ticket || obterTicketDoPedido(i.numPedido) || '-'}</td>
                     <td class="p-3.5 font-semibold text-purple-600 dark:text-purple-400">${i.statusFinal}</td>
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
-                    <td class="p-3.5 text-center"><button onclick="deletarItem('tracking', ${i.id})" class="text-red-500 text-xs font-bold hover:underline">Excluir</button></td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="abrirModalEdicao('tracking', ${i.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button onclick="deletarItem('tracking', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <span>Excluir</span>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
+            lucide.createIcons();
         }
 
         function obterDataAtualBrasil() {
@@ -2086,7 +2392,6 @@
             const pedidosExibicao = obterPedidosFiltradosRelatorio();
             document.getElementById('contadorConsolidado').textContent = `${pedidosExibicao.length} registro(s)`;
             
-            // Cálculo dos Cards Resumo
             let totalPeds = pedidosExibicao.length;
             let totalEntregues = 0;
             let totalPal = 0;
