@@ -1144,7 +1144,7 @@
                 return;
             }
             mapaObj = L.map('mapaRotas').setView(COORDENADAS_DARNEL, 10);
-            const MAPBOX_API_KEY = 'pk.eyJ1IjoibWF5Y293OTcwNCIsImEiOiJjbXZpNzM0d3EwMm5jMndweHZmanJrZHVmIn0.QaeBVZ7F3sZnRS7qEhBOdg';
+            const MAPBOX_API_KEY = 'SUA_API_KEY_DO_MAPBOX_AQUI';
 
             L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_API_KEY}`, {
                 tileSize: 512, zoomOffset: -1, maxZoom: 19
@@ -1196,21 +1196,29 @@
                 return;
             }
 
+            const paletesVal = Number(document.getElementById('dedPaletes').value) || 0;
+            const pesoVal = Number(document.getElementById('dedPeso').value) || 0;
+
+            if (paletesVal <= 0 || pesoVal <= 0) {
+                mostrarToast('A quantidade de paletes e o peso devem ser maiores que zero.', 'erro');
+                return;
+            }
+
             const rawData = document.getElementById('dedDataEntrega').value;
             let dataBR = formatarDataParaExibicao(rawData);
 
             const novoPedido = {
                 id: Date.now(),
                 tipoCarga: 'dedicada',
-                nota: document.getElementById('dedNotaFiscal').value.trim() || '-',
-                numeroPedido: document.getElementById('dedNumPedido').value.trim(),
+                nota: (document.getElementById('dedNotaFiscal').value.trim() || '-').toUpperCase(),
+                numeroPedido: document.getElementById('dedNumPedido').value.trim().toUpperCase(),
                 destinoCidade: document.getElementById('dedDestino').value.trim(),
                 dataSaida: dataBR,
                 dataOriginalPlanejamento: dataBR,
                 cliente: document.getElementById('dedCliente').value.trim(),
                 tipoVeiculo: document.getElementById('dedTipoVeiculo').value,
-                paletes: Number(document.getElementById('dedPaletes').value) || 0,
-                peso: Number(document.getElementById('dedPeso').value) || 0,
+                paletes: paletesVal,
+                peso: pesoVal,
                 metroCubico: Number(document.getElementById('dedMetroCubico').value) || 0,
                 observacao: document.getElementById('dedObservacao').value.trim() || '-',
                 status: 'Aguardando Faturamento',
@@ -1265,6 +1273,8 @@
                 return;
             }
 
+            mostrarToast('Processando planilha WMS, por favor aguarde...', 'aviso');
+
             const arquivo = input.files[0];
             const reader = new FileReader();
 
@@ -1290,7 +1300,7 @@
                         const statusWMS = row[idxAS_Status] !== undefined ? String(row[idxAS_Status]).trim().toUpperCase() : '';
 
                         if (statusWMS === 'ANÁLISE' || statusWMS === 'ANALISE' || statusWMS === 'PUBLICADO' || statusWMS === 'EM CARGA') {
-                            const numPedido = row[idxAA_Pedido] !== undefined ? String(row[idxAA_Pedido]).trim() : `PED-${i}`;
+                            const numPedido = row[idxAA_Pedido] !== undefined ? String(row[idxAA_Pedido]).trim().toUpperCase() : `PED-${i}`;
                             const qtdPedido = row[idxAV_Qtd] !== undefined ? Number(row[idxAV_Qtd]) || 1 : 1;
                             const nomeCliente = row[idxF_Cliente] !== undefined ? String(row[idxF_Cliente]).trim() : `Cliente ${i}`;
                             const cidade = row[idxL_Cidade] !== undefined ? String(row[idxL_Cidade]).trim() : '';
@@ -1558,12 +1568,12 @@
         }
 
         function preencherDadosTransportePorPedido(identificador) {
-            const val = identificador.trim();
+            const val = identificador.trim().toUpperCase();
             if (!val) return;
             document.getElementById('agNumPedido').value = val;
             document.getElementById('agNotaFiscal').value = obterNFDoPedido(val);
 
-            const com = (dadosApp.comercial || []).find(c => c.numPedido.toLowerCase() === val.toLowerCase());
+            const com = (dadosApp.comercial || []).find(c => c.numPedido.trim().toUpperCase() === val);
             if (com && com.ticket) {
                 document.getElementById('agTicket').value = com.ticket;
                 mostrarToast(`Ticket ${com.ticket} puxado do Comercial!`, 'sucesso');
@@ -1578,16 +1588,16 @@
         }
 
         function buscarEPreencherPedidoAgendamentoDigitado() {
-            const termo = document.getElementById('agInputNumPedidoBusca').value.trim();
+            const termo = document.getElementById('agInputNumPedidoBusca').value.trim().toUpperCase();
             if (!termo) { mostrarToast('Digite o pedido para buscar.', 'aviso'); return; }
             preencherDadosTransportePorPedido(termo);
-            mostrarToast(`Pedido ${termo.toUpperCase()} localizado!`, 'sucesso');
+            mostrarToast(`Pedido ${termo} localizado!`, 'sucesso');
         }
 
         function preencherDadosTrackingPorPedido(identificador) {
-            const val = identificador.trim();
+            const val = identificador.trim().toUpperCase();
             if (!val) return;
-            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === val || p.nota === val));
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido?.trim().toUpperCase() === val || p.nota?.trim().toUpperCase() === val));
             if (ped) {
                 document.getElementById('trcNumPedido').value = ped.numeroPedido || '-';
             } else {
@@ -1603,10 +1613,10 @@
         }
 
         function buscarEPreencherPedidoTrackingDigitado() {
-            const termo = document.getElementById('trcInputNumPedidoBusca').value.trim();
+            const termo = document.getElementById('trcInputNumPedidoBusca').value.trim().toUpperCase();
             if (!termo) { mostrarToast('Digite o pedido para buscar.', 'aviso'); return; }
             preencherDadosTrackingPorPedido(termo);
-            mostrarToast(`Pedido ${termo.toUpperCase()} localizado!`, 'sucesso');
+            mostrarToast(`Pedido ${termo} localizado!`, 'sucesso');
         }
 
         function puxarDadosFaturamentoSelect() {
@@ -1637,21 +1647,25 @@
         }
 
         function buscarEPreencherPedidoDigitado() {
-            const termo = document.getElementById('fatInputNumPedidoBusca').value.trim().toLowerCase();
-            const ped = dadosApp.pedidos.find(p => (p.numeroPedido && p.numeroPedido.toLowerCase() === termo) || (p.nota && p.nota.toLowerCase() === termo));
+            const termo = document.getElementById('fatInputNumPedidoBusca').value.trim().toUpperCase();
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido && p.numeroPedido.trim().toUpperCase() === termo) || (p.nota && p.nota.trim().toUpperCase() === termo));
             if (ped) {
                 document.getElementById('fatNumPedido').value = ped.numeroPedido || '-';
                 mostrarToast(`Pedido localizado!`, 'sucesso');
+            } else {
+                mostrarToast('Pedido não encontrado.', 'aviso');
             }
         }
 
         function buscarEPreencherPedidoComercialDigitado() {
-            const termo = document.getElementById('comInputNumPedidoBusca').value.trim().toLowerCase();
-            const ped = dadosApp.pedidos.find(p => (p.numeroPedido && p.numeroPedido.toLowerCase() === termo) || (p.nota && p.nota.toLowerCase() === termo));
+            const termo = document.getElementById('comInputNumPedidoBusca').value.trim().toUpperCase();
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido && p.numeroPedido.trim().toUpperCase() === termo) || (p.nota && p.nota.trim().toUpperCase() === termo));
             if (ped) {
                 document.getElementById('comNumPedido').value = ped.numeroPedido || '-';
                 document.getElementById('comNotaFiscal').value = obterNFDoPedido(ped.numeroPedido);
                 mostrarToast(`Pedido localizado!`, 'sucesso');
+            } else {
+                mostrarToast('Pedido não encontrado.', 'aviso');
             }
         }
 
@@ -1666,6 +1680,10 @@
                 dataHoraRegistro: new Date().toLocaleString('pt-BR'),
                 lido: false
             });
+            // Mantém apenas os últimos 50 alertas para otimizar armazenamento
+            if (dadosApp.alertasAlteracao.length > 50) {
+                dadosApp.alertasAlteracao = dadosApp.alertasAlteracao.slice(0, 50);
+            }
             salvarDados();
             renderizarPainelAlertas();
             mostrarToast(`⚠️ ATENÇÃO: O setor ${setorResponsavel.toUpperCase()} alterou a data do pedido ${numPedido} para ${dataNova}!`, 'alerta_data');
@@ -1728,13 +1746,13 @@
                 return;
             }
 
-            const numPedido = document.getElementById('agNumPedido').value;
-            const nf = document.getElementById('agNotaFiscal').value;
+            const numPedido = document.getElementById('agNumPedido').value.trim().toUpperCase();
+            const nf = document.getElementById('agNotaFiscal').value.trim().toUpperCase();
             const rawData = document.getElementById('agDataEntrega').value;
             const horaEntrega = document.getElementById('agHoraEntrega').value;
             const dataFormatadaBR = formatarDataParaExibicao(rawData);
 
-            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === numPedido || p.nota === numPedido));
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido?.trim().toUpperCase() === numPedido || p.nota?.trim().toUpperCase() === numPedido));
             if (ped && ped.dataSaida && ped.dataSaida !== dataFormatadaBR) {
                 registrarAlertaAlteracaoData(numPedido, 'TRANSPORTE', ped.dataSaida, dataFormatadaBR);
                 ped.dataSaida = dataFormatadaBR;
@@ -1745,12 +1763,12 @@
                 id: Date.now(),
                 numPedido: numPedido,
                 nota: nf,
-                ticket: document.getElementById('agTicket').value,
+                ticket: document.getElementById('agTicket').value.trim().toUpperCase(),
                 dataEntrega: dataFormatadaBR,
                 horaEntrega: horaEntrega,
                 transportadora: document.getElementById('agTransportadora').value,
-                placa: document.getElementById('agPlaca').value,
-                motorista: document.getElementById('agMotorista').value,
+                placa: document.getElementById('agPlaca').value.trim().toUpperCase(),
+                motorista: document.getElementById('agMotorista').value.trim(),
                 observacao: document.getElementById('agObservacao').value.trim() || '-'
             });
             salvarDados();
@@ -1767,12 +1785,12 @@
                 mostrarToast('Acesso negado. Desbloqueie com a senha da Operação.', 'erro');
                 return;
             }
-            const numPed = document.getElementById('opNumPedido').value.trim() || '-';
+            const numPed = document.getElementById('opNumPedido').value.trim().toUpperCase() || '-';
             dadosApp.operacao.push({
                 id: Date.now(),
-                numCarga: document.getElementById('opNumCarga').value.trim(),
+                numCarga: document.getElementById('opNumCarga').value.trim().toUpperCase(),
                 numPedido: numPed,
-                nota: document.getElementById('opNotaFiscal').value.trim() || obterNFDoPedido(numPed),
+                nota: (document.getElementById('opNotaFiscal').value.trim() || obterNFDoPedido(numPed)).toUpperCase(),
                 horaInicio: document.getElementById('opHoraInicio').value,
                 horaFim: document.getElementById('opHoraFim').value,
                 equipe: document.getElementById('opEquipe').value.trim(),
@@ -1791,12 +1809,19 @@
                 mostrarToast('Acesso negado. Desbloqueie com a senha do Faturamento.', 'erro');
                 return;
             }
-            const numPedido = document.getElementById('fatNumPedido').value.trim();
-            const numNF = document.getElementById('fatNotaFiscal').value.trim();
+            const numPedido = document.getElementById('fatNumPedido').value.trim().toUpperCase();
+            const numNF = document.getElementById('fatNotaFiscal').value.trim().toUpperCase();
+            const totalKgVal = Number(document.getElementById('fatTotalKg').value) || 0;
+
+            if (totalKgVal <= 0) {
+                mostrarToast('O peso total da NF deve ser maior que zero.', 'erro');
+                return;
+            }
+
             const rawData = document.getElementById('fatDataFaturamento').value;
             let dataBR = formatarDataParaExibicao(rawData);
 
-            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === numPedido || p.nota === numPedido));
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido?.trim().toUpperCase() === numPedido || p.nota?.trim().toUpperCase() === numPedido));
             if (ped) {
                 ped.nota = numNF; 
                 if (ped.dataSaida && ped.dataSaida !== dataBR) {
@@ -1810,10 +1835,10 @@
                 id: Date.now(),
                 numPedido: numPedido,
                 estrechado: document.getElementById('fatEstrechado').value,
-                qtdPaletes: document.getElementById('fatQtdPaletes').value.trim(),
+                qtdPaletes: document.getElementById('fatQtdPaletes').value.trim().toUpperCase(),
                 dataFaturamento: dataBR,
                 notaFiscal: numNF,
-                totalKg: Number(document.getElementById('fatTotalKg').value) || 0,
+                totalKg: totalKgVal,
                 observacao: document.getElementById('fatObservacao').value.trim() || '-'
             });
             salvarDados();
@@ -1828,10 +1853,10 @@
                 mostrarToast('Acesso negado. Desbloqueie com a senha do Comercial.', 'erro');
                 return;
             }
-            const numPedido = document.getElementById('comNumPedido').value.trim();
+            const numPedido = document.getElementById('comNumPedido').value.trim().toUpperCase();
             const dataConfirmadaBR = formatarDataParaExibicao(document.getElementById('comDataAgendaConfirmada').value);
 
-            const ped = dadosApp.pedidos.find(p => (p.numeroPedido === numPedido || p.nota === numPedido));
+            const ped = dadosApp.pedidos.find(p => (p.numeroPedido?.trim().toUpperCase() === numPedido || p.nota?.trim().toUpperCase() === numPedido));
             if (ped && ped.dataSaida && ped.dataSaida !== dataConfirmadaBR) {
                 registrarAlertaAlteracaoData(numPedido, 'COMERCIAL', ped.dataSaida, dataConfirmadaBR);
                 ped.dataSaida = dataConfirmadaBR;
@@ -1846,7 +1871,7 @@
                 dataAgendaSolicitada: formatarDataParaExibicao(document.getElementById('comDataAgendaSolicitada').value),
                 dataAgendaConfirmada: dataConfirmadaBR,
                 horario: document.getElementById('comHorario').value,
-                ticket: document.getElementById('comTicket').value.trim(),
+                ticket: document.getElementById('comTicket').value.trim().toUpperCase(),
                 observacao: document.getElementById('comObservacao').value.trim() || '-'
             });
             salvarDados();
@@ -1861,7 +1886,7 @@
                 mostrarToast('Acesso negado. Desbloqueie com a senha do Tracking.', 'erro');
                 return;
             }
-            const numPed = document.getElementById('trcNumPedido').value;
+            const numPed = document.getElementById('trcNumPedido').value.trim().toUpperCase();
             dadosApp.tracking.push({
                 id: Date.now(),
                 numPedido: numPed,
@@ -2120,7 +2145,6 @@
                 return;
             }
 
-            // Mapeamento estruturado, limpo e didático para a planilha Excel
             const dadosFormatados = pedidosExibicao.map(item => {
                 const num = item.numeroPedido || item.nota || '-';
                 const nf = obterNFDoPedido(num);
@@ -2144,18 +2168,17 @@
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.json_to_sheet(dadosFormatados);
 
-            // Ajuste automático de largura das colunas para visual limpo
             ws['!cols'] = [
-                { wch: 16 }, // Nº Pedido
-                { wch: 18 }, // NF
-                { wch: 28 }, // Cliente
-                { wch: 22 }, // Destino
-                { wch: 15 }, // Data
-                { wch: 15 }, // Tipo
-                { wch: 12 }, // Paletes
-                { wch: 16 }, // Peso
-                { wch: 18 }, // Ticket
-                { wch: 35 }  // Status
+                { wch: 16 },
+                { wch: 18 },
+                { wch: 28 },
+                { wch: 22 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 12 },
+                { wch: 16 },
+                { wch: 18 },
+                { wch: 35 }
             ];
 
             XLSX.utils.book_append_sheet(wb, ws, "Relatorio_Logistica");
