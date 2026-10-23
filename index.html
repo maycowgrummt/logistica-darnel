@@ -52,61 +52,124 @@
     <!-- Container de Alertas Flutuantes (Toasts) -->
     <div id="toastContainer" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-    <!-- Cabeçalho Principal -->
-    <header class="bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-md border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
-                    <i data-lucide="truck" class="w-7 h-7 text-amber-500 dark:text-amber-400"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-wide">LOGÍSTICA DARNEL - ARAUCÁRIA</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Esteira de Status Integrada & Gestão de Pendências por Setor</p>
+    <!-- Cabeçalho Principal Com Logotipo Oficial Azul DARNEL -->
+    <header class="bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-md border-b border-blue-600/30 dark:border-blue-900/50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            <!-- Logo Azul + Identificação com Fallback Automático -->
+            <div class="flex items-center space-x-4 w-full md:w-auto justify-between md:justify-start">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-slate-900 dark:bg-white/10 rounded-xl shadow-md border border-blue-600/40 flex items-center justify-center min-w-[100px] h-11">
+                        <img 
+                            src="https://darnelgroup.com/images/logo.png" 
+                            onerror="this.onerror=null; this.src='https://darnel.co/wp-content/uploads/2021/04/Logo-Darnel-N.png'; this.parentElement.innerHTML='<span class=\'text-base font-black text-white tracking-widest px-2.5 py-0.5 bg-blue-600 rounded-md\'>DARNEL</span>';" 
+                            alt="Darnel Packaging" 
+                            class="h-7 w-auto object-contain"
+                        >
+                    </div>
+                    <div class="border-l border-slate-300 dark:border-slate-700 pl-3">
+                        <h1 class="text-lg font-black tracking-wider text-blue-600 dark:text-blue-400 uppercase">LOGÍSTICA DARNEL</h1>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">Unidade Araucária/PR &bull; Esteira Integrada</p>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="alternarPainelAlertas()" class="relative p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-amber-600 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alertas de Alteração de Datas">
+
+            <!-- Barra de Busca Global -->
+            <div class="relative w-full md:w-72 lg:w-80">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <input type="text" id="inputBuscaGlobal" oninput="executarBuscaGlobal(this.value)" placeholder="Buscar pedido, NF, placa, cliente..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-800 dark:text-slate-100 shadow-inner">
+                <div id="dropdownBuscaGlobal" class="hidden absolute left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl max-h-72 overflow-y-auto z-50 p-1.5 text-xs space-y-1"></div>
+            </div>
+
+            <!-- Botões de Ação do Cabeçalho -->
+            <div class="flex items-center space-x-2.5 w-full md:w-auto justify-end flex-wrap gap-2">
+                <button onclick="alternarPainelAlertas()" class="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Central de Alertas & Auditoria">
                     <i data-lucide="bell" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Alertas</span>
-                    <span id="badgeQtdAlertas" class="hidden absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white dark:border-slate-900">0</span>
+                    <span class="hidden sm:inline">Alertas & Auditoria</span>
+                    <span id="badgeQtdAlertas" class="hidden absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white dark:border-slate-900">0</span>
                 </button>
 
-                <button onclick="pedirSenha('admin')" id="btnAdminGlobal" class="px-3 py-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition border border-amber-500/30 flex items-center space-x-1.5 text-xs font-bold shadow-sm" title="Painel do Administrador">
+                <button onclick="pedirSenha('admin')" id="btnAdminGlobal" class="px-3 py-2 rounded-xl bg-blue-600/10 text-blue-600 dark:text-blue-400 hover:bg-blue-600/20 transition border border-blue-600/30 flex items-center space-x-1.5 text-xs font-bold shadow-sm" title="Painel do Administrador">
                     <i data-lucide="shield-alert" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Admin</span>
                 </button>
 
-                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-amber-600 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alternar Modo Claro/Escuro">
+                <button onclick="alternarTema()" id="btnTema" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Alternar Modo Claro/Escuro">
                     <i data-lucide="sun" id="iconeSol" class="w-4 h-4 hidden"></i>
                     <i data-lucide="moon" id="iconeLua" class="w-4 h-4"></i>
-                    <span id="textoTema" class="hidden sm:inline">Modo Escuro</span>
                 </button>
 
-                <div id="infoSessaoAtiva" class="hidden items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs shadow-sm">
+                <div id="infoSessaoAtiva" class="hidden items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs shadow-sm">
                     <span class="text-slate-500 dark:text-slate-400">Setor:</span>
-                    <span id="nomeSetorLogado" class="font-bold text-amber-600 dark:text-amber-400">Nenhum</span>
-                    <button onclick="fazerLogout()" class="ml-2 text-red-500 hover:text-red-700 underline text-xs font-medium">Bloquear</button>
+                    <span id="nomeSetorLogado" class="font-bold text-blue-600 dark:text-blue-400">Nenhum</span>
+                    <button onclick="fazerLogout()" class="ml-2 text-blue-500 hover:text-blue-700 underline text-xs font-medium">Bloquear</button>
                 </div>
 
-                <span id="statusConexao" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 shadow-sm">
-                    <span class="w-2 h-2 mr-2 bg-amber-500 rounded-full animate-pulse"></span>
+                <span id="statusConexao" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-sm">
+                    <span class="w-2 h-2 mr-2 bg-emerald-500 rounded-full animate-pulse"></span>
                     Iniciando...
                 </span>
             </div>
         </div>
     </header>
 
-    <!-- Painel Suspenso de Alertas de Alteração -->
-    <div id="painelAlertas" class="hidden max-w-7xl mx-auto px-4 w-full mt-4">
-        <div class="bg-white dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 p-4 rounded-2xl shadow-xl space-y-3">
-            <div class="flex justify-between items-center border-b border-rose-200 dark:border-rose-500/20 pb-2">
-                <h3 class="font-bold text-rose-700 dark:text-rose-400 text-sm flex items-center space-x-2">
-                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                    <span>Central de Alertas: Alterações de Datas no Fluxo</span>
-                </h3>
-                <button onclick="limparAlertasLidos()" class="text-xs text-rose-600 dark:text-rose-300 hover:underline font-medium">Marcar todos como lidos</button>
+    <!-- Painel Administrativo de Segurança & Backup (Visível apenas para Admin) -->
+    <div id="painelAdminSeguranca" class="hidden max-w-7xl mx-auto px-4 w-full mt-4">
+        <div class="bg-gradient-to-r from-blue-950/40 via-slate-900 to-blue-950/30 border border-blue-600/40 p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-blue-600/20 rounded-xl border border-blue-600/30 text-blue-400">
+                    <i data-lucide="database" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-blue-400 text-sm">Painel de Segurança & Gestão de Dados (Administrador)</h3>
+                    <p class="text-xs text-slate-400">Exporte ou restaure o banco de dados completo em arquivo independente (.json).</p>
+                </div>
             </div>
-            <div id="listaAlertasAlteracoes" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
+            <div class="flex items-center space-x-2 flex-wrap gap-2">
+                <button onclick="exportarBackupJSON()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition flex items-center space-x-2 shadow-md">
+                    <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                    <span>Exportar Backup (.json)</span>
+                </button>
+                <label class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-600/30 font-bold rounded-xl text-xs transition flex items-center space-x-2 shadow-md cursor-pointer">
+                    <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                    <span>Restaurar Backup (.json)</span>
+                    <input type="file" id="inputRestaurarBackup" accept=".json" onchange="importarBackupJSON(event)" class="hidden">
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Painel Suspenso de Alertas & Auditoria & Gargalos & Avarias -->
+    <div id="painelAlertas" class="hidden max-w-7xl mx-auto px-4 w-full mt-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-xl space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-2 flex-wrap gap-2">
+                <div class="flex space-x-2 flex-wrap gap-1">
+                    <button onclick="mudarSubPainelAlerta('gargalos')" id="btnSubPainelGargalos" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white transition flex items-center space-x-1.5">
+                        <i data-lucide="alert-octagon" class="w-3.5 h-3.5"></i>
+                        <span>⚠️ Gargalos SLA (> 24h)</span>
+                    </button>
+                    <button onclick="mudarSubPainelAlerta('avarias')" id="btnSubPainelAvarias" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                        <span>🚨 Avarias & Recusas</span>
+                    </button>
+                    <button onclick="mudarSubPainelAlerta('datas')" id="btnSubPainelDatas" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                        <span>Alterações de Datas</span>
+                    </button>
+                    <button onclick="mudarSubPainelAlerta('auditoria')" id="btnSubPainelAuditoria" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        <span>Log de Auditoria</span>
+                    </button>
+                </div>
+                <button onclick="limparAlertasLidos()" class="text-xs text-rose-600 dark:text-rose-400 hover:underline font-medium">Limpar Registros</button>
+            </div>
+            <!-- Seções do Painel -->
+            <div id="conteudoPainelGargalos" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
+            <div id="conteudoPainelAvarias" class="space-y-2 max-h-48 overflow-y-auto text-xs hidden"></div>
+            <div id="conteudoPainelDatas" class="space-y-2 max-h-48 overflow-y-auto text-xs hidden"></div>
+            <div id="conteudoPainelAuditoria" class="space-y-2 max-h-48 overflow-y-auto text-xs hidden"></div>
         </div>
     </div>
 
@@ -114,7 +177,7 @@
     <div id="modalSenha" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center space-x-3">
-                <div class="p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
+                <div class="p-3 bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl">
                     <i data-lucide="lock" class="w-6 h-6"></i>
                 </div>
                 <div>
@@ -125,11 +188,11 @@
             <form onsubmit="validarSenhaSetor(event)" class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Senha de Acesso</label>
-                    <input type="password" id="inputSenhaSetor" placeholder="Digite a senha..." required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 font-mono shadow-inner">
+                    <input type="password" id="inputSenhaSetor" placeholder="Digite a senha..." required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-600 font-mono shadow-inner">
                 </div>
                 <div class="flex justify-end space-x-2 pt-2">
                     <button type="button" onclick="fecharModalSenha()" class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-slate-900 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-600 text-white rounded-lg font-medium shadow transition">Desbloquear</button>
+                    <button type="submit" class="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow transition">Desbloquear</button>
                 </div>
             </form>
         </div>
@@ -140,12 +203,12 @@
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-lg w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div class="flex items-center space-x-3">
-                    <div class="p-2.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
+                    <div class="p-2.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl">
                         <i data-lucide="edit-3" class="w-5 h-5"></i>
                     </div>
                     <div>
                         <h3 class="font-bold text-slate-800 dark:text-white text-base">Editar Registro (Administrador)</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Correção rápida de dados sem necessidade de recriar do zero.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Correção rápida auditada de dados.</p>
                     </div>
                 </div>
                 <button type="button" onclick="fecharModalEdicao()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -153,12 +216,10 @@
             <form onsubmit="salvarEdicaoAdmin(event)" id="formEdicaoAdmin" class="space-y-3">
                 <input type="hidden" id="editColecao">
                 <input type="hidden" id="editId">
-                <div id="camposDinamicosEdicao" class="space-y-3 max-h-96 overflow-y-auto pr-1">
-                    <!-- Dinamicamente preenchido -->
-                </div>
+                <div id="camposDinamicosEdicao" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
                 <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                     <button type="button" onclick="fecharModalEdicao()" class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium shadow transition">Salvar Alterações</button>
+                    <button type="submit" class="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow transition">Salvar Alterações</button>
                 </div>
             </form>
         </div>
@@ -167,8 +228,8 @@
     <!-- Corpo da Aplicação -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
 
-        <!-- KPIs com Fila de Trabalho / Pendências por Etapa -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <!-- KPIs com Fila de Trabalho / Pendências por Etapa & Gargalos -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <p class="text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400">1. Pend. Faturamento</p>
                 <h4 id="kpiEtapa1" class="text-xl font-extrabold text-slate-800 dark:text-white mt-0.5">0</h4>
@@ -192,6 +253,10 @@
             <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <p class="text-[10px] font-bold uppercase text-purple-600 dark:text-purple-400">6. Total Entregues</p>
                 <h4 id="kpiEtapa6" class="text-xl font-extrabold text-slate-800 dark:text-white mt-0.5">0</h4>
+            </div>
+            <div class="bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-300 dark:border-rose-800 shadow-sm col-span-2 sm:col-span-1">
+                <p class="text-[10px] font-bold uppercase text-rose-600 dark:text-rose-400">⚠️ Gargalos SLA (>24h)</p>
+                <h4 id="kpiGargalos" class="text-xl font-extrabold text-rose-700 dark:text-rose-300 mt-0.5">0</h4>
             </div>
         </div>
 
@@ -243,7 +308,7 @@
                     </button>
                 </div>
                 <div>
-                    <button type="button" onclick="pedirSenha('planejamento')" class="text-xs text-amber-700 dark:text-amber-400 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800 font-semibold flex items-center space-x-1 shadow-sm">
+                    <button type="button" onclick="pedirSenha('planejamento')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 font-semibold flex items-center space-x-1 shadow-sm">
                         <i data-lucide="lock" class="w-3.5 h-3.5"></i>
                         <span>Desbloquear Edição (Planejamento)</span>
                     </button>
@@ -318,20 +383,20 @@
 
             <!-- SUB-ABA 1B: CARGA ITINERANTE -->
             <div id="subsecao-itinerante" class="space-y-6 hidden">
-                <div class="bg-gradient-to-r from-emerald-900/30 to-indigo-900/30 dark:from-emerald-950/50 dark:to-indigo-950/50 p-6 rounded-2xl shadow-md border border-emerald-500/30 space-y-4">
+                <div class="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 dark:from-blue-950/50 dark:to-indigo-950/50 p-6 rounded-2xl shadow-md border border-blue-500/30 space-y-4">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-bold flex items-center space-x-2 text-emerald-700 dark:text-emerald-300">
+                        <h2 class="text-lg font-bold flex items-center space-x-2 text-blue-700 dark:text-blue-300">
                             <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
                            <span>Importação WMS & Seleção Automática</span>
                         </h2>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-emerald-500/20 items-center">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-blue-500/20 items-center">
                         <div class="md:col-span-2">
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Selecionar Planilha WMS (.xlsx ou .csv)</label>
                             <input type="file" id="inputArquivoWMS" accept=".xlsx, .xls, .csv" class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-200 cursor-pointer">
                         </div>
                         <div class="flex items-end pt-5 md:pt-0">
-                            <button type="button" onclick="importarPlanilhaWMS()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow-md">
+                            <button type="button" onclick="importarPlanilhaWMS()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow-md">
                                 <i data-lucide="upload-cloud" class="w-4 h-4"></i>
                                 <span>Importar & Filtrar WMS</span>
                             </button>
@@ -365,7 +430,7 @@
                             </select>
                         </div>
                         <div class="flex space-x-1.5">
-                            <button type="button" onclick="aplicarFiltrosCombinados()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl shadow transition flex items-center justify-center space-x-1">
+                            <button type="button" onclick="aplicarFiltrosCombinados()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl shadow transition flex items-center justify-center space-x-1">
                                 <i data-lucide="filter" class="w-3.5 h-3.5"></i>
                                 <span>Filtrar</span>
                             </button>
@@ -396,7 +461,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
                     <h3 id="tituloTabelaPedidos" class="font-bold text-slate-700 dark:text-slate-200">Cargas Consolidadas</h3>
-                    <button onclick="pedirSenhaParaLimparTudo()" class="text-xs text-red-600 hover:underline px-3 py-1.5 bg-red-50 dark:bg-red-950/50 rounded-lg border border-red-200 font-bold">Excluir Cargas (Admin)</button>
+                    <button onclick="pedirSenhaParaLimparTudo()" class="text-xs text-blue-600 hover:underline px-3 py-1.5 bg-blue-50 dark:bg-blue-950/50 rounded-lg border border-blue-200 dark:border-blue-800 font-bold">Excluir Cargas (Admin)</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
@@ -417,7 +482,7 @@
                         <i data-lucide="file-text" class="w-5 h-5 text-cyan-500"></i>
                         <span>Lançamento de Faturamento e Emissão de Notas</span>
                     </h2>
-                    <button type="button" onclick="pedirSenha('faturamento')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border font-semibold">Desbloquear</button>
+                    <button type="button" onclick="pedirSenha('faturamento')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 font-semibold">Desbloquear</button>
                 </div>
 
                 <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
@@ -502,7 +567,7 @@
                         <i data-lucide="briefcase" class="w-5 h-5 text-teal-500"></i>
                         <span>Acompanhamento e Agendamento Comercial</span>
                     </h2>
-                    <button type="button" onclick="pedirSenha('comercial')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border font-semibold">Desbloquear</button>
+                    <button type="button" onclick="pedirSenha('comercial')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 font-semibold">Desbloquear</button>
                 </div>
 
                 <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
@@ -587,7 +652,7 @@
                         <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
                         <span>Novo Agendamento de Veículo (Transporte)</span>
                     </h2>
-                    <button type="button" onclick="pedirSenha('transporte')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 font-semibold">Desbloquear</button>
+                    <button type="button" onclick="pedirSenha('transporte')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 font-semibold">Desbloquear</button>
                 </div>
 
                 <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
@@ -695,7 +760,7 @@
                         <i data-lucide="boxes" class="w-5 h-5 text-amber-500"></i>
                         <span>Registro de Carregamento (Operação)</span>
                     </h2>
-                    <button type="button" onclick="pedirSenha('operacao')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border font-semibold">Desbloquear</button>
+                    <button type="button" onclick="pedirSenha('operacao')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 font-semibold">Desbloquear</button>
                 </div>
 
                 <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
@@ -760,15 +825,15 @@
             </div>
         </div>
 
-        <!-- ABA 6: TRACKING -->
+        <!-- ABA 6: TRACKING (COM CENTRAL DE AVARIAS / RECUSAS) -->
         <div id="secao-tracking" class="space-y-6 hidden">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
                         <i data-lucide="check-circle-2" class="w-5 h-5 text-purple-600"></i>
-                        <span>Confirmar Entrega / Baixa (Tracking)</span>
+                        <span>Confirmar Entrega / Baixa (Tracking) & Ocorrências</span>
                     </h2>
-                    <button type="button" onclick="pedirSenha('tracking')" class="text-xs text-amber-700 hover:underline px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg border font-semibold">Desbloquear</button>
+                    <button type="button" onclick="pedirSenha('tracking')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 font-semibold">Desbloquear</button>
                 </div>
 
                 <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3 mb-4">
@@ -810,16 +875,29 @@
                         <input type="text" id="trcTicket" readonly placeholder="Preenchido automaticamente" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-purple-600 dark:text-purple-400">
                     </div>
                     <div class="md:col-span-1">
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status Final da Entrega</label>
-                        <select id="trcStatus" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status Final da Entrega *</label>
+                        <select id="trcStatus" onchange="tratarMudancaStatusTracking(this.value)" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-semibold">
                             <option value="ENTREGUE (OK)">ENTREGUE - Sem Avarias</option>
                             <option value="ENTREGUE (COM AVARIA)">ENTREGUE - Com Avaria Parcial</option>
                             <option value="RECUSA TOTAL">RECUSA TOTAL</option>
                         </select>
                     </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações da Entrega / Canhoto</label>
-                        <input type="text" id="trcObservacao" placeholder="Ex: Canhoto assinado por João da Silva..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    <!-- Campo condicional para Motivo Técnico de Avaria / Recusa -->
+                    <div id="containerMotivoAvaria" class="md:col-span-2 hidden bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-300 dark:border-rose-800">
+                        <label class="block text-xs font-semibold uppercase text-rose-700 dark:text-rose-300 mb-1">🚨 Motivo Técnico da Avaria / Recusa *</label>
+                        <select id="trcMotivoAvaria" class="w-full border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-xs font-semibold text-rose-800 dark:text-rose-200">
+                            <option value="">-- Selecione o Motivo Técnico --</option>
+                            <option value="Avaria física por manuseio (Palete tombado / Amassado)">Avaria física por manuseio (Palete tombado / Amassado)</option>
+                            <option value="Embalagem violada / Filme strech rompido">Embalagem violada / Filme strech rompido</option>
+                            <option value="Divergência de itens / Quantidade incorreta">Divergência de itens / Quantidade incorreta</option>
+                            <option value="Recusa comercial / Pedido cancelado pelo cliente">Recusa comercial / Pedido cancelado pelo cliente</option>
+                            <option value="Atraso na entrega / Fora da janela agendada">Atraso na entrega / Fora da janela agendada</option>
+                            <option value="Outros / Motivo específico">Outros / Motivo específico</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações da Entrega / Canhoto / Detalhes</label>
+                        <input type="text" id="trcObservacao" placeholder="Ex: Canhoto assinado com ressalva pelo conferente João..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div class="md:col-span-3 flex justify-end">
                         <button type="submit" id="btnSalvarTracking" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Confirmar e Dar Baixa</button>
@@ -827,10 +905,10 @@
                 </form>
             </div>
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50"><h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Baixas</h3></div>
+                <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50"><h3 class="font-bold text-slate-700 dark:text-slate-200">Histórico de Baixas & Ocorrências</h3></div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
-                        <thead><tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs"><th class="p-3.5">Pedido</th><th class="p-3.5">Nota Fiscal (NF)</th><th class="p-3.5">Ticket</th><th class="p-3.5">Status Final</th><th class="p-3.5">Status Geral</th><th class="p-3.5 text-center">Ações</th></tr></thead>
+                        <thead><tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs"><th class="p-3.5">Pedido</th><th class="p-3.5">NF</th><th class="p-3.5">Ticket</th><th class="p-3.5">Status Final</th><th class="p-3.5">Motivo Técnico (Avaria/Recusa)</th><th class="p-3.5">Status Geral</th><th class="p-3.5 text-center">Ações</th></tr></thead>
                         <tbody id="tabelaTrackingBody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
                     </table>
                 </div>
@@ -843,7 +921,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
                         <h2 class="text-lg font-bold flex items-center space-x-2">
-                            <i data-lucide="activity" class="w-5 h-5 text-amber-500"></i>
+                            <i data-lucide="activity" class="w-5 h-5 text-blue-600"></i>
                             <span>Esteira de Processos & Rastreamento em Tempo Real</span>
                         </h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Acompanhe a evolução de cada pedido passo a passo através de todos os setores da fábrica.</p>
@@ -858,7 +936,7 @@
                             <input type="month" id="filtroRelatorioMes" class="border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg p-2 text-xs">
                         </div>
                         <div class="flex items-end space-x-1.5 pt-4">
-                            <button onclick="aplicarFiltroRelatorio()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs transition shadow">Filtrar</button>
+                            <button onclick="aplicarFiltroRelatorio()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs transition shadow">Filtrar</button>
                             <button onclick="resetarFiltroRelatorio()" class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs transition shadow">Hoje</button>
                             <button onclick="exportarRelatorioExcelFiltrado()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-lg text-xs transition flex items-center space-x-1.5 shadow-md">
                                 <i data-lucide="download" class="w-4 h-4"></i>
@@ -883,8 +961,8 @@
                         <h4 id="resumoTotalPaletes" class="text-lg font-bold text-cyan-600 dark:text-cyan-400 mt-0.5">0</h4>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase text-amber-600 dark:text-amber-400">Peso Total Consolidado</p>
-                        <h4 id="resumoTotalPeso" class="text-lg font-bold text-amber-600 dark:text-amber-400 mt-0.5">0 Kg</h4>
+                        <p class="text-[10px] font-bold uppercase text-blue-600 dark:text-blue-400">Peso Total Consolidado</p>
+                        <h4 id="resumoTotalPeso" class="text-lg font-bold text-blue-600 dark:text-blue-400 mt-0.5">0 Kg</h4>
                     </div>
                 </div>
             </div>
@@ -893,7 +971,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
                     <h3 class="font-bold text-slate-700 dark:text-slate-200">Quadro de Acompanhamento Integrado</h3>
-                    <span id="contadorConsolidado" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-300 text-xs font-semibold rounded-full">0 registro(s)</span>
+                    <span id="contadorConsolidado" class="px-3 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full">0 registro(s)</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
@@ -914,7 +992,7 @@
     </main>
 
     <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-auto py-4 text-center text-xs text-slate-500 dark:text-slate-400">
-        LOGÍSTICA DARNEL - ARAUCÁRIA &bull; Sincronização em Nuvem & Esteira de Status
+        DARNEL PACKAGING &bull; LOGÍSTICA ARAUCÁRIA PR &bull; Esteira Integrada & Gestão em Nuvem
     </footer>
 
     <!-- Scripts da Aplicação -->
@@ -974,9 +1052,54 @@
             return ETAPAS_LOGISTICA[0];
         }
 
+        // --- SISTEMA DE GESTÃO DE GARGALOS E SLA (>24H) ---
+        function verificarGargaloSLA(numPedido) {
+            if (!numPedido || numPedido === '-') return { estagnado: false, horas: 0, setor: '-' };
+            const pNorm = String(numPedido).trim().toLowerCase();
+            const etapa = calcularStatusEtapa(numPedido);
+            if (etapa.id === 6) return { estagnado: false, horas: 0, setor: 'Entregue' };
+
+            const ped = (dadosApp.pedidos || []).find(p => String(p.numeroPedido || p.nota || '').trim().toLowerCase() === pNorm);
+            if (!ped) return { estagnado: false, horas: 0, setor: '-' };
+
+            let timestampEntrada = ped.id || Date.now();
+            let setorNome = 'Planejamento (Criado)';
+
+            const fat = (dadosApp.faturamento || []).find(f => String(f.numPedido || '').trim().toLowerCase() === pNorm);
+            const com = (dadosApp.comercial || []).find(c => String(c.numPedido || '').trim().toLowerCase() === pNorm);
+            const ag = (dadosApp.agendamentos || []).find(a => String(a.numPedido || '').trim().toLowerCase() === pNorm);
+            const op = (dadosApp.operacao || []).find(o => String(o.numPedido || '').trim().toLowerCase() === pNorm);
+
+            if (etapa.id === 2 && fat) { timestampEntrada = fat.id; setorNome = 'Faturamento'; }
+            else if (etapa.id === 3 && com) { timestampEntrada = com.id; setorNome = 'Comercial'; }
+            else if (etapa.id === 4 && ag) { timestampEntrada = ag.id; setorNome = 'Transporte (Agendamento)'; }
+            else if (etapa.id === 5 && op) { timestampEntrada = op.id; setorNome = 'Operação Logística'; }
+            else if (etapa.id === 1) { setorNome = 'Planejamento'; }
+
+            const horasParado = Math.floor((Date.now() - timestampEntrada) / (1000 * 60 * 60));
+            const limiteSLA = 24;
+
+            return {
+                estagnado: horasParado > limiteSLA,
+                horas: horasParado,
+                setor: setorNome
+            };
+        }
+
         function renderizarBadgeStatus(numPedido) {
             const etapa = calcularStatusEtapa(numPedido);
-            return `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${etapa.cor} shadow-sm inline-block">${etapa.badge}</span>`;
+            const gargalo = verificarGargaloSLA(numPedido);
+
+            let html = `<div class="inline-flex flex-col gap-1">`;
+            html += `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${etapa.cor} shadow-sm inline-block">${etapa.badge}</span>`;
+            if (gargalo.estagnado) {
+                html += `<span class="px-2 py-0.5 bg-rose-600 text-white text-[10px] font-bold rounded-full animate-pulse inline-flex items-center space-x-1 shadow">
+                    <i data-lucide="alert-octagon" class="w-3 h-3"></i>
+                    <span>Gargalo (${gargalo.horas}h no ${gargalo.setor})</span>
+                </span>`;
+            }
+            html += `</div>`;
+            return html;
         }
 
         function renderizarStepperProgresso(numPedido) {
@@ -985,9 +1108,9 @@
             
             ETAPAS_LOGISTICA.forEach((etapa, idx) => {
                 const ativo = etapa.id <= etapaAtual.id;
-                const corDot = ativo ? 'bg-amber-500 text-white font-bold' : 'bg-slate-200 dark:bg-slate-700 text-slate-400';
+                const corDot = ativo ? 'bg-blue-600 text-white font-bold' : 'bg-slate-200 dark:bg-slate-700 text-slate-400';
                 const corLine = (idx < ETAPAS_LOGISTICA.length - 1) 
-                    ? ((etapa.id < etapaAtual.id) ? 'bg-amber-500' : 'bg-slate-200 dark:bg-slate-700') 
+                    ? ((etapa.id < etapaAtual.id) ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700') 
                     : '';
 
                 html += `<div class="step-dot ${corDot}" title="${etapa.id}. ${etapa.nome}">${etapa.id}</div>`;
@@ -1002,10 +1125,14 @@
 
         function atualizarKPIs() {
             let pendencias = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+            let totalGargalos = 0;
+
             dadosApp.pedidos.forEach(p => {
                 const num = p.numeroPedido || p.nota;
                 const e = calcularStatusEtapa(num);
                 pendencias[e.id]++;
+                const garg = verificarGargaloSLA(num);
+                if (garg.estagnado) totalGargalos++;
             });
 
             document.getElementById('kpiEtapa1').textContent = pendencias[1];
@@ -1014,25 +1141,23 @@
             document.getElementById('kpiEtapa4').textContent = pendencias[4];
             document.getElementById('kpiEtapa5').textContent = pendencias[5];
             document.getElementById('kpiEtapa6').textContent = pendencias[6];
+            document.getElementById('kpiGargalos').textContent = totalGargalos;
         }
 
         function alternarTema() {
             const html = document.documentElement;
             const iconeSol = document.getElementById('iconeSol');
             const iconeLua = document.getElementById('iconeLua');
-            const textoTema = document.getElementById('textoTema');
 
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
                 iconeSol.classList.add('hidden');
                 iconeLua.classList.remove('hidden');
-                textoTema.textContent = 'Modo Escuro';
                 localStorage.setItem('tema_darnel', 'claro');
             } else {
                 html.classList.add('dark');
                 iconeSol.classList.remove('hidden');
                 iconeLua.classList.add('hidden');
-                textoTema.textContent = 'Modo Claro';
                 localStorage.setItem('tema_darnel', 'escuro');
             }
             lucide.createIcons();
@@ -1042,15 +1167,13 @@
             document.documentElement.classList.remove('dark');
             document.getElementById('iconeSol').classList.add('hidden');
             document.getElementById('iconeLua').classList.remove('hidden');
-            document.getElementById('textoTema').textContent = 'Modo Escuro';
         } else {
             document.documentElement.classList.add('dark');
             document.getElementById('iconeSol').classList.remove('hidden');
             document.getElementById('iconeLua').classList.add('hidden');
-            document.getElementById('textoTema').textContent = 'Modo Claro';
         }
 
-        let dadosApp = { agendamentos: [], pedidos: [], operacao: [], faturamento: [], comercial: [], tracking: [], alertasAlteracao: [] };
+        let dadosApp = { agendamentos: [], pedidos: [], operacao: [], faturamento: [], comercial: [], tracking: [], alertasAlteracao: [], logsAuditoria: [] };
         try {
             const local = localStorage.getItem('dados_logistica_darnel');
             if (local) {
@@ -1058,6 +1181,7 @@
                 if (!dadosApp.faturamento) dadosApp.faturamento = [];
                 if (!dadosApp.comercial) dadosApp.comercial = [];
                 if (!dadosApp.alertasAlteracao) dadosApp.alertasAlteracao = [];
+                if (!dadosApp.logsAuditoria) dadosApp.logsAuditoria = [];
             }
         } catch(e) { console.warn("Erro ao ler backup local:", e); }
 
@@ -1065,6 +1189,7 @@
         let firebaseConectado = false;
         let setorAutenticado = null;
         let subTabAtiva = 'dedicada';
+        let subPainelAlertaAtivo = 'gargalos';
         let mapaObj = null;
         let relatorioFiltroAtivo = { tipo: 'hoje', valorData: '', valorMes: '' };
 
@@ -1101,7 +1226,7 @@
         function salvarDados() {
             localStorage.setItem('dados_logistica_darnel', JSON.stringify(dadosApp));
             if (db) {
-                const obj = { pedidos: {}, agendamentos: {}, operacao: {}, faturamento: {}, comercial: {}, tracking: {}, alertasAlteracao: {} };
+                const obj = { pedidos: {}, agendamentos: {}, operacao: {}, faturamento: {}, comercial: {}, tracking: {}, alertasAlteracao: {}, logsAuditoria: {} };
                 dadosApp.pedidos.forEach(p => obj.pedidos[p.id] = p);
                 dadosApp.agendamentos.forEach(a => obj.agendamentos[a.id] = a);
                 dadosApp.operacao.forEach(o => obj.operacao[o.id] = o);
@@ -1109,6 +1234,7 @@
                 dadosApp.comercial.forEach(c => obj.comercial[c.id] = c);
                 dadosApp.tracking.forEach(t => obj.tracking[t.id] = t);
                 (dadosApp.alertasAlteracao || []).forEach(al => obj.alertasAlteracao[al.id] = al);
+                (dadosApp.logsAuditoria || []).forEach(lg => obj.logsAuditoria[lg.id] = lg);
 
                 db.ref('logistica_darnel').set(obj).catch(err => console.warn(err));
             }
@@ -1140,6 +1266,7 @@
                             dadosApp.comercial = Object.values(data.comercial || {});
                             dadosApp.tracking = Object.values(data.tracking || {});
                             dadosApp.alertasAlteracao = Object.values(data.alertasAlteracao || {});
+                            dadosApp.logsAuditoria = Object.values(data.logsAuditoria || {});
                             localStorage.setItem('dados_logistica_darnel', JSON.stringify(dadosApp));
                         }
                         atualizarInterfaceGeral();
@@ -1181,7 +1308,7 @@
 
             const iconeDarnel = L.divIcon({
                 className: 'custom-div-icon',
-                html: "<div style='background-color:#d97706; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; border:2px solid white;'>D</div>",
+                html: "<div style='background-color:#2563eb; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; border:2px solid white;'>D</div>",
                 iconSize: [28, 28], iconAnchor: [14, 14]
             });
             L.marker(COORDENADAS_DARNEL, { icon: iconeDarnel }).addTo(mapaObj).bindPopup("<b>Fábrica Darnel Araucária</b>");
@@ -1191,7 +1318,187 @@
             setTimeout(() => inicializarMapa(), 300);
             inicializarFirebase();
             atualizarInterfaceGeral();
+
+            document.addEventListener('click', (e) => {
+                const drop = document.getElementById('dropdownBuscaGlobal');
+                const input = document.getElementById('inputBuscaGlobal');
+                if (drop && input && !input.contains(e.target) && !drop.contains(e.target)) {
+                    drop.classList.add('hidden');
+                }
+            });
         });
+
+        // --- SISTEMA DE BACKUP & RESTAURAÇÃO (JSON) ---
+        function exportarBackupJSON() {
+            if (setorAutenticado !== 'admin') {
+                mostrarToast('Acesso negado. Apenas o Administrador pode exportar o backup.', 'erro');
+                return;
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dadosApp, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `logistica_darnel_backup_${new Date().toISOString().slice(0, 10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            mostrarToast('Backup JSON exportado com sucesso!', 'sucesso');
+        }
+
+        function importarBackupJSON(event) {
+            if (setorAutenticado !== 'admin') {
+                mostrarToast('Acesso negado. Apenas o Administrador pode restaurar o backup.', 'erro');
+                return;
+            }
+            const arquivo = event.target.files[0];
+            if (!arquivo) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const conteudo = JSON.parse(e.target.result);
+                    if (conteudo && typeof conteudo === 'object') {
+                        dadosApp = {
+                            agendamentos: conteudo.agendamentos || [],
+                            pedidos: conteudo.pedidos || [],
+                            operacao: conteudo.operacao || [],
+                            faturamento: conteudo.faturamento || [],
+                            comercial: conteudo.comercial || [],
+                            tracking: conteudo.tracking || [],
+                            alertasAlteracao: conteudo.alertasAlteracao || [],
+                            logsAuditoria: conteudo.logsAuditoria || []
+                        };
+                        salvarDados();
+                        atualizarInterfaceGeral();
+                        mostrarToast('Banco de dados restaurado com sucesso a partir do backup JSON!', 'sucesso');
+                    } else {
+                        mostrarToast('Arquivo JSON inválido.', 'erro');
+                    }
+                } catch (err) {
+                    mostrarToast('Erro ao processar o arquivo JSON de backup.', 'erro');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(arquivo);
+        }
+
+        // --- SISTEMA DE BUSCA GLOBAL ---
+        function executarBuscaGlobal(termo) {
+            const drop = document.getElementById('dropdownBuscaGlobal');
+            const termoNorm = termo.trim().toLowerCase();
+
+            if (!termoNorm || termoNorm.length < 2) {
+                drop.classList.add('hidden');
+                drop.innerHTML = '';
+                return;
+            }
+
+            let resultados = [];
+
+            (dadosApp.pedidos || []).forEach(p => {
+                const num = (p.numeroPedido || '').toLowerCase();
+                const nota = (p.nota || '').toLowerCase();
+                const cli = (p.cliente || '').toLowerCase();
+                const dest = (p.destinoCidade || '').toLowerCase();
+
+                if (num.includes(termoNorm) || nota.includes(termoNorm) || cli.includes(termoNorm) || dest.includes(termoNorm)) {
+                    resultados.push({
+                        titulo: `Pedido: ${p.numeroPedido || '-'} (NF: ${p.nota || '-'})`,
+                        detalhe: `Cliente: ${p.cliente} | Destino: ${p.destinoCidade}`,
+                        tab: 'pedidos',
+                        subtab: p.tipoCarga || 'dedicada'
+                    });
+                }
+            });
+
+            (dadosApp.faturamento || []).forEach(f => {
+                const num = (f.numPedido || '').toLowerCase();
+                const nota = (f.notaFiscal || '').toLowerCase();
+
+                if (num.includes(termoNorm) || nota.includes(termoNorm)) {
+                    resultados.push({
+                        titulo: `Faturamento - Pedido: ${f.numPedido} | NF: ${f.notaFiscal}`,
+                        detalhe: `Data: ${f.dataFaturamento} | Total: ${f.totalKg} Kg`,
+                        tab: 'faturamento'
+                    });
+                }
+            });
+
+            (dadosApp.comercial || []).forEach(c => {
+                const num = (c.numPedido || '').toLowerCase();
+                const tkt = (c.ticket || '').toLowerCase();
+
+                if (num.includes(termoNorm) || tkt.includes(termoNorm)) {
+                    resultados.push({
+                        titulo: `Comercial - Pedido: ${c.numPedido} | Ticket: ${c.ticket}`,
+                        detalhe: `Agenda Conf: ${c.dataAgendaConfirmada}`,
+                        tab: 'comercial'
+                    });
+                }
+            });
+
+            (dadosApp.agendamentos || []).forEach(a => {
+                const num = (a.numPedido || '').toLowerCase();
+                const tkt = (a.ticket || '').toLowerCase();
+                const placa = (a.placa || '').toLowerCase();
+                const mot = (a.motorista || '').toLowerCase();
+
+                if (num.includes(termoNorm) || tkt.includes(termoNorm) || placa.includes(termoNorm) || mot.includes(termoNorm)) {
+                    resultados.push({
+                        titulo: `Transporte - Pedido: ${a.numPedido} | Placa: ${a.placa}`,
+                        detalhe: `Transp: ${a.transportadora} | Motorista: ${a.motorista}`,
+                        tab: 'agendamentos'
+                    });
+                }
+            });
+
+            (dadosApp.operacao || []).forEach(o => {
+                const carga = (o.numCarga || '').toLowerCase();
+                const num = (o.numPedido || '').toLowerCase();
+                const nota = (o.nota || '').toLowerCase();
+
+                if (carga.includes(termoNorm) || num.includes(termoNorm) || nota.includes(termoNorm)) {
+                    resultados.push({
+                        titulo: `Operação - Carga: ${o.numCarga} | Pedido: ${o.numPedido}`,
+                        detalhe: `Equipe: ${o.equipe} | Horário: ${o.horaInicio} às ${o.horaFim}`,
+                        tab: 'operacao'
+                    });
+                }
+            });
+
+            (dadosApp.tracking || []).forEach(t => {
+                const num = (t.numPedido || '').toLowerCase();
+                const tkt = (t.ticket || '').toLowerCase();
+
+                if (num.includes(termoNorm) || tkt.includes(termoNorm)) {
+                    resultados.push({
+                        titulo: `Tracking - Pedido: ${t.numPedido} | Status: ${t.statusFinal}`,
+                        detalhe: `Ticket: ${t.ticket}`,
+                        tab: 'tracking'
+                    });
+                }
+            });
+
+            if (resultados.length === 0) {
+                drop.innerHTML = `<div class="p-2 text-slate-400 italic text-center">Nenhum registro encontrado.</div>`;
+            } else {
+                drop.innerHTML = resultados.slice(0, 8).map(r => `
+                    <div onclick="navegarParaTabGlobal('${r.tab}', '${r.subtab || ''}')" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition">
+                        <div class="font-bold text-blue-600 dark:text-blue-400">${r.titulo}</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400">${r.detalhe} &bull; <span class="uppercase font-semibold text-indigo-500">Ir para ${r.tab}</span></div>
+                    </div>
+                `).join('');
+            }
+            drop.classList.remove('hidden');
+        }
+
+        function navegarParaTabGlobal(tab, subtab) {
+            mudarTab(tab);
+            if (tab === 'pedidos' && subtab) {
+                mudarSubTab(subtab);
+            }
+            document.getElementById('dropdownBuscaGlobal').classList.add('hidden');
+            document.getElementById('inputBuscaGlobal').value = '';
+        }
 
         function mudarSubTab(sub) {
             subTabAtiva = sub;
@@ -1438,6 +1745,7 @@
         function aplicarPermissoes() {
             const infoSessao = document.getElementById('infoSessaoAtiva');
             const nomeSetor = document.getElementById('nomeSetorLogado');
+            const painelAdminSeguranca = document.getElementById('painelAdminSeguranca');
             const isAdmin = (setorAutenticado === 'admin');
 
             if (setorAutenticado) {
@@ -1445,6 +1753,11 @@
                 nomeSetor.textContent = isAdmin ? 'ADMINISTRADOR' : setorAutenticado.toUpperCase();
             } else {
                 infoSessao.classList.add('hidden'); infoSessao.classList.remove('flex');
+            }
+
+            if (painelAdminSeguranca) {
+                if (isAdmin) painelAdminSeguranca.classList.remove('hidden');
+                else painelAdminSeguranca.classList.add('hidden');
             }
 
             const canPlanejamento = (setorAutenticado === 'planejamento' || isAdmin);
@@ -1526,7 +1839,7 @@
             else { secCal.classList.remove('hidden'); renderizarCalendario(); }
         }
 
-        // --- SISTEMA DE EDIÇÃO DE REGISTROS (ADMIN) ---
+        // --- SISTEMA DE EDIÇÃO DE REGISTROS (ADMIN) & LOG DE AUDITORIA ---
         function abrirModalEdicao(colecao, id) {
             if (setorAutenticado !== 'admin') {
                 mostrarToast('Apenas o Administrador pode editar registros. Desbloqueie com a senha de Admin.', 'erro');
@@ -1657,6 +1970,10 @@
                             <option value="RECUSA TOTAL" ${item.statusFinal === 'RECUSA TOTAL' ? 'selected' : ''}>RECUSA TOTAL</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Motivo Técnico (Avaria/Recusa)</label>
+                        <input type="text" id="edit_motivoAvaria" value="${item.motivoAvaria || '-'}" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                    </div>
                 `;
             }
 
@@ -1685,41 +2002,116 @@
                 return;
             }
 
+            let alteracoesFeitas = [];
+
             if (colecao === 'pedidos') {
-                item.numeroPedido = document.getElementById('edit_numeroPedido').value.trim().toUpperCase();
-                item.nota = document.getElementById('edit_nota').value.trim().toUpperCase();
-                item.cliente = document.getElementById('edit_cliente').value.trim();
-                item.destinoCidade = document.getElementById('edit_destinoCidade').value.trim();
-                item.dataSaida = document.getElementById('edit_dataSaida').value.trim();
-                item.paletes = Number(document.getElementById('edit_paletes').value) || 1;
-                item.peso = Number(document.getElementById('edit_peso').value) || 1;
+                const novoNum = document.getElementById('edit_numeroPedido').value.trim().toUpperCase();
+                const novaNota = document.getElementById('edit_nota').value.trim().toUpperCase();
+                const novoCliente = document.getElementById('edit_cliente').value.trim();
+                const novoDestino = document.getElementById('edit_destinoCidade').value.trim();
+                const novaData = document.getElementById('edit_dataSaida').value.trim();
+                const novoPaletes = Number(document.getElementById('edit_paletes').value) || 1;
+                const novoPeso = Number(document.getElementById('edit_peso').value) || 1;
+
+                if (item.numeroPedido !== novoNum) alteracoesFeitas.push(`Nº Pedido: ${item.numeroPedido || '-'} &rarr; ${novoNum}`);
+                if (item.nota !== novaNota) alteracoesFeitas.push(`NF: ${item.nota || '-'} &rarr; ${novaNota}`);
+                if (item.cliente !== novoCliente) alteracoesFeitas.push(`Cliente: ${item.cliente} &rarr; ${novoCliente}`);
+                if (item.destinoCidade !== novoDestino) alteracoesFeitas.push(`Destino: ${item.destinoCidade} &rarr; ${novoDestino}`);
+                if (item.dataSaida !== novaData) alteracoesFeitas.push(`Data: ${item.dataSaida} &rarr; ${novaData}`);
+                if (item.paletes !== novoPaletes) alteracoesFeitas.push(`Paletes: ${item.paletes} &rarr; ${novoPaletes}`);
+                if (item.peso !== novoPeso) alteracoesFeitas.push(`Peso: ${item.peso}Kg &rarr; ${novoPeso}Kg`);
+
+                item.numeroPedido = novoNum;
+                item.nota = novaNota;
+                item.cliente = novoCliente;
+                item.destinoCidade = novoDestino;
+                item.dataSaida = novaData;
+                item.paletes = novoPaletes;
+                item.peso = novoPeso;
             } else if (colecao === 'faturamento') {
-                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
-                item.notaFiscal = document.getElementById('edit_notaFiscal').value.trim().toUpperCase();
-                item.dataFaturamento = document.getElementById('edit_dataFaturamento').value.trim();
-                item.totalKg = Number(document.getElementById('edit_totalKg').value) || 0.01;
+                const novoNum = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                const novaNota = document.getElementById('edit_notaFiscal').value.trim().toUpperCase();
+                const novaData = document.getElementById('edit_dataFaturamento').value.trim();
+                const novoKg = Number(document.getElementById('edit_totalKg').value) || 0.01;
+
+                if (item.numPedido !== novoNum) alteracoesFeitas.push(`Pedido: ${item.numPedido} &rarr; ${novoNum}`);
+                if (item.notaFiscal !== novaNota) alteracoesFeitas.push(`NF: ${item.notaFiscal} &rarr; ${novaNota}`);
+                if (item.dataFaturamento !== novaData) alteracoesFeitas.push(`Data Fat: ${item.dataFaturamento} &rarr; ${novaData}`);
+                if (item.totalKg !== novoKg) alteracoesFeitas.push(`Total Kg: ${item.totalKg} &rarr; ${novoKg}`);
+
+                item.numPedido = novoNum;
+                item.notaFiscal = novaNota;
+                item.dataFaturamento = novaData;
+                item.totalKg = novoKg;
             } else if (colecao === 'comercial') {
-                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
-                item.dataAgendaConfirmada = document.getElementById('edit_dataAgendaConfirmada').value.trim();
-                item.ticket = document.getElementById('edit_ticket').value.trim().toUpperCase();
+                const novoNum = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                const novaAgenda = document.getElementById('edit_dataAgendaConfirmada').value.trim();
+                const novoTicket = document.getElementById('edit_ticket').value.trim().toUpperCase();
+
+                if (item.numPedido !== novoNum) alteracoesFeitas.push(`Pedido: ${item.numPedido} &rarr; ${novoNum}`);
+                if (item.dataAgendaConfirmada !== novaAgenda) alteracoesFeitas.push(`Agenda Conf: ${item.dataAgendaConfirmada} &rarr; ${novaAgenda}`);
+                if (item.ticket !== novoTicket) alteracoesFeitas.push(`Ticket: ${item.ticket} &rarr; ${novoTicket}`);
+
+                item.numPedido = novoNum;
+                item.dataAgendaConfirmada = novaAgenda;
+                item.ticket = novoTicket;
             } else if (colecao === 'agendamentos') {
-                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
-                item.ticket = document.getElementById('edit_ticket').value.trim().toUpperCase();
-                item.dataEntrega = document.getElementById('edit_dataEntrega').value.trim();
-                item.placa = document.getElementById('edit_placa').value.trim().toUpperCase();
+                const novoNum = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                const novoTicket = document.getElementById('edit_ticket').value.trim().toUpperCase();
+                const novaData = document.getElementById('edit_dataEntrega').value.trim();
+                const novaPlaca = document.getElementById('edit_placa').value.trim().toUpperCase();
+
+                if (item.numPedido !== novoNum) alteracoesFeitas.push(`Pedido: ${item.numPedido} &rarr; ${novoNum}`);
+                if (item.ticket !== novoTicket) alteracoesFeitas.push(`Ticket: ${item.ticket} &rarr; ${novoTicket}`);
+                if (item.dataEntrega !== novaData) alteracoesFeitas.push(`Data Entrega: ${item.dataEntrega} &rarr; ${novaData}`);
+                if (item.placa !== novaPlaca) alteracoesFeitas.push(`Placa: ${item.placa} &rarr; ${novaPlaca}`);
+
+                item.numPedido = novoNum;
+                item.ticket = novoTicket;
+                item.dataEntrega = novaData;
+                item.placa = novaPlaca;
             } else if (colecao === 'operacao') {
-                item.numCarga = document.getElementById('edit_numCarga').value.trim().toUpperCase();
-                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
-                item.equipe = document.getElementById('edit_equipe').value.trim();
+                const novaCarga = document.getElementById('edit_numCarga').value.trim().toUpperCase();
+                const novoNum = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                const novaEquipe = document.getElementById('edit_equipe').value.trim();
+
+                if (item.numCarga !== novaCarga) alteracoesFeitas.push(`Nº Carga: ${item.numCarga} &rarr; ${novaCarga}`);
+                if (item.numPedido !== novoNum) alteracoesFeitas.push(`Pedido: ${item.numPedido} &rarr; ${novoNum}`);
+                if (item.equipe !== novaEquipe) alteracoesFeitas.push(`Equipe: ${item.equipe} &rarr; ${novaEquipe}`);
+
+                item.numCarga = novaCarga;
+                item.numPedido = novoNum;
+                item.equipe = novaEquipe;
             } else if (colecao === 'tracking') {
-                item.numPedido = document.getElementById('edit_numPedido').value.trim().toUpperCase();
-                item.statusFinal = document.getElementById('edit_statusFinal').value;
+                const novoNum = document.getElementById('edit_numPedido').value.trim().toUpperCase();
+                const novoStatus = document.getElementById('edit_statusFinal').value;
+                const novoMotivo = document.getElementById('edit_motivoAvaria').value.trim();
+
+                if (item.numPedido !== novoNum) alteracoesFeitas.push(`Pedido: ${item.numPedido} &rarr; ${novoNum}`);
+                if (item.statusFinal !== novoStatus) alteracoesFeitas.push(`Status Final: ${item.statusFinal} &rarr; ${novoStatus}`);
+                if (item.motivoAvaria !== novoMotivo) alteracoesFeitas.push(`Motivo Avaria: ${item.motivoAvaria} &rarr; ${novoMotivo}`);
+
+                item.numPedido = novoNum;
+                item.statusFinal = novoStatus;
+                item.motivoAvaria = novoMotivo;
+            }
+
+            if (alteracoesFeitas.length > 0) {
+                if (!dadosApp.logsAuditoria) dadosApp.logsAuditoria = [];
+                dadosApp.logsAuditoria.unshift({
+                    id: Date.now(),
+                    colecao: colecao.toUpperCase(),
+                    identificador: item.numeroPedido || item.numPedido || item.numCarga || item.id,
+                    alteracoes: alteracoesFeitas,
+                    dataHora: new Date().toLocaleString('pt-BR')
+                });
+                if (dadosApp.logsAuditoria.length > 50) dadosApp.logsAuditoria = dadosApp.logsAuditoria.slice(0, 50);
             }
 
             salvarDados();
             atualizarInterfaceGeral();
             fecharModalEdicao();
-            mostrarToast('Registro atualizado com sucesso!', 'sucesso');
+            mostrarToast('Registro atualizado e auditado com sucesso!', 'sucesso');
         }
 
         function carregarSelectsGerais() {
@@ -1844,6 +2236,19 @@
             mostrarToast(`Pedido ${termo} localizado!`, 'sucesso');
         }
 
+        function tratarMudancaStatusTracking(statusVal) {
+            const containerMotivo = document.getElementById('containerMotivoAvaria');
+            const selectMotivo = document.getElementById('trcMotivoAvaria');
+            if (statusVal === 'ENTREGUE (COM AVARIA)' || statusVal === 'RECUSA TOTAL') {
+                containerMotivo.classList.remove('hidden');
+                selectMotivo.required = true;
+            } else {
+                containerMotivo.classList.add('hidden');
+                selectMotivo.required = false;
+                selectMotivo.value = '';
+            }
+        }
+
         function puxarDadosFaturamentoSelect() {
             const val = document.getElementById('fatSelectPedido').value;
             const ped = dadosApp.pedidos.find(p => (p.numeroPedido === val || p.nota === val));
@@ -1917,41 +2322,142 @@
             document.getElementById('painelAlertas').classList.toggle('hidden');
         }
 
+        function mudarSubPainelAlerta(tipo) {
+            subPainelAlertaAtivo = tipo;
+            const btnGargalos = document.getElementById('btnSubPainelGargalos');
+            const btnAvarias = document.getElementById('btnSubPainelAvarias');
+            const btnDatas = document.getElementById('btnSubPainelDatas');
+            const btnAuditoria = document.getElementById('btnSubPainelAuditoria');
+            const secGargalos = document.getElementById('conteudoPainelGargalos');
+            const secAvarias = document.getElementById('conteudoPainelAvarias');
+            const secDatas = document.getElementById('conteudoPainelDatas');
+            const secAuditoria = document.getElementById('conteudoPainelAuditoria');
+
+            // Reset buttons
+            [btnGargalos, btnAvarias, btnDatas, btnAuditoria].forEach(b => {
+                b.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5";
+            });
+            [secGargalos, secAvarias, secDatas, secAuditoria].forEach(s => s.classList.add('hidden'));
+
+            if (tipo === 'gargalos') {
+                btnGargalos.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white transition flex items-center space-x-1.5";
+                secGargalos.classList.remove('hidden');
+            } else if (tipo === 'avarias') {
+                btnAvarias.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white transition flex items-center space-x-1.5";
+                secAvarias.classList.remove('hidden');
+            } else if (tipo === 'datas') {
+                btnDatas.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white transition flex items-center space-x-1.5";
+                secDatas.classList.remove('hidden');
+            } else {
+                btnAuditoria.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white transition flex items-center space-x-1.5";
+                secAuditoria.classList.remove('hidden');
+            }
+        }
+
         function renderizarPainelAlertas() {
-            const container = document.getElementById('listaAlertasAlteracoes');
+            const containerGargalos = document.getElementById('conteudoPainelGargalos');
+            const containerAvarias = document.getElementById('conteudoPainelAvarias');
+            const containerDatas = document.getElementById('conteudoPainelDatas');
+            const containerAuditoria = document.getElementById('conteudoPainelAuditoria');
             const badge = document.getElementById('badgeQtdAlertas');
-            if(!container) return;
+            if(!containerGargalos || !containerAvarias || !containerDatas || !containerAuditoria) return;
+
+            let gargalosLista = [];
+            (dadosApp.pedidos || []).forEach(p => {
+                const num = p.numeroPedido || p.nota;
+                const garg = verificarGargaloSLA(num);
+                if (garg.estagnado) {
+                    gargalosLista.push({ num, cliente: p.cliente, horas: garg.horas, setor: garg.setor });
+                }
+            });
+
+            let avariasLista = (dadosApp.tracking || []).filter(t => t.statusFinal && t.statusFinal !== 'ENTREGUE (OK)');
             const alertas = dadosApp.alertasAlteracao || [];
+            const auditas = dadosApp.logsAuditoria || [];
+            const totalNotifs = gargalosLista.length + avariasLista.length + alertas.length + auditas.length;
+
             if(badge) {
-                badge.textContent = alertas.length;
-                if(alertas.length > 0) badge.classList.remove('hidden');
+                badge.textContent = totalNotifs;
+                if(totalNotifs > 0) badge.classList.remove('hidden');
                 else badge.classList.add('hidden');
             }
-            if(alertas.length === 0) {
-                container.innerHTML = `<p class="text-slate-500 dark:text-slate-400 italic">Nenhum alerta registrado.</p>`;
-                return;
-            }
-            container.innerHTML = alertas.map(al => `
-                <div class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-500/30 p-2.5 rounded-xl flex items-center justify-between">
-                    <div>
-                        <span class="font-bold text-rose-800 dark:text-rose-300">Pedido ${al.numPedido}</span>
-                        <span class="text-slate-700 dark:text-slate-300"> alterado pelo setor </span>
-                        <span class="font-bold text-amber-600 dark:text-amber-400">${al.setorResponsavel}</span>.
-                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                            Original: <span class="line-through text-rose-600 dark:text-rose-400">${al.dataOriginal}</span> &rarr; Nova: <span class="font-bold text-emerald-600 dark:text-emerald-400">${al.dataNova}</span>
-                            <span class="ml-2 text-[10px] text-slate-400 dark:text-slate-500">(${al.dataHoraRegistro})</span>
+
+            if (gargalosLista.length === 0) {
+                containerGargalos.innerHTML = `<p class="text-slate-500 dark:text-slate-400 italic">Nenhum pedido estagnado acima do SLA de 24h.</p>`;
+            } else {
+                containerGargalos.innerHTML = gargalosLista.map(g => `
+                    <div class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/30 p-2.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-rose-800 dark:text-rose-300">Pedido ${g.num} (${g.cliente})</span>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                                Estagnado há <span class="font-bold text-rose-600 dark:text-rose-400">${g.horas} horas</span> no setor <span class="font-semibold text-blue-600 dark:text-blue-400">${g.setor}</span>.
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            }
+
+            if (avariasLista.length === 0) {
+                containerAvarias.innerHTML = `<p class="text-slate-500 dark:text-slate-400 italic">Nenhuma avaria ou recusa registrada.</p>`;
+            } else {
+                containerAvarias.innerHTML = avariasLista.map(av => `
+                    <div class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/30 p-2.5 rounded-xl space-y-1">
+                        <div class="flex justify-between items-center font-bold text-rose-800 dark:text-rose-300">
+                            <span>Pedido ${av.numPedido} (NF: ${av.nota})</span>
+                            <span class="px-2 py-0.5 bg-rose-600 text-white rounded text-[10px]">${av.statusFinal}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-700 dark:text-slate-300">
+                            <b>Motivo Técnico:</b> ${av.motivoAvaria || 'Não especificado'}
+                        </div>
+                        <div class="text-[10px] text-slate-500">
+                            <b>Observações:</b> ${av.observacao || '-'}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            if(alertas.length === 0) {
+                containerDatas.innerHTML = `<p class="text-slate-500 dark:text-slate-400 italic">Nenhum alerta de data registrado.</p>`;
+            } else {
+                containerDatas.innerHTML = alertas.map(al => `
+                    <div class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-500/30 p-2.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-rose-800 dark:text-rose-300">Pedido ${al.numPedido}</span>
+                            <span class="text-slate-700 dark:text-slate-300"> alterado pelo setor </span>
+                            <span class="font-bold text-blue-600 dark:text-blue-400">${al.setorResponsavel}</span>.
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                Original: <span class="line-through text-rose-600 dark:text-rose-400">${al.dataOriginal}</span> &rarr; Nova: <span class="font-bold text-emerald-600 dark:text-emerald-400">${al.dataNova}</span>
+                                <span class="ml-2 text-[10px] text-slate-400 dark:text-slate-500">(${al.dataHoraRegistro})</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            if(auditas.length === 0) {
+                containerAuditoria.innerHTML = `<p class="text-slate-500 dark:text-slate-400 italic">Nenhuma edição administrativa registrada.</p>`;
+            } else {
+                containerAuditoria.innerHTML = auditas.map(lg => `
+                    <div class="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-500/30 p-2.5 rounded-xl space-y-1">
+                        <div class="flex justify-between items-center font-bold text-blue-800 dark:text-blue-300">
+                            <span>[${lg.colecao}] Item: ${lg.identificador}</span>
+                            <span class="text-[10px] text-slate-400">${lg.dataHora}</span>
+                        </div>
+                        <ul class="list-disc list-inside text-[11px] text-slate-600 dark:text-slate-300 space-y-0.5">
+                            ${lg.alteracoes.map(alt => `<li>${alt}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('');
+            }
         }
 
         function limparAlertasLidos() {
             dadosApp.alertasAlteracao = [];
+            dadosApp.logsAuditoria = [];
             salvarDados();
             renderizarPainelAlertas();
             atualizarKPIs();
-            mostrarToast('Alertas marcados como lidos.', 'sucesso');
+            mostrarToast('Registros da central limpos.', 'sucesso');
         }
 
         function formatarDataParaExibicao(valData) {
@@ -2111,18 +2617,28 @@
                 return;
             }
             const numPed = document.getElementById('trcNumPedido').value.trim().toUpperCase();
+            const statusFinalVal = document.getElementById('trcStatus').value;
+            const motivoAvariaVal = (statusFinalVal !== 'ENTREGUE (OK)') ? document.getElementById('trcMotivoAvaria').value : '-';
+
+            if (statusFinalVal !== 'ENTREGUE (OK)' && !motivoAvariaVal) {
+                mostrarToast('Selecione o motivo técnico da avaria ou recusa.', 'erro');
+                return;
+            }
+
             dadosApp.tracking.push({
                 id: Date.now(),
                 numPedido: numPed,
                 nota: obterNFDoPedido(numPed),
                 ticket: obterTicketDoPedido(numPed),
-                statusFinal: document.getElementById('trcStatus').value,
+                statusFinal: statusFinalVal,
+                motivoAvaria: motivoAvariaVal,
                 observacao: document.getElementById('trcObservacao').value.trim() || '-'
             });
             salvarDados();
             atualizarInterfaceGeral();
             mostrarToast('Entrega confirmada! Pedido finalizado em 6. ENTREGUE.', 'sucesso');
             document.getElementById('formTracking').reset();
+            document.getElementById('containerMotivoAvaria').classList.add('hidden');
             document.getElementById('trcNotaSelect').value = '';
             document.getElementById('trcInputNumPedidoBusca').value = '';
         }
@@ -2149,7 +2665,7 @@
                             <td class="p-3.5 font-mono font-bold">${item.numeroPedido || '-'}</td>
                             <td class="p-3.5 font-mono font-bold text-emerald-600 dark:text-emerald-400">${obterNFDoPedido(item.numeroPedido || item.nota)}</td>
                             <td class="p-3.5 text-xs font-bold">${item.destinoCidade || '-'}</td>
-                            <td class="p-3.5 font-mono font-bold ${item.temAlertaData ? 'text-rose-600 dark:text-rose-500 animate-pulse' : 'text-amber-600 dark:text-amber-400'}">
+                            <td class="p-3.5 font-mono font-bold ${item.temAlertaData ? 'text-rose-600 dark:text-rose-500 animate-pulse' : 'text-blue-600 dark:text-blue-400'}">
                                 ${item.dataSaida || '-'}
                                 ${item.temAlertaData ? '<span class="block text-[10px] text-rose-500 font-bold">⚠️ Data Alterada</span>' : ''}
                             </td>
@@ -2159,7 +2675,7 @@
                             <td class="p-3.5">${renderizarBadgeStatus(item.numeroPedido || item.nota)}</td>
                             <td class="p-3.5 text-center">
                                 <div class="flex items-center justify-center space-x-2">
-                                    <button onclick="abrirModalEdicao('pedidos', ${item.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                    <button onclick="abrirModalEdicao('pedidos', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
                                         <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                         <span>Editar</span>
                                     </button>
@@ -2178,12 +2694,12 @@
                         <td class="p-3.5 font-bold">${cli.cliente}</td>
                         <td class="p-3.5 font-mono">${cli.qtdPedido || 1}</td>
                         <td class="p-3.5 text-xs">${cli.destinoCidade}</td>
-                        <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400">${cli.dataSaida}</td>
+                        <td class="p-3.5 font-mono text-blue-600 dark:text-blue-400">${cli.dataSaida}</td>
                         <td class="p-3.5 font-mono text-xs">${cli.numeroPedido} | NF: ${obterNFDoPedido(cli.numeroPedido)}</td>
                         <td class="p-3.5">${renderizarBadgeStatus(cli.numeroPedido)}</td>
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center space-x-2">
-                                <button onclick="abrirModalEdicao('pedidos', ${cli.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                <button onclick="abrirModalEdicao('pedidos', ${cli.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                     <span>Editar</span>
                                 </button>
@@ -2207,13 +2723,13 @@
                     <td class="p-3.5 font-mono font-bold">${i.numPedido || '-'}</td>
                     <td class="p-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">${obterNFDoPedido(i.numPedido || i.nota)}</td>
                     <td class="p-3.5 font-mono text-indigo-600 dark:text-indigo-400 font-bold">${i.ticket}</td>
-                    <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400 font-bold">${i.dataEntrega || '-'} ${i.horaEntrega || ''}</td>
+                    <td class="p-3.5 font-mono text-blue-600 dark:text-blue-400 font-bold">${i.dataEntrega || '-'} ${i.horaEntrega || ''}</td>
                     <td class="p-3.5">${i.transportadora}</td>
                     <td class="p-3.5 font-mono text-xs">${i.placa} / ${i.motorista}</td>
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('agendamentos', ${i.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('agendamentos', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
@@ -2233,7 +2749,7 @@
             if(!tbody) return;
             tbody.innerHTML = (dadosApp.operacao || []).map(i => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="p-3.5 font-mono font-bold text-amber-600 dark:text-amber-400">${i.numCarga || '-'}</td>
+                    <td class="p-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">${i.numCarga || '-'}</td>
                     <td class="p-3.5 font-mono">${i.numPedido || '-'}</td>
                     <td class="p-3.5 font-mono font-bold text-emerald-600 dark:text-emerald-400">${i.nota && i.nota !== '-' ? i.nota : obterNFDoPedido(i.numPedido)}</td>
                     <td class="p-3.5 font-mono">${i.horaInicio} às ${i.horaFim}</td>
@@ -2241,7 +2757,7 @@
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('operacao', ${i.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('operacao', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
@@ -2263,14 +2779,14 @@
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td class="p-3.5 font-mono font-bold">${item.numPedido || '-'}</td>
                     <td class="p-3.5 font-mono font-bold text-cyan-600 dark:text-cyan-400">${item.notaFiscal}</td>
-                    <td class="p-3.5 font-mono text-amber-600 dark:text-amber-400">${item.dataFaturamento}</td>
+                    <td class="p-3.5 font-mono text-blue-600 dark:text-blue-400">${item.dataFaturamento}</td>
                     <td class="p-3.5 font-semibold">${item.estrechado}</td>
                     <td class="p-3.5 font-mono">${item.qtdPaletes}</td>
                     <td class="p-3.5 font-mono">${Number(item.totalKg).toLocaleString('pt-BR')} Kg</td>
                     <td class="p-3.5">${renderizarBadgeStatus(item.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('faturamento', ${item.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('faturamento', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
@@ -2298,7 +2814,7 @@
                     <td class="p-3.5">${renderizarBadgeStatus(item.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('comercial', ${item.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('comercial', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
@@ -2317,15 +2833,16 @@
             const tbody = document.getElementById('tabelaTrackingBody');
             if(!tbody) return;
             tbody.innerHTML = dadosApp.tracking.map(i => `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 ${i.statusFinal !== 'ENTREGUE (OK)' ? 'bg-rose-50 dark:bg-rose-950/20' : ''}">
                     <td class="p-3.5 font-mono font-bold">${i.numPedido || '-'}</td>
                     <td class="p-3.5 font-mono font-bold text-purple-600 dark:text-purple-400">${obterNFDoPedido(i.numPedido || i.nota)}</td>
                     <td class="p-3.5 font-mono font-bold text-indigo-600 dark:text-indigo-400">${i.ticket || obterTicketDoPedido(i.numPedido) || '-'}</td>
-                    <td class="p-3.5 font-semibold text-purple-600 dark:text-purple-400">${i.statusFinal}</td>
+                    <td class="p-3.5 font-semibold ${i.statusFinal === 'ENTREGUE (OK)' ? 'text-purple-600 dark:text-purple-400' : 'text-rose-600 dark:text-rose-400'}">${i.statusFinal}</td>
+                    <td class="p-3.5 text-xs font-medium text-slate-700 dark:text-slate-300">${i.motivoAvaria && i.motivoAvaria !== '-' ? i.motivoAvaria : '<span class="text-slate-400">-</span>'}</td>
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('tracking', ${i.id})" class="text-amber-600 dark:text-amber-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('tracking', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
@@ -2455,6 +2972,8 @@
                 const nf = obterNFDoPedido(num);
                 const ticket = obterTicketDoPedido(num);
                 const etapa = calcularStatusEtapa(num);
+                const garg = verificarGargaloSLA(num);
+                const trcItem = (dadosApp.tracking || []).find(t => String(t.numPedido || '').trim().toLowerCase() === String(num).trim().toLowerCase());
 
                 return {
                     "Nº Pedido": num,
@@ -2466,7 +2985,10 @@
                     "Qtd Paletes": item.paletes || item.qtdPedido || 0,
                     "Peso Total (Kg)": item.peso || 0,
                     "Ticket Transporte": ticket || '-',
-                    "Status Atual na Esteira": etapa.badge
+                    "Status Atual na Esteira": etapa.badge,
+                    "SLA / Gargalo (>24h)": garg.estagnado ? `SIM (${garg.horas}h no ${garg.setor})` : "OK",
+                    "Status Entrega / Ocorrência": trcItem ? trcItem.statusFinal : "Pendente",
+                    "Motivo Técnico da Avaria": trcItem ? (trcItem.motivoAvaria || '-') : '-'
                 };
             });
 
@@ -2474,16 +2996,9 @@
             const ws = XLSX.utils.json_to_sheet(dadosFormatados);
 
             ws['!cols'] = [
-                { wch: 16 },
-                { wch: 18 },
-                { wch: 28 },
-                { wch: 22 },
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 12 },
-                { wch: 16 },
-                { wch: 18 },
-                { wch: 35 }
+                { wch: 16 }, { wch: 18 }, { wch: 28 }, { wch: 22 }, { wch: 15 },
+                { wch: 15 }, { wch: 12 }, { wch: 16 }, { wch: 18 }, { wch: 35 },
+                { wch: 25 }, { wch: 25 }, { wch: 35 }
             ];
 
             XLSX.utils.book_append_sheet(wb, ws, "Relatorio_Logistica");
