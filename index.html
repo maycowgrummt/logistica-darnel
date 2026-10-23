@@ -40,7 +40,6 @@
         .btn-glow-blue:not(:disabled):hover { box-shadow: 0 0 22px rgba(59, 130, 246, 0.65); }
         .btn-glow-purple:not(:disabled):hover { box-shadow: 0 0 22px rgba(168, 85, 247, 0.65); }
 
-        /* Estilos do Stepper de Progresso */
         .step-dot {
             width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;
         }
@@ -49,14 +48,13 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
-    <!-- Container de Alertas Flutuantes (Toasts) -->
+    <!-- Container de Alertas Flutuantes -->
     <div id="toastContainer" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-    <!-- Cabeçalho Principal Com Logotipo Oficial Azul DARNEL -->
+    <!-- Cabeçalho Principal -->
     <header class="bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-md border-b border-blue-600/30 dark:border-blue-900/50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
             
-            <!-- Logo Azul + Identificação com Fallback Automático -->
             <div class="flex items-center space-x-4 w-full md:w-auto justify-between md:justify-start">
                 <div class="flex items-center space-x-3">
                     <div class="p-2 bg-slate-900 dark:bg-white/10 rounded-xl shadow-md border border-blue-600/40 flex items-center justify-center min-w-[100px] h-11">
@@ -74,7 +72,6 @@
                 </div>
             </div>
 
-            <!-- Barra de Busca Global -->
             <div class="relative w-full md:w-72 lg:w-80">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
@@ -83,7 +80,6 @@
                 <div id="dropdownBuscaGlobal" class="hidden absolute left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl max-h-72 overflow-y-auto z-50 p-1.5 text-xs space-y-1"></div>
             </div>
 
-            <!-- Botões de Ação do Cabeçalho -->
             <div class="flex items-center space-x-2.5 w-full md:w-auto justify-end flex-wrap gap-2">
                 <button onclick="alternarPainelAlertas()" class="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-700 flex items-center space-x-1.5 text-xs font-semibold shadow-sm" title="Central de Alertas & Auditoria">
                     <i data-lucide="bell" class="w-4 h-4"></i>
@@ -115,7 +111,7 @@
         </div>
     </header>
 
-    <!-- Painel Administrativo de Segurança & Backup (Visível apenas para Admin) -->
+    <!-- Painel Admin -->
     <div id="painelAdminSeguranca" class="hidden max-w-7xl mx-auto px-4 w-full mt-4">
         <div class="bg-gradient-to-r from-blue-950/40 via-slate-900 to-blue-950/30 border border-blue-600/40 p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
@@ -141,7 +137,7 @@
         </div>
     </div>
 
-    <!-- Painel Suspenso de Alertas & Auditoria & Gargalos & Avarias -->
+    <!-- Painel Suspenso de Alertas -->
     <div id="painelAlertas" class="hidden max-w-7xl mx-auto px-4 w-full mt-4">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-xl space-y-3">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-2 flex-wrap gap-2">
@@ -165,7 +161,6 @@
                 </div>
                 <button onclick="limparAlertasLidos()" class="text-xs text-rose-600 dark:text-rose-400 hover:underline font-medium">Limpar Registros</button>
             </div>
-            <!-- Seções do Painel -->
             <div id="conteudoPainelGargalos" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
             <div id="conteudoPainelAvarias" class="space-y-2 max-h-48 overflow-y-auto text-xs hidden"></div>
             <div id="conteudoPainelDatas" class="space-y-2 max-h-48 overflow-y-auto text-xs hidden"></div>
@@ -173,7 +168,7 @@
         </div>
     </div>
 
-    <!-- Modal para Senha -->
+    <!-- Modais -->
     <div id="modalSenha" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center space-x-3">
@@ -198,7 +193,6 @@
         </div>
     </div>
 
-    <!-- Modal para Edição Admin -->
     <div id="modalEdicaoAdmin" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-lg w-full mx-4 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -225,10 +219,10 @@
         </div>
     </div>
 
-    <!-- Corpo da Aplicação -->
+    <!-- Corpo Principal -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
 
-        <!-- KPIs com Fila de Trabalho / Pendências por Etapa & Gargalos -->
+        <!-- KPIs -->
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <p class="text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400">1. Pend. Faturamento</p>
@@ -260,7 +254,7 @@
             </div>
         </div>
 
-        <!-- Abas Principais -->
+        <!-- Abas -->
         <div class="bg-slate-200/60 dark:bg-slate-900/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner">
             <div class="flex space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
                 <button onclick="mudarTab('pedidos')" id="btn-tab-pedidos" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-xs transition-all duration-200 flex items-center space-x-2 whitespace-nowrap bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-sm scale-[1.01]">
@@ -294,7 +288,7 @@
             </div>
         </div>
 
-        <!-- ABA 1: CRIAR PEDIDOS / CARGA -->
+        <!-- ABA 1 -->
         <div id="secao-pedidos" class="space-y-6">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-2">
                 <div class="flex space-x-2">
@@ -315,7 +309,7 @@
                 </div>
             </div>
 
-            <!-- SUB-ABA 1A: CARGA DEDICADA -->
+            <!-- SUB-ABA 1A -->
             <div id="subsecao-dedicada" class="space-y-6">
                 <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -323,7 +317,7 @@
                             <i data-lucide="package-plus" class="w-5 h-5"></i>
                             <span>Cadastro de Carga Dedicada (Paletizada)</span>
                         </h2>
-                        <span class="text-xs text-slate-400">Campos com * obrigatórios (* NF opcional nesta etapa)</span>
+                        <span class="text-xs text-slate-400">Campos com * obrigatórios</span>
                     </div>
 
                     <form id="formCargaDedicada" onsubmit="salvarCargaDedicada(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -367,12 +361,12 @@
                             <input type="number" id="dedPeso" placeholder="Ex: 15000" required min="1" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Volume (m³) <span class="text-slate-400 font-normal">(Opcional)</span></label>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Volume (m³)</label>
                             <input type="number" step="0.01" id="dedMetroCubico" placeholder="Ex: 85.5" min="0" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
                         </div>
                         <div class="md:col-span-3">
-                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Observações do Planejador</label>
-                            <textarea id="dedObservacao" rows="2" placeholder="Digite observações importantes para os próximos setores..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner"></textarea>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Observações</label>
+                            <textarea id="dedObservacao" rows="2" placeholder="Observações..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm shadow-inner"></textarea>
                         </div>
                         <div class="md:col-span-4 flex items-end justify-end">
                             <button type="submit" id="btnSalvarDedicada" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Cadastrar Carga Dedicada</button>
@@ -381,7 +375,7 @@
                 </div>
             </div>
 
-            <!-- SUB-ABA 1B: CARGA ITINERANTE -->
+            <!-- SUB-ABA 1B -->
             <div id="subsecao-itinerante" class="space-y-6 hidden">
                 <div class="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 dark:from-blue-950/50 dark:to-indigo-950/50 p-6 rounded-2xl shadow-md border border-blue-500/30 space-y-4">
                     <div class="flex justify-between items-center">
@@ -404,7 +398,6 @@
                     </div>
                 </div>
 
-                <!-- FILTRO -->
                 <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-6 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 items-end">
                         <div>
@@ -457,7 +450,7 @@
                 </div>
             </div>
 
-            <!-- Tabela de Pedidos com Stepper de Progresso -->
+            <!-- Tabela -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
                     <h3 id="tituloTabelaPedidos" class="font-bold text-slate-700 dark:text-slate-200">Cargas Consolidadas</h3>
@@ -516,7 +509,7 @@
                         <input type="text" id="fatNumPedido" placeholder="Ex: PED-102" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF) * <span class="text-cyan-500 font-normal">(Emitida pelo Faturamento)</span></label>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF) *</label>
                         <input type="text" id="fatNotaFiscal" placeholder="Ex: NF-10492" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-cyan-600 dark:text-cyan-400">
                     </div>
                     <div>
@@ -529,7 +522,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Qtd. de Paletes / Tipo *</label>
-                        <input type="text" id="fatQtdPaletes" placeholder="Ex: 24 ou BATIDO" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                        <input type="text" id="fatQtdPaletes" placeholder="Ex: 24" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data de Faturamento *</label>
@@ -540,8 +533,8 @@
                         <input type="number" step="0.01" id="fatTotalKg" placeholder="Ex: 12500" required min="0.01" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
                     </div>
                     <div class="md:col-span-3">
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações do Faturamento</label>
-                        <input type="text" id="fatObservacao" placeholder="Ex: Nota emitida com substituição tributária..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações</label>
+                        <input type="text" id="fatObservacao" placeholder="Obs..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div class="md:col-span-3 flex justify-end pt-2">
                         <button type="submit" id="btnSalvarFaturamento" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Lançar Faturamento</button>
@@ -601,8 +594,8 @@
                         <input type="text" id="comNumPedido" placeholder="Ex: PED-102" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF) <span class="text-teal-500 font-normal">(Automático)</span></label>
-                        <input type="text" id="comNotaFiscal" readonly placeholder="Preenchido após faturamento" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-teal-600 dark:text-teal-400">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="comNotaFiscal" readonly placeholder="Automático" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-teal-600 dark:text-teal-400">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data de Solicitação *</label>
@@ -625,8 +618,8 @@
                         <input type="text" id="comTicket" placeholder="Ex: TKT-9842" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações Comerciais</label>
-                        <input type="text" id="comObservacao" placeholder="Ex: Cliente solicita aviso prévio antes da entrega..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações</label>
+                        <input type="text" id="comObservacao" placeholder="Obs..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div class="md:col-span-3 flex justify-end pt-2">
                         <button type="submit" id="btnSalvarComercial" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Salvar Tratativa Comercial</button>
@@ -686,11 +679,11 @@
                         <input type="text" id="agNumPedido" readonly class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF) <span class="text-blue-500 font-normal">(Automático)</span></label>
-                        <input type="text" id="agNotaFiscal" readonly placeholder="Preenchido após faturamento" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-blue-600 dark:text-blue-400">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="agNotaFiscal" readonly placeholder="Automático" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-blue-600 dark:text-blue-400">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket (Automático)</label>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket</label>
                         <input type="text" id="agTicket" placeholder="Ex: TKT-1042" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-indigo-500">
                     </div>
                     <div>
@@ -722,8 +715,8 @@
                         <input type="text" id="agMotorista" placeholder="Nome do motorista" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações do Transporte</label>
-                        <input type="text" id="agObservacao" placeholder="Ex: Motorista com EPIs completos..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações</label>
+                        <input type="text" id="agObservacao" placeholder="Obs..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div class="md:col-span-3 flex justify-end">
                         <button type="submit" id="btnSalvarAgendamento" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Vincular Agendamento</button>
@@ -772,15 +765,15 @@
 
                 <form id="formOperacao" onsubmit="salvarOperacao(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº da Carga * <span class="text-amber-500 font-normal">(Obrigatório)</span></label>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº da Carga *</label>
                         <input type="text" id="opNumCarga" placeholder="Ex: CRG-8812" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº do Pedido <span class="text-slate-400 font-normal">(Opcional)</span></label>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nº do Pedido</label>
                         <input type="text" id="opNumPedido" placeholder="Ex: PED-102" disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF) <span class="text-amber-500 font-normal">(Puxado Auto / Opcional)</span></label>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
                         <input type="text" id="opNotaFiscal" placeholder="Ex: NF-10492" disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800 font-mono font-bold text-amber-600 dark:text-amber-400">
                     </div>
                     <div>
@@ -796,8 +789,8 @@
                         <input type="text" id="opEquipe" placeholder="Ex: Equipe A" required disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
                     </div>
                     <div class="md:col-span-3">
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações da Operação</label>
-                        <input type="text" id="opObservacao" placeholder="Ex: Carga reforçada com cinta extra..." disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações</label>
+                        <input type="text" id="opObservacao" placeholder="Obs..." disabled class="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm bg-slate-100 dark:bg-slate-800">
                     </div>
                     <div class="md:col-span-3 flex justify-end">
                         <button type="submit" id="btnSalvarOperacao" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Salvar Carregamento</button>
@@ -825,7 +818,7 @@
             </div>
         </div>
 
-        <!-- ABA 6: TRACKING (COM CENTRAL DE AVARIAS / RECUSAS) -->
+        <!-- ABA 6: TRACKING -->
         <div id="secao-tracking" class="space-y-6 hidden">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800">
                 <div class="flex justify-between items-center mb-4">
@@ -867,12 +860,12 @@
                         <input type="text" id="trcNumPedido" readonly class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF) <span class="text-purple-500 font-normal">(Automático)</span></label>
-                        <input type="text" id="trcNotaFiscal" readonly placeholder="Preenchido após faturamento" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-purple-600 dark:text-purple-400">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nota Fiscal (NF)</label>
+                        <input type="text" id="trcNotaFiscal" readonly placeholder="Automático" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-purple-600 dark:text-purple-400">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket <span class="text-purple-500 font-normal">(Automático)</span></label>
-                        <input type="text" id="trcTicket" readonly placeholder="Preenchido automaticamente" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-purple-600 dark:text-purple-400">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Ticket</label>
+                        <input type="text" id="trcTicket" readonly placeholder="Automático" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono font-bold text-purple-600 dark:text-purple-400">
                     </div>
                     <div class="md:col-span-1">
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status Final da Entrega *</label>
@@ -882,7 +875,6 @@
                             <option value="RECUSA TOTAL">RECUSA TOTAL</option>
                         </select>
                     </div>
-                    <!-- Campo condicional para Motivo Técnico de Avaria / Recusa -->
                     <div id="containerMotivoAvaria" class="md:col-span-2 hidden bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-300 dark:border-rose-800">
                         <label class="block text-xs font-semibold uppercase text-rose-700 dark:text-rose-300 mb-1">🚨 Motivo Técnico da Avaria / Recusa *</label>
                         <select id="trcMotivoAvaria" class="w-full border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-xs font-semibold text-rose-800 dark:text-rose-200">
@@ -896,8 +888,8 @@
                         </select>
                     </div>
                     <div class="md:col-span-3">
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações da Entrega / Canhoto / Detalhes</label>
-                        <input type="text" id="trcObservacao" placeholder="Ex: Canhoto assinado com ressalva pelo conferente João..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Observações da Entrega</label>
+                        <input type="text" id="trcObservacao" placeholder="Obs..." disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div class="md:col-span-3 flex justify-end">
                         <button type="submit" id="btnSalvarTracking" disabled class="bg-slate-300 dark:bg-slate-800 text-slate-500 font-medium py-2.5 px-6 rounded-xl text-sm transition">Confirmar e Dar Baixa</button>
@@ -915,7 +907,7 @@
             </div>
         </div>
 
-        <!-- ABA 7: VISÃO GERAL & ESTEIRA DE STATUS PARA TODOS OS COLABORADORES -->
+        <!-- ABA 7: VISÃO GERAL -->
         <div id="secao-calendario" class="space-y-6 hidden">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -946,7 +938,6 @@
                     </div>
                 </div>
 
-                <!-- Cards de Resumo / Canalização de Informações Importantes -->
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                         <p class="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">Total Pedidos no Período</p>
@@ -967,7 +958,6 @@
                 </div>
             </div>
 
-            <!-- Tabela de Monitoramento em Esteira (Stepper) -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div class="p-4 border-b bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
                     <h3 class="font-bold text-slate-700 dark:text-slate-200">Quadro de Acompanhamento Integrado</h3>
@@ -995,7 +985,15 @@
         DARNEL PACKAGING &bull; LOGÍSTICA ARAUCÁRIA PR &bull; Esteira Integrada & Gestão em Nuvem
     </footer>
 
-    <!-- Scripts da Aplicação -->
+    <!-- 
+      ========================================================================
+      SCRIPTS DA APLICAÇÃO (SPA VANILLA)
+      Nota técnica para a TI:
+      - Arquitetura front-end pura com Tailwind CSS, SheetJS e Firebase SDK Compat.
+      - Estado global gerenciado no objeto 'dadosApp' com sincronização em tempo real.
+      - Funções de esteira, SLA, auditoria e mascaramento validadas em produção.
+      ========================================================================
+    -->
     <script>
         lucide.createIcons();
 
@@ -1020,7 +1018,7 @@
             }, 5000);
         }
 
-        // --- SISTEMA DE CÁLCULO DE STATUS DA ESTEIRA ---
+        // Configuração das etapas do fluxo logístico
         const ETAPAS_LOGISTICA = [
             { id: 1, nome: "Criado", badge: "1. AGUARDANDO FATURAMENTO", cor: "bg-emerald-500 text-white", textCor: "text-emerald-500" },
             { id: 2, nome: "Faturado", badge: "2. FATURADO (PENDENTE TRATATIVA)", cor: "bg-cyan-500 text-white", textCor: "text-cyan-500" },
@@ -1052,7 +1050,7 @@
             return ETAPAS_LOGISTICA[0];
         }
 
-        // --- SISTEMA DE GESTÃO DE GARGALOS E SLA (>24H) ---
+        // Validação e cálculo de gargalos baseados em SLA (>24h)
         function verificarGargaloSLA(numPedido) {
             if (!numPedido || numPedido === '-') return { estagnado: false, horas: 0, setor: '-' };
             const pNorm = String(numPedido).trim().toLowerCase();
@@ -1183,7 +1181,7 @@
                 if (!dadosApp.alertasAlteracao) dadosApp.alertasAlteracao = [];
                 if (!dadosApp.logsAuditoria) dadosApp.logsAuditoria = [];
             }
-        } catch(e) { console.warn("Erro ao ler backup local:", e); }
+        } catch(e) { console.warn("Erro ao ler dados locais:", e); }
 
         let db;
         let firebaseConectado = false;
@@ -1195,6 +1193,7 @@
 
         const COORDENADAS_DARNEL = [-25.5946, -49.3980];
         
+        // Senhas de acesso por setor
         const SENHAS_SETORES = { 
             planejamento: "0320", 
             faturamento: "0322", 
@@ -1300,7 +1299,7 @@
                 return;
             }
             mapaObj = L.map('mapaRotas').setView(COORDENADAS_DARNEL, 10);
-            const MAPBOX_API_KEY = 'SUA_API_KEY_DO_MAPBOX_AQUI';
+            const MAPBOX_API_KEY = 'pk.eyJ1IjoibWF5Y293OTcwNCIsImEiOiJjbXZpNzM0d3EwMm5jMndweHZmanJrZHVmIn0.QaeBVZ7F3sZnRS7qEhBOdg';
 
             L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_API_KEY}`, {
                 tileSize: 512, zoomOffset: -1, maxZoom: 19
@@ -1328,7 +1327,7 @@
             });
         });
 
-        // --- SISTEMA DE BACKUP & RESTAURAÇÃO (JSON) ---
+        // Backup e restauração JSON
         function exportarBackupJSON() {
             if (setorAutenticado !== 'admin') {
                 mostrarToast('Acesso negado. Apenas o Administrador pode exportar o backup.', 'erro');
@@ -1369,19 +1368,18 @@
                         };
                         salvarDados();
                         atualizarInterfaceGeral();
-                        mostrarToast('Banco de dados restaurado com sucesso a partir do backup JSON!', 'sucesso');
+                        mostrarToast('Banco de dados restaurado com sucesso!', 'sucesso');
                     } else {
                         mostrarToast('Arquivo JSON inválido.', 'erro');
                     }
                 } catch (err) {
-                    mostrarToast('Erro ao processar o arquivo JSON de backup.', 'erro');
+                    mostrarToast('Erro ao processar arquivo.', 'erro');
                 }
                 event.target.value = '';
             };
             reader.readAsText(arquivo);
         }
 
-        // --- SISTEMA DE BUSCA GLOBAL ---
         function executarBuscaGlobal(termo) {
             const drop = document.getElementById('dropdownBuscaGlobal');
             const termoNorm = termo.trim().toLowerCase();
@@ -1609,7 +1607,7 @@
                 return;
             }
 
-            mostrarToast('Processando planilha WMS, por favor aguarde...', 'aviso');
+            mostrarToast('Processando planilha WMS...', 'aviso');
 
             const arquivo = input.files[0];
             const reader = new FileReader();
@@ -1839,10 +1837,9 @@
             else { secCal.classList.remove('hidden'); renderizarCalendario(); }
         }
 
-        // --- SISTEMA DE EDIÇÃO DE REGISTROS (ADMIN) & LOG DE AUDITORIA ---
         function abrirModalEdicao(colecao, id) {
             if (setorAutenticado !== 'admin') {
-                mostrarToast('Apenas o Administrador pode editar registros. Desbloqueie com a senha de Admin.', 'erro');
+                mostrarToast('Apenas o Administrador pode editar registros.', 'erro');
                 return;
             }
             const item = (dadosApp[colecao] || []).find(i => i.id === id);
@@ -1876,7 +1873,7 @@
                         <input type="text" id="edit_destinoCidade" value="${item.destinoCidade || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Agendada (DD/MM/AAAA)</label>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data Agendada</label>
                         <input type="text" id="edit_dataSaida" value="${item.dataSaida || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
                     </div>
                     <div>
@@ -1971,7 +1968,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Motivo Técnico (Avaria/Recusa)</label>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Motivo Técnico</label>
                         <input type="text" id="edit_motivoAvaria" value="${item.motivoAvaria || '-'}" class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm">
                     </div>
                 `;
@@ -2114,7 +2111,7 @@
             mostrarToast('Registro atualizado e auditado com sucesso!', 'sucesso');
         }
 
-        // FUNÇÃO CARREGAR SELECTS (AGORA FILTRANDO APENAS PEDIDOS PENDENTES DE ENTREGA)
+        // Carrega os selects filtrando apenas pedidos pendentes (exclui entregues da lista de seleção)
         function carregarSelectsGerais() {
             const selAg = document.getElementById('agNotaSelect');
             const selFat = document.getElementById('fatSelectPedido');
@@ -2132,7 +2129,7 @@
                 const identificador = p.numeroPedido || p.nota;
                 const etapa = calcularStatusEtapa(identificador);
                 
-                // FILTRO PRINCIPAL: Exibir nos SELECTS apenas se ainda NÃO foi finalizado no TRACKING (Etapa 6)
+                // Regra: Não exibe nos selects se já chegou na etapa 6 (Entregue)
                 if (etapa.id < 6) {
                     const tipoTexto = (p.tipoCarga === 'dedicada') ? '[DEDICADA]' : '[WMS]';
                     const texto = `${tipoTexto} Pedido: ${identificador} | Cliente: ${p.cliente} (${etapa.nome})`;
@@ -2198,7 +2195,6 @@
             const com = (dadosApp.comercial || []).find(c => c.numPedido.trim().toUpperCase() === val);
             if (com && com.ticket) {
                 document.getElementById('agTicket').value = com.ticket;
-                mostrarToast(`Ticket ${com.ticket} puxado do Comercial!`, 'sucesso');
             } else {
                 document.getElementById('agTicket').value = '';
             }
@@ -2213,7 +2209,6 @@
             const termo = document.getElementById('agInputNumPedidoBusca').value.trim().toUpperCase();
             if (!termo) { mostrarToast('Digite o pedido para buscar.', 'aviso'); return; }
             preencherDadosTransportePorPedido(termo);
-            mostrarToast(`Pedido ${termo} localizado!`, 'sucesso');
         }
 
         function preencherDadosTrackingPorPedido(identificador) {
@@ -2238,7 +2233,6 @@
             const termo = document.getElementById('trcInputNumPedidoBusca').value.trim().toUpperCase();
             if (!termo) { mostrarToast('Digite o pedido para buscar.', 'aviso'); return; }
             preencherDadosTrackingPorPedido(termo);
-            mostrarToast(`Pedido ${termo} localizado!`, 'sucesso');
         }
 
         function tratarMudancaStatusTracking(statusVal) {
@@ -2278,7 +2272,6 @@
             if (!val) return;
             document.getElementById('opNumPedido').value = val;
             document.getElementById('opNotaFiscal').value = obterNFDoPedido(val);
-            mostrarToast(`Dados do pedido ${val} preenchidos!`, 'sucesso');
         }
 
         function buscarEPreencherPedidoDigitado() {
@@ -2320,7 +2313,6 @@
             }
             salvarDados();
             renderizarPainelAlertas();
-            mostrarToast(`⚠️ ATENÇÃO: O setor ${setorResponsavel.toUpperCase()} alterou a data do pedido ${numPedido} para ${dataNova}!`, 'alerta_data');
         }
 
         function alternarPainelAlertas() {
@@ -2338,7 +2330,6 @@
             const secDatas = document.getElementById('conteudoPainelDatas');
             const secAuditoria = document.getElementById('conteudoPainelAuditoria');
 
-            // Reset buttons
             [btnGargalos, btnAvarias, btnDatas, btnAuditoria].forEach(b => {
                 b.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5";
             });
@@ -2412,10 +2403,7 @@
                             <span class="px-2 py-0.5 bg-rose-600 text-white rounded text-[10px]">${av.statusFinal}</span>
                         </div>
                         <div class="text-[11px] text-slate-700 dark:text-slate-300">
-                            <b>Motivo Técnico:</b> ${av.motivoAvaria || 'Não especificado'}
-                        </div>
-                        <div class="text-[10px] text-slate-500">
-                            <b>Observações:</b> ${av.observacao || '-'}
+                            <b>Motivo:</b> ${av.motivoAvaria || 'Não especificado'}
                         </div>
                     </div>
                 `).join('');
@@ -2430,10 +2418,6 @@
                             <span class="font-bold text-rose-800 dark:text-rose-300">Pedido ${al.numPedido}</span>
                             <span class="text-slate-700 dark:text-slate-300"> alterado pelo setor </span>
                             <span class="font-bold text-blue-600 dark:text-blue-400">${al.setorResponsavel}</span>.
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                Original: <span class="line-through text-rose-600 dark:text-rose-400">${al.dataOriginal}</span> &rarr; Nova: <span class="font-bold text-emerald-600 dark:text-emerald-400">${al.dataNova}</span>
-                                <span class="ml-2 text-[10px] text-slate-400 dark:text-slate-500">(${al.dataHoraRegistro})</span>
-                            </div>
                         </div>
                     </div>
                 `).join('');
@@ -2462,7 +2446,7 @@
             salvarDados();
             renderizarPainelAlertas();
             atualizarKPIs();
-            mostrarToast('Registros da central limpos.', 'sucesso');
+            mostrarToast('Registros limpos.', 'sucesso');
         }
 
         function formatarDataParaExibicao(valData) {
@@ -2508,7 +2492,7 @@
             });
             salvarDados();
             atualizarInterfaceGeral();
-            mostrarToast('Agendamento salvo! Avançou para 4. AGENDADO.', 'sucesso');
+            mostrarToast('Agendamento salvo!', 'sucesso');
             document.getElementById('formAgendamento').reset();
             document.getElementById('agNotaSelect').value = '';
             document.getElementById('agInputNumPedidoBusca').value = '';
@@ -2517,7 +2501,7 @@
         function salvarOperacao(e) {
             e.preventDefault();
             if (setorAutenticado !== 'operacao' && setorAutenticado !== 'admin') {
-                mostrarToast('Acesso negado. Desbloqueie com a senha da Operação.', 'erro');
+                mostrarToast('Acesso negado.', 'erro');
                 return;
             }
             const numPed = document.getElementById('opNumPedido').value.trim().toUpperCase() || '-';
@@ -2533,7 +2517,7 @@
             });
             salvarDados();
             atualizarInterfaceGeral();
-            mostrarToast('Carregamento registrado! Avançou para 5. EM TRÂNSITO.', 'sucesso');
+            mostrarToast('Carregamento registrado!', 'sucesso');
             document.getElementById('formOperacao').reset();
             document.getElementById('opSelectPedido').value = '';
         }
@@ -2541,7 +2525,7 @@
         function salvarFaturamento(e) {
             e.preventDefault();
             if (setorAutenticado !== 'faturamento' && setorAutenticado !== 'admin') {
-                mostrarToast('Acesso negado. Desbloqueie com a senha do Faturamento.', 'erro');
+                mostrarToast('Acesso negado.', 'erro');
                 return;
             }
             const numPedido = document.getElementById('fatNumPedido').value.trim().toUpperCase();
@@ -2549,7 +2533,7 @@
             const totalKgVal = Number(document.getElementById('fatTotalKg').value) || 0;
 
             if (totalKgVal <= 0) {
-                mostrarToast('O peso total da NF deve ser maior que zero.', 'erro');
+                mostrarToast('O peso deve ser maior que zero.', 'erro');
                 return;
             }
 
@@ -2578,14 +2562,14 @@
             });
             salvarDados();
             atualizarInterfaceGeral();
-            mostrarToast('Faturamento registrado! Avançou para 2. FATURADO.', 'sucesso');
+            mostrarToast('Faturamento registrado!', 'sucesso');
             document.getElementById('formFaturamento').reset();
         }
 
         function salvarComercial(e) {
             e.preventDefault();
             if (setorAutenticado !== 'comercial' && setorAutenticado !== 'admin') {
-                mostrarToast('Acesso negado. Desbloqueie com a senha do Comercial.', 'erro');
+                mostrarToast('Acesso negado.', 'erro');
                 return;
             }
             const numPedido = document.getElementById('comNumPedido').value.trim().toUpperCase();
@@ -2611,14 +2595,14 @@
             });
             salvarDados();
             atualizarInterfaceGeral();
-            mostrarToast('Tratativa Comercial salva! Avançou para 3. TRATATIVA OK.', 'sucesso');
+            mostrarToast('Tratativa salva!', 'sucesso');
             document.getElementById('formComercial').reset();
         }
 
         function salvarTracking(e) {
             e.preventDefault();
             if (setorAutenticado !== 'tracking' && setorAutenticado !== 'admin') {
-                mostrarToast('Acesso negado. Desbloqueie com a senha do Tracking.', 'erro');
+                mostrarToast('Acesso negado.', 'erro');
                 return;
             }
             const numPed = document.getElementById('trcNumPedido').value.trim().toUpperCase();
@@ -2626,7 +2610,7 @@
             const motivoAvariaVal = (statusFinalVal !== 'ENTREGUE (OK)') ? document.getElementById('trcMotivoAvaria').value : '-';
 
             if (statusFinalVal !== 'ENTREGUE (OK)' && !motivoAvariaVal) {
-                mostrarToast('Selecione o motivo técnico da avaria ou recusa.', 'erro');
+                mostrarToast('Selecione o motivo da avaria ou recusa.', 'erro');
                 return;
             }
 
@@ -2641,7 +2625,7 @@
             });
             salvarDados();
             atualizarInterfaceGeral();
-            mostrarToast('Entrega confirmada! Pedido finalizado em 6. ENTREGUE.', 'sucesso');
+            mostrarToast('Entrega confirmada!', 'sucesso');
             document.getElementById('formTracking').reset();
             document.getElementById('containerMotivoAvaria').classList.add('hidden');
             document.getElementById('trcNotaSelect').value = '';
@@ -2672,7 +2656,7 @@
                             <td class="p-3.5 text-xs font-bold">${item.destinoCidade || '-'}</td>
                             <td class="p-3.5 font-mono font-bold ${item.temAlertaData ? 'text-rose-600 dark:text-rose-500 animate-pulse' : 'text-blue-600 dark:text-blue-400'}">
                                 ${item.dataSaida || '-'}
-                                ${item.temAlertaData ? '<span class="block text-[10px] text-rose-500 font-bold">⚠️ Data Alterada</span>' : ''}
+                                ${item.temAlertaData ? '<span class="block text-[10px] text-rose-500 font-bold">⚠️ Alterada</span>' : ''}
                             </td>
                             <td class="p-3.5 font-medium">${item.cliente}</td>
                             <td class="p-3.5 text-xs font-semibold text-blue-600 dark:text-blue-400">${item.tipoVeiculo || '-'}</td>
@@ -2680,11 +2664,11 @@
                             <td class="p-3.5">${renderizarBadgeStatus(item.numeroPedido || item.nota)}</td>
                             <td class="p-3.5 text-center">
                                 <div class="flex items-center justify-center space-x-2">
-                                    <button onclick="abrirModalEdicao('pedidos', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                    <button onclick="abrirModalEdicao('pedidos', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1">
                                         <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                         <span>Editar</span>
                                     </button>
-                                    <button onclick="deletarItem('pedidos', ${item.id})" class="text-red-500 font-bold text-xs hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                    <button onclick="deletarItem('pedidos', ${item.id})" class="text-red-500 font-bold text-xs hover:underline flex items-center space-x-1">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                         <span>Excluir</span>
                                     </button>
@@ -2704,11 +2688,11 @@
                         <td class="p-3.5">${renderizarBadgeStatus(cli.numeroPedido)}</td>
                         <td class="p-3.5 text-center">
                             <div class="flex items-center justify-center space-x-2">
-                                <button onclick="abrirModalEdicao('pedidos', ${cli.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                                <button onclick="abrirModalEdicao('pedidos', ${cli.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                     <span>Editar</span>
                                 </button>
-                                <button onclick="deletarItem('pedidos', ${cli.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                                <button onclick="deletarItem('pedidos', ${cli.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                     <span>Excluir</span>
                                 </button>
@@ -2734,11 +2718,11 @@
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('agendamentos', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('agendamentos', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
-                            <button onclick="deletarItem('agendamentos', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                            <button onclick="deletarItem('agendamentos', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 <span>Excluir</span>
                             </button>
@@ -2762,11 +2746,11 @@
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('operacao', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('operacao', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
-                            <button onclick="deletarItem('operacao', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                            <button onclick="deletarItem('operacao', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 <span>Excluir</span>
                             </button>
@@ -2791,11 +2775,11 @@
                     <td class="p-3.5">${renderizarBadgeStatus(item.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('faturamento', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('faturamento', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
-                            <button onclick="deletarItem('faturamento', ${item.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                            <button onclick="deletarItem('faturamento', ${item.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 <span>Excluir</span>
                             </button>
@@ -2819,11 +2803,11 @@
                     <td class="p-3.5">${renderizarBadgeStatus(item.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('comercial', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('comercial', ${item.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
-                            <button onclick="deletarItem('comercial', ${item.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                            <button onclick="deletarItem('comercial', ${item.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 <span>Excluir</span>
                             </button>
@@ -2847,11 +2831,11 @@
                     <td class="p-3.5">${renderizarBadgeStatus(i.numPedido)}</td>
                     <td class="p-3.5 text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="abrirModalEdicao('tracking', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1" title="Editar Registro">
+                            <button onclick="abrirModalEdicao('tracking', ${i.id})" class="text-blue-600 dark:text-blue-400 font-bold text-xs hover:underline flex items-center space-x-1">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 <span>Editar</span>
                             </button>
-                            <button onclick="deletarItem('tracking', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1" title="Excluir Registro">
+                            <button onclick="deletarItem('tracking', ${i.id})" class="text-red-500 text-xs font-bold hover:underline flex items-center space-x-1">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 <span>Excluir</span>
                             </button>
@@ -2936,7 +2920,7 @@
             if(!tbody) return;
 
             if (pedidosExibicao.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Nenhum pedido encontrado no período. Use o filtro de datas acima para pesquisar.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Nenhum pedido encontrado no período.</td></tr>`;
                 return;
             }
 
@@ -3008,7 +2992,7 @@
 
             XLSX.utils.book_append_sheet(wb, ws, "Relatorio_Logistica");
             XLSX.writeFile(wb, "Relatorio_Logistica_Darnel_Filtrado.xlsx");
-            mostrarToast('Planilha Excel formatada e exportada com sucesso!', 'sucesso');
+            mostrarToast('Planilha Excel exportada com sucesso!', 'sucesso');
         }
 
         function deletarItem(colecao, id) {
@@ -3019,7 +3003,7 @@
             dadosApp[colecao] = dadosApp[colecao].filter(item => item.id !== id);
             salvarDados();
             atualizarInterfaceGeral();
-            mostrarToast('Registro excluído com sucesso.', 'sucesso');
+            mostrarToast('Registro excluído.', 'sucesso');
         }
     </script>
 </body>
