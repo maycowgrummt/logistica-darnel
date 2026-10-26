@@ -315,7 +315,7 @@
                     <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                         <h2 class="text-md font-bold text-emerald-600 dark:text-emerald-400 flex items-center space-x-2">
                             <i data-lucide="package-plus" class="w-5 h-5"></i>
-                            <span>Cadastro de Carga Dedicada (Paletizada)</span>
+                            <span>Cadastro de Carga Dedicada (Paletizada ou Batida)</span>
                         </h2>
                         <span class="text-xs text-slate-400">Campos com * obrigatórios</span>
                     </div>
@@ -352,10 +352,28 @@
                                 <option value="3/4">3/4</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Qtd. Paletes *</label>
-                            <input type="number" id="dedPaletes" placeholder="Ex: 26" required min="1" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
+
+                        <!-- MODIFICAÇÃO SOLICITADA: ESCOLHA ENTRE PALETES OU CARGA BATIDA -->
+                        <div class="md:col-span-2 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1.5">Tipo de Movimentação de Carga *</label>
+                            <div class="flex items-center space-x-6 mb-2">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="dedTipoMovimento" value="paletes" checked onchange="toggleDedMovimento()" disabled class="text-emerald-600 focus:ring-emerald-500">
+                                    <span class="ml-2 text-xs font-bold text-slate-700 dark:text-slate-200">Qtd. de Paletes</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="dedTipoMovimento" value="batida" onchange="toggleDedMovimento()" disabled class="text-emerald-600 focus:ring-emerald-500">
+                                    <span class="ml-2 text-xs font-bold text-slate-700 dark:text-slate-200">Carga Batida</span>
+                                </label>
+                            </div>
+                            <div id="containerDedPaletes">
+                                <input type="number" id="dedPaletes" placeholder="Ex: 26" min="1" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-sm font-mono shadow-inner">
+                            </div>
+                            <div id="containerDedBatida" class="hidden">
+                                <input type="text" id="dedTextoBatida" value="CARGA BATIDA" readonly disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 rounded-lg p-2 text-sm font-mono font-bold text-slate-600 dark:text-slate-300 cursor-not-allowed">
+                            </div>
                         </div>
+
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Peso (Kg) *</label>
                             <input type="number" id="dedPeso" placeholder="Ex: 15000" required min="1" disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono shadow-inner">
@@ -521,8 +539,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Qtd. de Paletes / Tipo *</label>
-                        <input type="text" id="fatQtdPaletes" placeholder="Ex: 24" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Paletes / Tipo *</label>
+                        <input type="text" id="fatQtdPaletes" placeholder="Ex: 24 ou Carga Batida" required disabled class="w-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Data de Faturamento *</label>
@@ -948,7 +966,7 @@
                         <h4 id="resumoTotalEntregues" class="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">0</h4>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase text-cyan-600 dark:text-cyan-400">Total Paletes</p>
+                        <p class="text-[10px] font-bold uppercase text-cyan-600 dark:text-cyan-400">Total Paletes / Carga</p>
                         <h4 id="resumoTotalPaletes" class="text-lg font-bold text-cyan-600 dark:text-cyan-400 mt-0.5">0</h4>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -991,7 +1009,6 @@
       Nota técnica para a TI:
       - Arquitetura front-end pura com Tailwind CSS, SheetJS e Firebase SDK Compat.
       - Estado global gerenciado no objeto 'dadosApp' com sincronização em tempo real.
-      - Funções de esteira, SLA, auditoria e mascaramento validadas em produção.
       ========================================================================
     -->
     <script>
@@ -1050,7 +1067,6 @@
             return ETAPAS_LOGISTICA[0];
         }
 
-        // Validação e cálculo de gargalos baseados em SLA (>24h)
         function verificarGargaloSLA(numPedido) {
             if (!numPedido || numPedido === '-') return { estagnado: false, horas: 0, setor: '-' };
             const pNorm = String(numPedido).trim().toLowerCase();
@@ -1193,7 +1209,6 @@
 
         const COORDENADAS_DARNEL = [-25.5946, -49.3980];
         
-        // Senhas de acesso por setor
         const SENHAS_SETORES = { 
             planejamento: "0320", 
             faturamento: "0322", 
@@ -1299,7 +1314,7 @@
                 return;
             }
             mapaObj = L.map('mapaRotas').setView(COORDENADAS_DARNEL, 10);
-            const MAPBOX_API_KEY = 'pk.eyJ1IjoibWF5Y293OTcwNCIsImEiOiJjbXZpNzM0d3EwMm5jMndweHZmanJrZHVmIn0.QaeBVZ7F3sZnRS7qEhBOdg';
+            const MAPBOX_API_KEY = 'SUA_API_KEY_DO_MAPBOX_AQUI';
 
             L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_API_KEY}`, {
                 tileSize: 512, zoomOffset: -1, maxZoom: 19
@@ -1327,7 +1342,6 @@
             });
         });
 
-        // Backup e restauração JSON
         function exportarBackupJSON() {
             if (setorAutenticado !== 'admin') {
                 mostrarToast('Acesso negado. Apenas o Administrador pode exportar o backup.', 'erro');
@@ -1523,6 +1537,25 @@
             renderizarTabelasPedidos();
         }
 
+        // Lógica de alternância entre Paletes e Carga Batida no Planejamento
+        function toggleDedMovimento() {
+            const tipo = document.querySelector('input[name="dedTipoMovimento"]:checked').value;
+            const divPaletes = document.getElementById('containerDedPaletes');
+            const divBatida = document.getElementById('containerDedCargaBatida');
+            const inputPaletes = document.getElementById('dedPaletes');
+
+            if (tipo === 'batida') {
+                divPaletes.classList.add('hidden');
+                divBatida.classList.remove('hidden');
+                inputPaletes.value = '';
+                inputPaletes.removeAttribute('required');
+            } else {
+                divBatida.classList.add('hidden');
+                divPaletes.classList.remove('hidden');
+                inputPaletes.setAttribute('required', 'true');
+            }
+        }
+
         function salvarCargaDedicada(e) {
             e.preventDefault();
             if (setorAutenticado !== 'planejamento' && setorAutenticado !== 'admin') {
@@ -1530,11 +1563,23 @@
                 return;
             }
 
-            const paletesVal = Number(document.getElementById('dedPaletes').value) || 0;
-            const pesoVal = Number(document.getElementById('dedPeso').value) || 0;
+            const tipoMov = document.querySelector('input[name="dedTipoMovimento"]:checked').value;
+            let paletesVal = '';
 
-            if (paletesVal <= 0 || pesoVal <= 0) {
-                mostrarToast('A quantidade de paletes e o peso devem ser maiores que zero.', 'erro');
+            if (tipoMov === 'batida') {
+                paletesVal = 'CARGA BATIDA';
+            } else {
+                const numP = Number(document.getElementById('dedPaletes').value) || 0;
+                if (numP <= 0) {
+                    mostrarToast('A quantidade de paletes deve ser maior que zero.', 'erro');
+                    return;
+                }
+                paletesVal = `${numP} Paletes`;
+            }
+
+            const pesoVal = Number(document.getElementById('dedPeso').value) || 0;
+            if (pesoVal <= 0) {
+                mostrarToast('O peso deve ser maior que zero.', 'erro');
                 return;
             }
 
@@ -1564,6 +1609,7 @@
             atualizarInterfaceGeral();
             mostrarToast('Carga dedicada cadastrada na esteira!', 'sucesso');
             document.getElementById('formCargaDedicada').reset();
+            toggleDedMovimento();
         }
 
         function colunaExcelParaIndice(colStr) {
@@ -1647,7 +1693,7 @@
                                 tipoCarga: 'itinerante',
                                 numeroPedido: numPedido,
                                 nota: '-',
-                                qtdPedido: qtdPedido,
+                                qtdPedido: `${qtdPedido} Paletes`,
                                 statusWMS: statusWMS,
                                 cliente: nomeCliente,
                                 destinoCidade: destino,
@@ -1760,6 +1806,8 @@
 
             const canPlanejamento = (setorAutenticado === 'planejamento' || isAdmin);
             document.querySelectorAll('#formCargaDedicada input, #formCargaDedicada select, #formCargaDedicada textarea').forEach(el => el.disabled = !canPlanejamento);
+            document.querySelectorAll('input[name="dedTipoMovimento"]').forEach(el => el.disabled = !canPlanejamento);
+            
             const btnDed = document.getElementById('btnSalvarDedicada');
             btnDed.disabled = !canPlanejamento;
             btnDed.className = canPlanejamento 
@@ -1877,8 +1925,8 @@
                         <input type="text" id="edit_dataSaida" value="${item.dataSaida || ''}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Paletes</label>
-                        <input type="number" id="edit_paletes" value="${item.paletes || item.qtdPedido || 0}" min="1" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Paletes / Movimentação</label>
+                        <input type="text" id="edit_paletes" value="${item.paletes || item.qtdPedido || 0}" required class="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2.5 text-sm font-mono">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Peso (Kg)</label>
@@ -2007,7 +2055,7 @@
                 const novoCliente = document.getElementById('edit_cliente').value.trim();
                 const novoDestino = document.getElementById('edit_destinoCidade').value.trim();
                 const novaData = document.getElementById('edit_dataSaida').value.trim();
-                const novoPaletes = Number(document.getElementById('edit_paletes').value) || 1;
+                const novoPaletes = document.getElementById('edit_paletes').value.trim();
                 const novoPeso = Number(document.getElementById('edit_peso').value) || 1;
 
                 if (item.numeroPedido !== novoNum) alteracoesFeitas.push(`Nº Pedido: ${item.numeroPedido || '-'} &rarr; ${novoNum}`);
@@ -2111,7 +2159,6 @@
             mostrarToast('Registro atualizado e auditado com sucesso!', 'sucesso');
         }
 
-        // Carrega os selects filtrando apenas pedidos pendentes (exclui entregues da lista de seleção)
         function carregarSelectsGerais() {
             const selAg = document.getElementById('agNotaSelect');
             const selFat = document.getElementById('fatSelectPedido');
@@ -2129,7 +2176,6 @@
                 const identificador = p.numeroPedido || p.nota;
                 const etapa = calcularStatusEtapa(identificador);
                 
-                // Regra: Não exibe nos selects se já chegou na etapa 6 (Entregue)
                 if (etapa.id < 6) {
                     const tipoTexto = (p.tipoCarga === 'dedicada') ? '[DEDICADA]' : '[WMS]';
                     const texto = `${tipoTexto} Pedido: ${identificador} | Cliente: ${p.cliente} (${etapa.nome})`;
@@ -2644,7 +2690,7 @@
                     <th class="p-3.5 text-center"><input type="checkbox"></th>
                     <th class="p-3.5">Nº Pedido</th><th class="p-3.5">NF</th><th class="p-3.5">Destino</th>
                     <th class="p-3.5">Data Agendada</th><th class="p-3.5">Cliente</th><th class="p-3.5">Veículo</th>
-                    <th class="p-3.5">Paletes</th><th class="p-3.5">Status na Esteira</th><th class="p-3.5 text-center">Ações</th>
+                    <th class="p-3.5">Paletes / Batida</th><th class="p-3.5">Status na Esteira</th><th class="p-3.5 text-center">Ações</th>
                 `;
                 tbody.innerHTML = pedidosFiltrados.length === 0
                     ? `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhuma carga dedicada.</td></tr>`
@@ -2660,7 +2706,7 @@
                             </td>
                             <td class="p-3.5 font-medium">${item.cliente}</td>
                             <td class="p-3.5 text-xs font-semibold text-blue-600 dark:text-blue-400">${item.tipoVeiculo || '-'}</td>
-                            <td class="p-3.5 font-mono">${item.paletes || 0}</td>
+                            <td class="p-3.5 font-mono font-bold text-slate-700 dark:text-slate-300">${item.paletes || 0}</td>
                             <td class="p-3.5">${renderizarBadgeStatus(item.numeroPedido || item.nota)}</td>
                             <td class="p-3.5 text-center">
                                 <div class="flex items-center justify-center space-x-2">
@@ -2900,20 +2946,30 @@
             
             let totalPeds = pedidosExibicao.length;
             let totalEntregues = 0;
-            let totalPal = 0;
+            let totalPalNum = 0;
+            let temBatida = false;
             let totalKg = 0;
 
             pedidosExibicao.forEach(item => {
                 const num = item.numeroPedido || item.nota;
                 const est = calcularStatusEtapa(num);
                 if (est.id === 6) totalEntregues++;
-                totalPal += Number(item.paletes || item.qtdPedido || 0);
+                
+                const palStr = String(item.paletes || item.qtdPedido || '0');
+                if (palStr.toUpperCase().includes('BATIDA')) {
+                    temBatida = true;
+                } else {
+                    const numP = parseInt(palStr) || 0;
+                    totalPalNum += numP;
+                }
                 totalKg += Number(item.peso || 0);
             });
 
+            const textoPaletes = temBatida ? (totalPalNum > 0 ? `${totalPalNum} Paletes + Batida` : 'Carga Batida') : totalPalNum;
+
             document.getElementById('resumoTotalPedidos').textContent = totalPeds;
             document.getElementById('resumoTotalEntregues').textContent = totalEntregues;
-            document.getElementById('resumoTotalPaletes').textContent = totalPal;
+            document.getElementById('resumoTotalPaletes').textContent = textoPaletes;
             document.getElementById('resumoTotalPeso').textContent = totalKg.toLocaleString('pt-BR') + ' Kg';
 
             const tbody = document.getElementById('tabelaConsolidadaBody');
@@ -2971,7 +3027,7 @@
                     "Destino / Cidade": item.destinoCidade || '-',
                     "Data Agendada": item.dataSaida || '-',
                     "Tipo de Carga": (item.tipoCarga || 'dedicada').toUpperCase(),
-                    "Qtd Paletes": item.paletes || item.qtdPedido || 0,
+                    "Paletes / Batida": item.paletes || item.qtdPedido || 0,
                     "Peso Total (Kg)": item.peso || 0,
                     "Ticket Transporte": ticket || '-',
                     "Status Atual na Esteira": etapa.badge,
@@ -2986,7 +3042,7 @@
 
             ws['!cols'] = [
                 { wch: 16 }, { wch: 18 }, { wch: 28 }, { wch: 22 }, { wch: 15 },
-                { wch: 15 }, { wch: 12 }, { wch: 16 }, { wch: 18 }, { wch: 35 },
+                { wch: 15 }, { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 35 },
                 { wch: 25 }, { wch: 25 }, { wch: 35 }
             ];
 
